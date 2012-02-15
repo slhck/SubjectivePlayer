@@ -1,0 +1,1 @@
+This is SubjectivePlayer. Manual coming soon.

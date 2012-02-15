@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+	<PreferenceCategory android:key="config"
+		android:title="@string/preferences_categories_config">
+		<EditTextPreference android:key="configsuffix"
+			android:summary="@string/preferences_configsuffix_summary"
+			android:title="@string/preferences_configsuffix"
+			android:defaultValue="cfg">
+		</EditTextPreference>
+	</PreferenceCategory>
+<PreferenceCategory android:key="acr" android:title="@string/preferences_categories_acr"><CheckBoxPreference android:title="@string/preferences_acrnumbers" android:key="acrnumbers" android:summary="@string/preferences_acrnumbers_summary_true" android:summaryOn="@string/preferences_acrnumbers_summary_true" android:summaryOff="@string/preferences_acrnumbers_summary_false"></CheckBoxPreference>
+</PreferenceCategory>
+<PreferenceCategory android:key="continuous" android:title="@string/preferences_categories_continuous"><CheckBoxPreference android:key="noticks" android:title="@string/preferences_noticks_caption" android:summaryOn="@string/preferences_noticks_summary_true" android:summaryOff="@string/preferences_noticks_summary_false" android:summary="@string/preferences_noticks_summary_false"></CheckBoxPreference>
+</PreferenceCategory>
+</PreferenceScreen>
