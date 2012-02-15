@@ -1,4 +1,4 @@
-!(http://dl.dropbox.com/u/84665/cacmtv/subjectiveplayer-logo.png)
+![](http://dl.dropbox.com/u/84665/cacmtv/subjectiveplayer-logo.png)
 
 ## Introduction
 
