@@ -10,34 +10,13 @@
 		<!--  Greetings -->
 		
 		<!--  Selection of config file -->
-		<TextView android:id="@+id/text_select_config"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/select_config" android:paddingTop="10dip"
-			android:textColor="#ffffff" android:paddingLeft="5dip"
-			android:paddingRight="5dip" />
-		<TextView android:id="@+id/text_select_config_selected"
+        <TextView android:id="@+id/text_select_config_selected"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:textColor="#ffffff" android:paddingLeft="5dip"
 			android:paddingRight="5dip" />
-		<Button android:id="@+id/button_filebrowser"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/select_filebrowser" />
-		<!--  Selection of method -->
+        <!--  Selection of method -->
 
-		<TextView android:id="@+id/text_select_method"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/select_method" android:paddingTop="10dip"
-			android:textColor="#ffffff" android:paddingLeft="5dip"
-			android:paddingRight="5dip" />
-
-		<TextView android:id="@+id/text_select_method_selected"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:textColor="#ffffff" android:paddingLeft="5dip"
-			android:paddingRight="5dip" />
-		<Button android:id="@+id/button_methodbrowser"
-			android:layout_width="fill_parent" android:layout_height="wrap_content"
-			android:text="@string/select_method_browser" />
-		<!--  Selection of user ID -->
+        <!--  Selection of user ID -->
 		<TextView android:id="@+id/text_select_id"
 			android:layout_width="fill_parent" android:layout_height="wrap_content"
 			android:text="@string/select_id" android:paddingTop="10dip"
@@ -50,7 +29,7 @@
 		<Button android:id="@+id/button_start" android:layout_width="fill_parent"
 			android:layout_height="wrap_content" android:text="Start"
 			android:paddingTop="10dip" />
-	
+
 </LinearLayout>
 
 </ScrollView>

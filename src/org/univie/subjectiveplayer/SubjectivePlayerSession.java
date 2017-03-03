@@ -18,11 +18,15 @@ package org.univie.subjectiveplayer;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.database.DataSetObserver;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.media.MediaPlayer.OnCompletionListener;
@@ -38,8 +42,19 @@ import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.SurfaceHolder.Callback;
-import android.widget.LinearLayout.LayoutParams;
+import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
+import android.widget.AbsListView;
+import android.widget.Button;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
+//import android.widget.LinearLayout.LayoutParams;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 import android.widget.SeekBar;
+import android.view.ContextThemeWrapper;
+import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * Plays the videos and shows dialogs the order set by the session data. This
@@ -57,6 +72,8 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 			.getSimpleName();
 
 	private View mSeekBarDialogView = null;
+
+    private Button mOkButton = null;
 
 	private static int sCurrentRating;
 	private static final int RATING_MIN = 1;
@@ -86,11 +103,18 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 	 */
 	private boolean mIsVideoReadyToBePlayed = false;
 
+    private Dialog mDialog;
 	private static final int DIALOG_ACR_CATEGORICAL = 0;
 	private static final int DIALOG_DSIS_CATEGORICAL = 1;
 	private static final int DIALOG_CONTINUOUS = 2;
+    // P.NATS: new dialog
+    private static final int DIALOG_ACR_CUSTOM = 3;
 
-	/**
+    private long mBackPressedTime = 0;
+
+    private int mCurrentRating = 0;
+
+    /**
 	 * Called when the activity is being started or restarted
 	 */
 	@Override
@@ -100,6 +124,7 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 		// reload any updated preferences
 		Configuration.setPreferences(PreferenceManager
 				.getDefaultSharedPreferences(getBaseContext()));
+
 	}
 
 	/**
@@ -260,8 +285,10 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 		cleanUp();
 
 		switch (Session.sCurrentMethod) {
-		case Methods.TYPE_ACR_CATEGORIGAL:
-			showDialog(DIALOG_ACR_CATEGORICAL);
+		case Methods.TYPE_ACR_CATEGORICAL:
+            // P.NATS
+			//showDialog(DIALOG_ACR_CATEGORICAL);
+            showDialog(DIALOG_ACR_CUSTOM);
 			break;
 		case Methods.TYPE_DSIS_CATEGORICAL:
 			break;
@@ -290,7 +317,19 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 	 * Starts the player.
 	 */
 	public void startVideo() {
-		LayoutParams mParams = new LayoutParams(mVideoWidth, mVideoHeight);
+		// LayoutParams mParams = new LayoutParams(mVideoWidth, mVideoHeight);
+        LayoutParams mParams =  mPlayView.getLayoutParams();
+
+        // scale to screen width
+        // http://stackoverflow.com/q/4835060
+        // Get the width of the screen
+        int screenWidth = getWindowManager().getDefaultDisplay().getWidth();
+        // Set the width of the SurfaceView to the width of the screen
+        mParams.width = screenWidth;
+        // Set the height of the SurfaceView to match the aspect ratio of the video
+        // be sure to cast these as floats otherwise the calculation will likely be 0
+        mParams.height = (int) (((float)mVideoHeight / (float)mVideoWidth) * (float)screenWidth);
+
 		mPlayView.setLayoutParams(mParams);
 		mIsVideoPlaying = true;
 		
@@ -374,7 +413,7 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 			if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS) {
 				SubjectivePlayerSession.this.removeDialog(DIALOG_CONTINUOUS);				
 			}
-			if (Session.sCurrentMethod == Methods.TYPE_ACR_CATEGORIGAL) {
+			if (Session.sCurrentMethod == Methods.TYPE_ACR_CATEGORICAL) {
 				SubjectivePlayerSession.this.removeDialog(DIALOG_ACR_CATEGORICAL);				
 			}
 			preparePlayerForVideo(Session.sCurrentTrack);
@@ -387,7 +426,12 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 	 * KeyDown handler for the Volume Up / Volume Down buttons
 	 */
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
+
+        if (Session.sCurrentMethod == Methods.TYPE_ACR_CATEGORICAL) {
+            return super.onKeyDown(keyCode, event);
+        }
+
+        if (keyCode == KeyEvent.KEYCODE_VOLUME_DOWN
 				|| keyCode == KeyEvent.KEYCODE_VOLUME_UP) {
 
 			if ((keyCode == KeyEvent.KEYCODE_VOLUME_DOWN)
@@ -440,28 +484,201 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 		}
 	}
 
+    /**
+     * Closes the currently active dialog
+     */
+    private void dismissCurrentDialog() {
+        if (mDialog != null) {
+            mDialog.dismiss();
+        }
+    }
+
 	/**
 	 * Handles the dialogs shown in the application
 	 */
 	protected Dialog onCreateDialog(int id) {
-		Dialog dialog = null;
+		//Dialog dialog = null;
 		
 		switch (id) {
 		// display a dialog asking the user to rate ACR quality
 		case DIALOG_ACR_CATEGORICAL:
-			AlertDialog.Builder builderACR = new AlertDialog.Builder(this);
+            // P.NATS: reduce font size
+            ContextThemeWrapper cw = new ContextThemeWrapper(this, R.style.AlertDialogTheme);
+            AlertDialog.Builder builderACR = new AlertDialog.Builder(cw);
 			builderACR.setTitle(R.string.rate_ACR_caption);
-			builderACR.setItems(Methods.LABELS_ACR,
+			builderACR.setItems(R.array.acr_labels,
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 							int rating = item;
 							Session.sRatings.add(rating);
+                            Session.sRatingTime.add(System.currentTimeMillis());
 							dialog.dismiss();
 							nextVideo();
 						}
 					});
-			dialog = (AlertDialog) builderACR.create();
+			mDialog = (AlertDialog) builderACR.create();
+
+            // Hack to make the list items smaller
+            // http://stackoverflow.com/questions/24367612/how-can-i-set-an-alertdialog-item-height
+            mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    ListView listView = ((AlertDialog) dialogInterface).getListView();
+                    final ListAdapter originalAdapter = listView.getAdapter();
+
+                    listView.setAdapter(new ListAdapter() {
+                        @Override
+                        public int getCount() {
+                            return originalAdapter.getCount();
+                        }
+
+                        @Override
+                        public Object getItem(int id) {
+                            return originalAdapter.getItem(id);
+                        }
+
+                        @Override
+                        public long getItemId(int id) {
+                            return originalAdapter.getItemId(id);
+                        }
+
+                        @Override
+                        public int getItemViewType(int id) {
+                            return originalAdapter.getItemViewType(id);
+                        }
+
+                        @Override
+                        public View getView(int position, View convertView, ViewGroup parent) {
+                            View view = originalAdapter.getView(position, convertView, parent);
+                            TextView textView = (TextView) view;
+                            //textView.setTextSize(16); set text size programmatically if needed
+                            textView.setLayoutParams(new AbsListView.LayoutParams(AbsListView.LayoutParams.MATCH_PARENT, 100 /* this is item height */));
+                            return view;
+                        }
+
+                        @Override
+                        public int getViewTypeCount() {
+                            return originalAdapter.getViewTypeCount();
+                        }
+
+                        @Override
+                        public boolean hasStableIds() {
+                            return originalAdapter.hasStableIds();
+                        }
+
+                        @Override
+                        public boolean isEmpty() {
+                            return originalAdapter.isEmpty();
+                        }
+
+                        @Override
+                        public void registerDataSetObserver(DataSetObserver observer) {
+                            originalAdapter.registerDataSetObserver(observer);
+
+                        }
+
+                        @Override
+                        public void unregisterDataSetObserver(DataSetObserver observer) {
+                            originalAdapter.unregisterDataSetObserver(observer);
+
+                        }
+
+                        @Override
+                        public boolean areAllItemsEnabled() {
+                            return originalAdapter.areAllItemsEnabled();
+                        }
+
+                        @Override
+                        public boolean isEnabled(int position) {
+                            return originalAdapter.isEnabled(position);
+                        }
+
+                    });
+                }
+            });
+
 			break;
+
+        // P.NATS
+        case DIALOG_ACR_CUSTOM:
+            mDialog = new CustomDialog(this);
+            mDialog.setContentView(R.layout.dialog_acr_custom);
+            mDialog.setCancelable(false);
+
+            // button listeners
+            final List<RadioButton> radioButtonList = new ArrayList<RadioButton>();
+            RadioButton acrButtonExcellent   = (RadioButton) mDialog.findViewById(R.id.radioButtonExcellent);
+            RadioButton acrButtonGood        = (RadioButton) mDialog.findViewById(R.id.radioButtonGood);
+            RadioButton acrButtonFair        = (RadioButton) mDialog.findViewById(R.id.radioButtonFair);
+            RadioButton acrButtonPoor        = (RadioButton) mDialog.findViewById(R.id.radioButtonPoor);
+            RadioButton acrButtonBad         = (RadioButton) mDialog.findViewById(R.id.radioButtonBad);
+
+            // Just some IDs
+            acrButtonExcellent.setId(0);
+            acrButtonGood.setId(1);
+            acrButtonFair.setId(2);
+            acrButtonPoor.setId(3);
+            acrButtonBad.setId(4);
+
+            // Add all buttons to "group"
+            radioButtonList.add(acrButtonExcellent);
+            radioButtonList.add(acrButtonGood);
+            radioButtonList.add(acrButtonFair);
+            radioButtonList.add(acrButtonPoor);
+            radioButtonList.add(acrButtonBad);
+
+            // ACR values
+            final HashMap<Button, Integer> valueMap = new HashMap<Button, Integer>();
+            valueMap.put(acrButtonExcellent, 5);
+            valueMap.put(acrButtonGood, 4);
+            valueMap.put(acrButtonFair, 3);
+            valueMap.put(acrButtonPoor, 2);
+            valueMap.put(acrButtonBad, 1);
+
+            mOkButton = (Button) mDialog.findViewById(R.id.buttonSendRating);
+            mOkButton.setEnabled(false);
+
+            for (final Button b : valueMap.keySet()) {
+                b.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Button okButton = (Button) mDialog.findViewById(R.id.buttonSendRating);
+                        mCurrentRating = valueMap.get(b);
+                        Log.d(TAG, "Setting rating to " + mCurrentRating);
+                        int id = view.getId();
+                        for (RadioButton rb : radioButtonList) {
+                            if (rb.getId() == id) {
+                                rb.setChecked(true);
+                            } else {
+                                rb.setChecked(false);
+                            }
+                        }
+                        okButton.setEnabled(true);
+                    }
+                });
+            }
+
+            mOkButton.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (!v.isEnabled()) {
+                        return;
+                    }
+                    Session.sRatings.add(mCurrentRating);
+                    Log.d(TAG, "Rating saved: " + mCurrentRating);
+                    Session.sRatingTime.add(System.currentTimeMillis());
+                    dismissCurrentDialog();
+                    // reset buttons
+                    for (RadioButton rb : radioButtonList) {
+                        rb.setChecked(false);
+                    }
+                    v.setEnabled(false);
+                    nextVideo();
+                }
+            });
+
+            mDialog.getWindow().setLayout(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT);
+
+            break;
 
 		case DIALOG_CONTINUOUS:
 			AlertDialog.Builder builderContinuous = new AlertDialog.Builder(
@@ -488,16 +705,31 @@ public class SubjectivePlayerSession extends Activity implements Callback,
 									.findViewById(R.id.dialog_continuous_seekbar);
 							int rating = seekBar.getProgress();
 							Session.sRatings.add(rating);
+                            Session.sRatingTime.add(System.currentTimeMillis());
 							dialog.dismiss();
 							nextVideo();
 						}
 					});
-			dialog = (AlertDialog) builderContinuous.create();
+			mDialog = (AlertDialog) builderContinuous.create();
 			break;
 		default:
-			dialog = null;
+			mDialog = null;
 		}
-		return dialog;
+		return mDialog;
 	}
+
+    // http://stackoverflow.com/questions/6413700/android-proper-way-to-use-onbackpressed
+    @Override
+    public void onBackPressed() {        // to prevent irritating accidental logouts
+        long t = System.currentTimeMillis();
+        if (t - mBackPressedTime > 2000) {    // 2 secs
+            mBackPressedTime = t;
+            Toast.makeText(this, "Press back again to cancel.",
+                    Toast.LENGTH_SHORT).show();
+        } else {    // this guy is serious
+            // clean up
+            super.onBackPressed();       // bye
+        }
+    }
 
 }

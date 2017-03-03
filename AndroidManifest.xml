@@ -3,9 +3,8 @@
 	package="org.univie.subjectiveplayer" android:versionCode="1"
 	android:versionName="1.0">
 	<application android:label="@string/app_name"
-		android:enabled="true" android:icon="@drawable/icon"
-		android:debuggable="true">
-		<activity android:name=".SubjectivePlayer" android:label="@string/app_name"  android:configChanges="orientation">
+		android:enabled="true" android:icon="@drawable/icon">
+		<activity android:name=".SubjectivePlayer" android:label="@string/app_name"  android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="landscape">
 			<intent-filter>
 				<action android:name="android.intent.action.MAIN" />
 				<category android:name="android.intent.category.LAUNCHER" />
@@ -17,7 +16,7 @@
 		<activity android:name="SubjectivePlayerSession"
 			android:label="@string/app_name" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="landscape"></activity>
 	</application>
-	<uses-sdk android:minSdkVersion="4" />
+	<uses-sdk android:minSdkVersion="19" />
 
 
 	<supports-screens android:largeScreens="true"

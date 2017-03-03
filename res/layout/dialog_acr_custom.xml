@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:orientation="vertical" android:layout_width="fill_parent"
+            android:layout_height="fill_parent" android:id="@+id/dialog_acr_custom"
+            android:background="#000000">
+
+    <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/rate_ACR_caption_extended"
+                android:id="@+id/rate_caption"
+                android:layout_gravity="center_horizontal"
+                android:paddingBottom="5dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:paddingTop="20dp" />
+
+    <TableLayout
+        android:layout_width="400dp"
+        android:layout_height="wrap_content"
+        android:stretchColumns="*"
+        android:paddingBottom="10dp"
+        android:layout_below="@+id/rate_caption"
+        android:layout_alignParentLeft="true"
+        android:id="@+id/tableLayout">
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="5"
+                android:id="@+id/radioButtonExcellent"
+                android:layout_gravity="center_horizontal|right"
+                android:paddingRight="20dp"
+                android:paddingLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/acr_excellent"
+                android:id="@+id/textView"
+                android:layout_column="1"
+                android:paddingTop="15dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="4"
+                android:id="@+id/radioButtonGood"
+                android:layout_gravity="center_horizontal|right"
+                android:paddingRight="20dp"
+                android:paddingLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/acr_good"
+                android:id="@+id/textView2"
+                android:paddingTop="15dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="3"
+                android:id="@+id/radioButtonFair"
+                android:layout_gravity="center_horizontal|right"
+                android:paddingRight="20dp"
+                android:paddingLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/acr_fair"
+                android:id="@+id/textView3"
+                android:paddingTop="15dp" />
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2"
+                android:id="@+id/radioButtonPoor"
+                android:layout_gravity="center_horizontal|right"
+                android:paddingRight="20dp"
+                android:paddingLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/acr_poor"
+                android:id="@+id/textView4"
+                android:paddingTop="15dp" />
+
+        </TableRow>
+
+        <TableRow
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent">
+
+            <RadioButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1"
+                android:id="@+id/radioButtonBad"
+                android:layout_gravity="center_horizontal|right"
+                android:paddingRight="20dp"
+                android:paddingLeft="10dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/acr_bad"
+                android:id="@+id/textView5"
+                android:paddingTop="15dp" />
+        </TableRow>
+    </TableLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OK"
+        android:id="@+id/buttonSendRating"
+        android:layout_gravity="right"
+        android:paddingLeft="30dp"
+        android:paddingRight="30dp"
+        android:enabled="false"
+        android:padding="50dp"
+        android:layout_centerVertical="true"
+        android:layout_toRightOf="@+id/tableLayout" />
+
+
+</RelativeLayout>
+

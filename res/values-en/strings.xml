@@ -17,7 +17,7 @@
     <string name="preferences_configsuffix">Config file suffix</string>
     <string name="preferences_configsuffix_summary">Edit the suffix for configuration files</string>
     <string name="preferences_categories_config">Configuration files</string>
-    <string name="error_nodata_body">Missing config file, method or ID. Please enter all data!</string>
+    <string name="error_nodata_body">Missing config file for this ID, or no ID given!</string>
     <string name="error_nodata_caption">Missing data</string>
     <string name="error_id_used_body">This ID has already been used!</string>
     <string name="error_id_used_caption">ID already used</string>

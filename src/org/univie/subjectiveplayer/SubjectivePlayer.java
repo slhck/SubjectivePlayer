@@ -47,6 +47,7 @@ public class SubjectivePlayer extends Activity {
 	static final int DIALOG_FILEBROWSER = 1;
 	static final int DIALOG_METHODBROWSER = 2;
 	static final int DIALOG_EMPTY = 3;
+    static final int DIALOG_ID_ALREADY_USED = 4;
 
 	private static EditText mEditId = null;
 	
@@ -67,13 +68,8 @@ public class SubjectivePlayer extends Activity {
 		
 		// reset the session
 		Session.reset();
-		
-		// remove the File Browser dialog if there were changes to the suffix
-		SubjectivePlayer.this.removeDialog(DIALOG_FILEBROWSER);
 
-		// remove the Method Browser dialog if there were changes to the methods
-		SubjectivePlayer.this.removeDialog(DIALOG_METHODBROWSER);
-		
+        mEditId.setText("");
 	}
 
 	/**
@@ -87,7 +83,7 @@ public class SubjectivePlayer extends Activity {
 
 		// initialize the SD card for retrieving all config and media files
 		try {
-			Configuration.initialize();
+			Configuration.initialize(getApplicationContext());
 		} catch (Exception e) {
 			Log.e(TAG, "Error while initializing: " + e.getMessage());
 			e.printStackTrace();
@@ -105,17 +101,10 @@ public class SubjectivePlayer extends Activity {
 	        } 
 	    });
 
-		// add the listeners to buttons
-		Button buttonFileBrowser = (Button) findViewById(R.id.button_filebrowser);
-		buttonFileBrowser.setOnClickListener(mButtonFileBrowserListener);
-
-		Button buttonMethodBrowser = (Button) findViewById(R.id.button_methodbrowser);
-		buttonMethodBrowser.setOnClickListener(mButtonMethodBrowserListener);
-
 		Button buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(mButtonStartListener);
 	}		
-	
+
 
 	/**
 	 * Populates the options menu
@@ -193,71 +182,19 @@ public class SubjectivePlayer extends Activity {
 			dialog = (AlertDialog) builderEmpty.create();
 			break;
 
-		// display a dialog showing all configuration files on the SD card,
-		// depending on the suffix declared in preferences and the application
-		// path
-		case DIALOG_FILEBROWSER:
-			// Load the files from SD card and filter them according to the
-			// suffix
-			FilenameFilter filter = new FilenameFilter() {
-				public boolean accept(File dir, String name) {
-					return (name.endsWith(Configuration.sConfigSuffix) && (!name
-							.startsWith(".")));
-				}
-			};
-			File[] configFiles = Configuration.sFolderApproot.listFiles(filter);
-
-			// get the names of the files so we can display them in the menu
-			final CharSequence[] configFileNames = new CharSequence[configFiles.length];
-			for (int i = 0; i < configFiles.length; ++i) {
-				configFileNames[i] = configFiles[i].getName().toString();
-			}
-
-			// show the dialog
-			AlertDialog.Builder builderFileBrowser = new AlertDialog.Builder(
-					this);
-			builderFileBrowser.setTitle(R.string.select_filebrowser);
-			builderFileBrowser.setItems(configFileNames,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int item) {
-							// Our selected file is declared by the index [item]
-							Configuration.sfileConfigName = (String) configFileNames[item];
-							TextView selectedConfig = (TextView) findViewById(R.id.text_select_config_selected);
-							selectedConfig
-									.setText(getText(R.string.select_config_selected)
-											+ " "
-											+ Configuration.sfileConfigName);
-							Configuration.sFileConfig = new File(
-									Configuration.sFolderApproot,
-									Configuration.sfileConfigName);
-							dialog.dismiss();
-						}
-					});
-			dialog = (AlertDialog) builderFileBrowser.create();
-			break;
-
-		// display a dialog showing all methods declared in the Method class
-		case DIALOG_METHODBROWSER:
-			final CharSequence[] methodNames = Methods.METHOD_NAMES;
-			AlertDialog.Builder builderMethodBrowser = new AlertDialog.Builder(
-					this);
-			builderMethodBrowser.setTitle(R.string.select_method_browser);
-			builderMethodBrowser.setItems(methodNames,
-					new DialogInterface.OnClickListener() {
-						public void onClick(DialogInterface dialog, int item) {
-							// Our selected method is declared by the index
-							// [item]
-							Session.sCurrentMethod = item;
-							TextView selectedConfig = (TextView) findViewById(R.id.text_select_method_selected);
-							selectedConfig
-									.setText(getText(R.string.select_method_selected)
-											+ " "
-											+ Methods.METHOD_NAMES[Session.sCurrentMethod]);
-							dialog.dismiss();
-						}
-					});
-			dialog = (AlertDialog) builderMethodBrowser.create();
-			break;
+        case DIALOG_ID_ALREADY_USED:
+            AlertDialog.Builder builderUsed = new AlertDialog.Builder(this);
+            builderUsed.setTitle(R.string.error_id_used_caption).setMessage(
+                    R.string.error_id_used_body).setCancelable(false)
+                    .setPositiveButton("Close",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog,
+                                                    int id) {
+                                    dialog.dismiss();
+                                }
+                            });
+            dialog = (AlertDialog) builderUsed.create();
+            break;
 
 		default:
 			dialog = null;
@@ -296,13 +233,31 @@ public class SubjectivePlayer extends Activity {
 			EditText editId = (EditText) findViewById(R.id.edit_id);
 			Editable editIdString = (Editable) editId.getText();
 
-			// if the ID, the config file or the method weren't set
-			if ((Configuration.sFileConfig == null)
-					|| (Session.sCurrentMethod == Methods.UNDEFINED)
-					|| (editIdString.toString().equalsIgnoreCase(""))) {
+            // P.NATS: Only allow ACR
+            Session.sCurrentMethod = Methods.TYPE_ACR_CATEGORICAL;
+
+			if (editIdString.toString().equalsIgnoreCase("")) {
 				showDialog(DIALOG_EMPTY);
 			} else {
 				Session.sParticipantId = Integer.parseInt(editIdString.toString());
+
+                // set config file from ID
+                Configuration.sFileConfig = new File(
+                        Configuration.sFolderApproot, "playlist" + Session.sParticipantId + "." + Configuration.sConfigSuffix);
+
+                if (!(Configuration.sFileConfig.exists() && Configuration.sFileConfig.canRead())) {
+                    showDialog(DIALOG_EMPTY);
+                    return;
+                }
+
+                // check if ID hasn't been used already
+                if (Configuration.sAllowDuplicateIds == false) {
+                    if (Logger.idExists(Session.sParticipantId)) {
+                        showDialog(DIALOG_ID_ALREADY_USED);
+                        return;
+                    }
+                }
+
 				Session.readVideosFromFile(Configuration.sFileConfig);
 				
 				// if we use continuous rating

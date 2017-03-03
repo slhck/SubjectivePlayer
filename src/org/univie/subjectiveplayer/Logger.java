@@ -23,8 +23,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import android.util.Log;
-
 /**
  * Logging Class that writes log files with the user's ratings
  */
@@ -39,7 +37,7 @@ public abstract class Logger {
 	 */
 	private static final String DATE_FORMAT = "yyyyMMdd-HHmm";
 	/** The CSV separator character */
-	private static final char SEP_CSV = ';';
+	private static final char SEP_CSV = ',';
 	/** The File separator character, e.g. a space */
 	private static final char SEP_FILE = '_';
 	/** Whether a CSV header should be written or not */
@@ -53,6 +51,25 @@ public abstract class Logger {
 	private static FileWriter sFileWriter;
 	private static BufferedWriter sBufferedWriter;
 
+    /**
+     * Check whether an ID already exists in the log files
+     */
+    public static boolean idExists(int id) {
+
+        for (File f : Configuration.sFolderLogs.listFiles()) {
+            String idPart = f.getName().split("_", 2)[0];
+            try {
+                int currentId = Integer.parseInt(idPart);
+                if (currentId == id) {
+                    return true;
+                }
+            } catch (Exception e) {
+                // do nothing
+            }
+        }
+        return false;
+    }
+
 	/**
 	 * Writes a log of the session data to the specified file
 	 */
@@ -62,9 +79,10 @@ public abstract class Logger {
 			String methodName = Methods.METHOD_NAMES[Session.sCurrentMethod];
 			methodName = methodName.replace(' ', SEP_FILE);
 
+            // ID_Date_Method.txt
 			sFileName = "" + Session.sParticipantId + SEP_FILE
 					+ format.format(new Date()) + SEP_FILE + methodName
-					+ SEP_FILE + "." + SUFFIX;
+					+ "." + SUFFIX;
 			sLogFile = new File(Configuration.sFolderLogs, sFileName);
 
 			sFileWriter = new FileWriter(sLogFile);
@@ -72,7 +90,7 @@ public abstract class Logger {
 
 			if (HEADER) {
 				sBufferedWriter.write("VIDEO" + SEP_CSV + "VIDEONAME" + SEP_CSV
-						+ "RATING");
+						+ "RATING" + SEP_CSV + "RATINGTIME");
 				sBufferedWriter.newLine();
 			}
 
@@ -85,22 +103,29 @@ public abstract class Logger {
 
 				// write the rating depending on the method
 				switch (Session.sCurrentMethod) {
-				case (Methods.TYPE_ACR_CATEGORIGAL):
-					if (Configuration.sAcrNumbers)
-						sBufferedWriter.write(Session.sRatings.get(i)
-								.toString());
-					else
-						sBufferedWriter
-								.write(Methods.LABELS_ACR[Session.sRatings
-										.get(i)]);
+				case (Methods.TYPE_ACR_CATEGORICAL):
+                    Integer rating = Session.sRatings.get(i);
+                    // Use this for standard ACR dialog
+                    // Integer invertedRating = 5 - rating;
+                    if (Configuration.sAcrNumbers) {
+                        // sBufferedWriter.write(invertedRating.toString());
+                        sBufferedWriter.write(rating.toString());
+                    }
+					else {
+                        sBufferedWriter
+                                .write(Methods.STATIC_LABELS_ACR[Session.sRatings
+                                        .get(i)]);
+                    }
 					break;
 				case (Methods.TYPE_CONTINUOUS):
 					sBufferedWriter.write(Session.sRatings.get(i).toString());
 					break;
-				default:
-					sBufferedWriter.write(i);
-				}
-				sBufferedWriter.newLine();
+                    default:
+                        sBufferedWriter.write(i);
+                }
+                sBufferedWriter.write(SEP_CSV);
+                sBufferedWriter.write(Session.sRatingTime.get(i).toString());
+                sBufferedWriter.newLine();
 			}
 
 			sBufferedWriter.close();

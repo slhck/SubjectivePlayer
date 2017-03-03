@@ -28,19 +28,28 @@ public abstract class Methods {
 	// method IDs, these should be in the same order
 	// as the names above!
 	public static final int UNDEFINED = -1;
-	public static final int TYPE_ACR_CATEGORIGAL = 0;
+	public static final int TYPE_ACR_CATEGORICAL = 0;
 	public static final int TYPE_CONTINUOUS = 1;
 	public static final int TYPE_DSIS_CATEGORICAL = 2;
 	public static final int TYPE_CONTINUOUS_RATING = 3;
 
 	// labels for the ACR category
-	public static final String[] LABELS_ACR = { "Bad", "Poor", "Fair", "Good",
-			"Excellent" };
+	public static final String[] STATIC_LABELS_ACR = {
+            "Excellent",
+            "Good",
+            "Fair",
+            "Poor",
+            "Bad"
+    };
 
 	// labels for the impairment scale
-	public static final String[] LABELS_DSIS = { "Very Annoying", "Annoying",
-			"Slightly Annoying", "Perceptible, but not annoying",
-			"Imperceptible" };
+	public static final String[] LABELS_DSIS = {
+            "Imperceptible",
+            "Perceptible, but not annoying",
+            "Slightly Annoying",
+            "Annoying",
+            "Very Annoying"
+    };
 
 
 }

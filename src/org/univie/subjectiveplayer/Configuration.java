@@ -17,17 +17,26 @@
 package org.univie.subjectiveplayer;
 
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Pattern;
 
+import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Environment;
+import android.text.TextUtils;
 import android.util.Log;
 
 public abstract class Configuration {
 
 	private static final String TAG = Configuration.class.getSimpleName();
 
+    private static Context sCtx = null;
+
 	/** File handle for the root of the SD card */
-	public static File sSDcard = null;
+	public static File sStorage = null;
 
 	/** File handle for the root of the app data folder */
 	public static File sFolderApproot = null;
@@ -42,15 +51,7 @@ public abstract class Configuration {
 	public static File sFileConfig = null;
 
 	/** File name of a configuration file */
-	public static String sfileConfigName = null;
-
-	/**
-	 * Path of the root of the app data folder, relative to the SD card root,
-	 * with a trailing slash. If it does not exist, it will be created
-	 * automatically.
-	 */
-	public static final String PATH_APPROOT = new String(
-			"Android/data/org.univie.subjectiveplayer/files/");
+	public static String sFileConfigName = null;
 
 	/**
 	 * Path of the folder in which videos are stored, relative to the SD card
@@ -91,8 +92,21 @@ public abstract class Configuration {
 	 */
 	public static boolean sNoTicks = false;
 
-	/** The container for all application preferences */
+
+    /**
+     * Controls whether the SD card is used
+     */
+    public static boolean sUseSdCard = false;
+
+
+    /**
+     * Allow using same ID twice or more
+     */
+    public static boolean sAllowDuplicateIds = false;
+
+    /** The container for all application preferences */
 	private static SharedPreferences sPreferences = null;
+
 
 	/**
 	 * Internally updates the preference values, called by setPreferences on
@@ -102,8 +116,10 @@ public abstract class Configuration {
 	private static void updatePreferences() {
 		if (sPreferences != null) {
 			sConfigSuffix = sPreferences.getString("configsuffix", "cfg");
-			sAcrNumbers = sPreferences.getBoolean("acrnumbers", true);
-			sNoTicks = sPreferences.getBoolean("noticks", false);
+			sAcrNumbers   = sPreferences.getBoolean("acrnumbers", true);
+			sNoTicks      = sPreferences.getBoolean("noticks", false);
+            sUseSdCard    = sPreferences.getBoolean("usesdcard", false);
+            sAllowDuplicateIds = sPreferences.getBoolean("allowduplicateids", false);
 		}
 	}
 
@@ -116,25 +132,56 @@ public abstract class Configuration {
 		updatePreferences();
 	}
 
+    /**
+     * Creates a directory
+     * @param dir directory
+     */
+    private static void createOrCheckDir(File dir) throws Exception {
+        if (dir.exists()) return;
+        boolean created = dir.mkdirs();
+        if (!created) throw new Exception("Couldn't create " + dir);
+
+    }
+
 	/**
 	 * Tries to initialize the SD card, obtain the file handles and then create
 	 * folders if they don't exist already.
 	 */
-	public static void initialize() throws Exception {
-		if (Environment.getExternalStorageState().equalsIgnoreCase(
-				Environment.MEDIA_MOUNTED)) {
-			sSDcard = Environment.getExternalStorageDirectory();
-			sFolderApproot = new File(sSDcard, PATH_CONFIG);
-			sFolderVideos = new File(sSDcard, PATH_VIDEOS);
-			sFolderLogs = new File(sSDcard, PATH_LOGS);
+	public static void initialize(Context ctx) throws Exception {
+        sCtx = ctx;
+		if (Environment.getExternalStorageState().equalsIgnoreCase(Environment.MEDIA_MOUNTED)) {
+            // refers to the internal storage
+            sStorage = Environment.getExternalStorageDirectory();
+            Log.d(TAG, "Using internal storage at " + sStorage.toString());
+        } else {
+            Log.e(TAG, "Could not initialize internal storage");
+            throw new Exception("Could not open internal storage!");
+        }
 
-			// create the data and video directory if they don't exist already
-			sFolderApproot.mkdirs();
-			sFolderVideos.mkdirs();
-			sFolderLogs.mkdirs();
-		} else {
-			Log.e(TAG, "Could not initialize SD card");
-			throw new Exception("Could not open SD card!");
-		}
+        // check if the user requested SD card instead
+        if (sUseSdCard) {
+            File[] extDirs = ctx.getExternalFilesDirs(null);
+            File extSdPath = new File("");
+            for (File f : extDirs) {
+                if (f.toString().contains("extSdCard")) {
+                    extSdPath = f;
+                }
+            }
+            if (extSdPath.exists() && extSdPath.canWrite()) {
+                sStorage = extSdPath;
+                Log.d(TAG, "Using external SD card at " + sStorage.toString());
+            } else {
+                // do nothing; use internal storage instead
+            }
+        }
+
+        sFolderApproot = new File(sStorage, PATH_CONFIG);
+        sFolderVideos = new File(sStorage, PATH_VIDEOS);
+        sFolderLogs = new File(sStorage, PATH_LOGS);
+
+        // create the data and video directory if they don't exist already
+        Configuration.createOrCheckDir(sFolderApproot);
+        Configuration.createOrCheckDir(sFolderVideos);
+        Configuration.createOrCheckDir(sFolderLogs);
 	}
 }
