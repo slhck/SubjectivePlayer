@@ -2,6 +2,16 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.0.1] - 2025-12-23
+
+### Bug Fixes
+
+- Remove orphan translation
+
+### CI/CD
+
+- Add .apk builds
+
 ## [2.0.0] - 2025-12-23
 
 ### Build
@@ -23,8 +33,9 @@ All notable changes to SubjectivePlayer will be documented in this file.
 ### Miscellaneous
 
 - Update claude.md
+- Update readme, changelog
 
-## [1.1.0] - 2017-03-03
+## [1.1.0] - 2025-12-23
 
 ### Bug Fixes
 
@@ -42,7 +53,7 @@ All notable changes to SubjectivePlayer will be documented in this file.
 
 - Add missing files
 
-## [1.0.0] - 2012-02-15
+## [1.0.0] - 2025-12-23
 
 ### Features
 
