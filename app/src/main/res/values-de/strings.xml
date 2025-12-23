@@ -44,7 +44,6 @@
     <string name="preferences_noticks_summary_true">Keine Markierungen am Slider angezeigt</string>
     <string name="preferences_noticks_summary_false">Markierungen am Slider werden angezeigt</string>
 
-    <string name="submit">Absenden</string>
     <string name="rate">BEWERTEN</string>
 
     <!-- Individual items for custom dialogs -->
