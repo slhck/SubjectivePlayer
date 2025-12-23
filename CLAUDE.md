@@ -60,10 +60,15 @@ Config files (`subject_<id>.cfg`) support the following directives:
 ```
 METHOD ACR
 START_MESSAGE Welcome to the test!\nClick Continue to begin.
-FINISH_MESSAGE Thank you!\nPlease notify the supervisor.
-BREAK 30
+TRAINING_START
+training1.mp4
+training2.mp4
+TRAINING_END
 video1.mp4
 video2.mp4
+BREAK 30
+video3.mp4
+FINISH_MESSAGE Thank you!\nPlease notify the supervisor.
 ```
 
 **Directives** (parsed in `Session.readVideosFromFile()`):
@@ -71,21 +76,27 @@ video2.mp4
 - `START_MESSAGE <text>` - Custom start screen message (optional)
 - `FINISH_MESSAGE <text>` - Custom finish screen message (optional)
 - `BREAK [seconds]` - Insert a break; if seconds specified, shows countdown timer
+- `TRAINING_START` - Marks beginning of training section (must be paired with `TRAINING_END`)
+- `TRAINING_END` - Marks end of training section (must be paired with `TRAINING_START`)
+- `TRAINING_MESSAGE <text>` - Custom training intro message (optional)
 
 **Newlines**: Use `\n` in message strings to insert line breaks.
 
-If `START_MESSAGE` or `FINISH_MESSAGE` are omitted, default messages from `strings.xml` are used.
+If `START_MESSAGE`, `FINISH_MESSAGE`, or `TRAINING_MESSAGE` are omitted, default messages from `strings.xml` are used.
 
 ## Session Flow
 
 1. **Start Screen** → Shown before first video (Continue button)
-2. **Video Playback** → Video plays fullscreen
-3. **Rating Dialog** → User rates quality (ACR buttons or continuous slider)
-4. **Break Dialog** → If `BREAK` command encountered (optional timed countdown)
-5. **Repeat 2-4** → Until all videos rated
-6. **Finish Screen** → Shown after last rating (OK button)
+2. **Training Intro** → If training section defined, shown before first training video
+3. **Training Videos** → Training videos play with ratings (same as main test)
+4. **Training Complete** → Shown after last training video
+5. **Video Playback** → Video plays fullscreen
+6. **Rating Dialog** → User rates quality (ACR buttons or continuous slider)
+7. **Break Dialog** → If `BREAK` command encountered (optional timed countdown)
+8. **Repeat 5-7** → Until all videos rated
+9. **Finish Screen** → Shown after last rating (OK button)
 
-Start/finish screens use custom dialogs (`dialog_start.xml`, `dialog_finish.xml`) with the same button styling as rating dialogs (120×48dp, white text on gray background).
+Start/finish/training screens use custom dialogs (`dialog_start.xml`, `dialog_finish.xml`, `dialog_training_intro.xml`, `dialog_training_complete.xml`) with the same button styling as rating dialogs (120×48dp, white text on gray background).
 
 ## Storage Directories
 

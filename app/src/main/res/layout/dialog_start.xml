@@ -30,8 +30,11 @@
         <!-- Continue button -->
         <Button
             android:id="@+id/start_continue_button"
-            android:layout_width="120dp"
+            android:layout_width="wrap_content"
             android:layout_height="48dp"
+            android:minWidth="120dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
             android:text="@string/start_continue"
             android:textSize="16sp"
             android:textStyle="bold"

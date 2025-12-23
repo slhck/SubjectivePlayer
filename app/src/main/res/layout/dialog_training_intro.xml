@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/dialog_break"
+    android:id="@+id/dialog_training_intro"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/background_dark">
@@ -12,50 +12,30 @@
         android:layout_gravity="center"
         android:orientation="vertical"
         android:gravity="center"
-        android:padding="32dp">
+        android:padding="32dp"
+        android:maxWidth="800dp">
 
-        <!-- Break title -->
+        <!-- Training intro message (multiline supported) -->
         <TextView
-            android:id="@+id/break_title"
+            android:id="@+id/training_intro_message"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/break_title"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Break message -->
-        <TextView
-            android:id="@+id/break_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/break_message"
+            android:text="@string/training_intro_message_default"
             android:textColor="@color/white"
             android:textSize="18sp"
             android:gravity="center"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Timer/Status message -->
-        <TextView
-            android:id="@+id/break_timer_message"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/text_secondary"
-            android:textSize="16sp"
-            android:gravity="center"
+            android:lineSpacingMultiplier="1.3"
             android:layout_marginBottom="32dp" />
 
         <!-- Continue button -->
         <Button
-            android:id="@+id/break_continue_button"
+            android:id="@+id/training_intro_continue_button"
             android:layout_width="wrap_content"
             android:layout_height="48dp"
             android:minWidth="120dp"
             android:paddingStart="24dp"
             android:paddingEnd="24dp"
-            android:text="@string/break_continue"
-            android:enabled="false"
+            android:text="@string/training_continue"
             android:textSize="16sp"
             android:textStyle="bold"
             android:background="@drawable/submit_button_background"

@@ -27,18 +27,24 @@ Author: Werner Robitza
 
 ## Features
 
-- Playback of MPEG-4 AVC (H.264) coded videos, either in .mp4 format
-- After each video, users are asked for their opinion using different methodologies:
-  - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
-  - Continuous slider-based rating (0-100)
-  - (DSIS impairment scale – ⚠️ not fully implemented)
-  - (Continuous real-time rating using volume buttons – ⚠️ not tested)
-- User ratings are based on IDs, so we can identify different participants later
-- Playlists to define which videos to show to which users – different playlists for different users may be used
-- Logging of the user ratings to CSV files
-- Breaks between videos to prevent viewer fatigue
-- On-device validation of playlists
-- Internationalization (i18n) support – currently English and German
+- Playback:
+  - MPEG-4 AVC (H.264) coded videos, either in .mp4 format
+  - Edge-to-edge playback, utilizing the full screen, or avoiding display cutouts and rounded corners
+  - Playlists to define which videos to show to which users – different playlists for different users may be used
+- Rating:
+  - After each video, users are asked for their opinion using different methodologies:
+    - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
+    - Continuous slider-based rating (0-100)
+    - (DSIS impairment scale – ⚠️ not fully implemented)
+    - (Continuous real-time rating using volume buttons – ⚠️ not tested)
+- General:
+  - User ratings are based on IDs, so we can identify different participants later
+  - Logging of the user ratings to CSV files
+  - On-device validation of playlists
+  - Internationalization (i18n) support – currently English and German
+- Session management:
+  - Training sessions to familiarize users with the rating procedure
+  - Breaks between videos to prevent viewer fatigue
 
 Here the ACR rating screen is shown after a video playback:
 
@@ -140,12 +146,24 @@ The file is a simple text file with one entry per line. Lines can contain:
   - `BREAK 60` – timed break of 60 seconds with countdown timer
 - `START_MESSAGE <message>` (optional) – shows a custom start message before the first video. You can use `\n` for line breaks.
 - `FINISH_MESSAGE <message>` (optional) – shows a custom finish message after the last video. You can use `\n` for line breaks.
+- Training section (optional) – define a training section to familiarize users with the rating procedure:
+  - `TRAINING_START` – marks the beginning of the training section
+  - `TRAINING_END` – marks the end of the training section
+  - `TRAINING_MESSAGE <message>` (optional) – custom message shown before training begins. You can use `\n` for line breaks.
+  - Videos between `TRAINING_START` and `TRAINING_END` are considered training videos
+  - A training introduction screen is shown before the first training video
+  - A training complete screen is shown after the last training video, before the main test begins
+  - **Note:** If you use `TRAINING_START`, you must also include `TRAINING_END`, and vice versa
 
 For example, `subject_1.cfg` could look like this:
 
 ```
 METHOD ACR
 START_MESSAGE Welcome to the test!\nPlease watch the following videos and rate their quality.
+TRAINING_START
+training_video1.mp4
+training_video2.mp4
+TRAINING_END
 video1.mp4
 video2.mp4
 video3.mp4
@@ -158,6 +176,14 @@ video7.mp4
 video8.mp4
 FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 ```
+
+In this example:
+- A custom start message is shown first
+- Then a training introduction screen appears
+- Two training videos are played with ratings
+- A training complete screen is shown
+- The main test begins with `video1.mp4` through `video8.mp4`, with breaks in between
+- A custom finish message is shown at the end
 
 ### Move the Files to the Device
 

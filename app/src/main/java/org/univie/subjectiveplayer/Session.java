@@ -57,6 +57,15 @@ public abstract class Session {
     /** Custom finish message from config file */
     public static String sFinishMessage = null;
 
+    /** Custom training message from config file */
+    public static String sTrainingMessage = null;
+
+    /** Index in sTracks where training starts (-1 if no training section) */
+    public static int sTrainingStartIndex = -1;
+
+    /** Index in sTracks where training ends (-1 if no training section) */
+    public static int sTrainingEndIndex = -1;
+
     /** Prefix for BREAK commands in playlist files */
 	public static final String BREAK_PREFIX = "BREAK";
 
@@ -68,6 +77,15 @@ public abstract class Session {
 
 	/** Prefix for FINISH_MESSAGE directive in playlist files */
 	public static final String FINISH_MESSAGE_PREFIX = "FINISH_MESSAGE";
+
+	/** Prefix for TRAINING_MESSAGE directive in playlist files */
+	public static final String TRAINING_MESSAGE_PREFIX = "TRAINING_MESSAGE";
+
+	/** Marker for beginning of training section in playlist files */
+	public static final String TRAINING_START_MARKER = "TRAINING_START";
+
+	/** Marker for end of training section in playlist files */
+	public static final String TRAINING_END_MARKER = "TRAINING_END";
 
 	/**
 	 * Checks if a track entry is a BREAK command
@@ -127,6 +145,71 @@ public abstract class Session {
 	 */
 	public static boolean isFinishMessageDirective(String line) {
 		return line != null && line.toUpperCase().startsWith(FINISH_MESSAGE_PREFIX);
+	}
+
+	/**
+	 * Checks if a line is a TRAINING_MESSAGE directive
+	 * @param line The line to check
+	 * @return true if the line is a TRAINING_MESSAGE directive
+	 */
+	public static boolean isTrainingMessageDirective(String line) {
+		return line != null && line.toUpperCase().startsWith(TRAINING_MESSAGE_PREFIX);
+	}
+
+	/**
+	 * Checks if a line is a TRAINING_START marker
+	 * @param line The line to check
+	 * @return true if the line is a TRAINING_START marker
+	 */
+	public static boolean isTrainingStartMarker(String line) {
+		return line != null && line.trim().toUpperCase().equals(TRAINING_START_MARKER);
+	}
+
+	/**
+	 * Checks if a line is a TRAINING_END marker
+	 * @param line The line to check
+	 * @return true if the line is a TRAINING_END marker
+	 */
+	public static boolean isTrainingEndMarker(String line) {
+		return line != null && line.trim().toUpperCase().equals(TRAINING_END_MARKER);
+	}
+
+	/**
+	 * Checks if a training section is defined in the current session
+	 * @return true if both TRAINING_START and TRAINING_END are defined
+	 */
+	public static boolean hasTrainingSection() {
+		return sTrainingStartIndex >= 0 && sTrainingEndIndex >= 0;
+	}
+
+	/**
+	 * Checks if a given track index is within the training section
+	 * @param trackIndex The track index to check
+	 * @return true if the track is within the training section
+	 */
+	public static boolean isTrainingTrack(int trackIndex) {
+		if (!hasTrainingSection()) {
+			return false;
+		}
+		return trackIndex >= sTrainingStartIndex && trackIndex <= sTrainingEndIndex;
+	}
+
+	/**
+	 * Checks if a given track index is the first training track
+	 * @param trackIndex The track index to check
+	 * @return true if this is the first track in the training section
+	 */
+	public static boolean isFirstTrainingTrack(int trackIndex) {
+		return hasTrainingSection() && trackIndex == sTrainingStartIndex;
+	}
+
+	/**
+	 * Checks if a given track index is the last training track
+	 * @param trackIndex The track index to check
+	 * @return true if this is the last track in the training section
+	 */
+	public static boolean isLastTrainingTrack(int trackIndex) {
+		return hasTrainingSection() && trackIndex == sTrainingEndIndex;
 	}
 
 	/**
@@ -241,6 +324,27 @@ public abstract class Session {
 							}
 							continue; // Don't add FINISH_MESSAGE line to tracks
 						}
+						// Check for TRAINING_MESSAGE directive
+						if (isTrainingMessageDirective(currentLine)) {
+							String message = parseMessageDirective(currentLine, TRAINING_MESSAGE_PREFIX);
+							if (message != null) {
+								sTrainingMessage = message;
+								Log.i(TAG, "Training message set from config file");
+							}
+							continue; // Don't add TRAINING_MESSAGE line to tracks
+						}
+						// Check for TRAINING_START marker
+						if (isTrainingStartMarker(currentLine)) {
+							sTrainingStartIndex = sTracks.size(); // Next track will be first training track
+							Log.i(TAG, "Training section starts at index " + sTrainingStartIndex);
+							continue; // Don't add TRAINING_START line to tracks
+						}
+						// Check for TRAINING_END marker
+						if (isTrainingEndMarker(currentLine)) {
+							sTrainingEndIndex = sTracks.size() - 1; // Previous track was last training track
+							Log.i(TAG, "Training section ends at index " + sTrainingEndIndex);
+							continue; // Don't add TRAINING_END line to tracks
+						}
 						sTracks.add(currentLine);
 						Log.d(TAG, "Added track: " + currentLine);
 					}
@@ -288,5 +392,8 @@ public abstract class Session {
         sRatingTime = new ArrayList<>();
 		sStartMessage = null;
 		sFinishMessage = null;
+		sTrainingMessage = null;
+		sTrainingStartIndex = -1;
+		sTrainingEndIndex = -1;
 	}
 }

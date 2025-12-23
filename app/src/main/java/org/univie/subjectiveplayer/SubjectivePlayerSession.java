@@ -129,8 +129,14 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
     private Dialog mStartDialog;
     /** Dialog instance for finish screen */
     private Dialog mFinishDialog;
+    /** Dialog instance for training intro screen */
+    private Dialog mTrainingIntroDialog;
+    /** Dialog instance for training complete screen */
+    private Dialog mTrainingCompleteDialog;
     /** Tracks whether the start screen has been shown */
     private boolean mStartScreenShown = false;
+    /** Tracks whether the training intro screen has been shown */
+    private boolean mTrainingIntroShown = false;
 	private static final int DIALOG_ACR_CATEGORICAL = 0;
 	private static final int DIALOG_DSIS_CATEGORICAL = 1;
 	private static final int DIALOG_CONTINUOUS = 2;
@@ -275,6 +281,16 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 			mFinishDialog = null;
 			Log.d(TAG, "Finish dialog dismissed in onPause");
 		}
+		if (mTrainingIntroDialog != null) {
+			mTrainingIntroDialog.dismiss();
+			mTrainingIntroDialog = null;
+			Log.d(TAG, "Training intro dialog dismissed in onPause");
+		}
+		if (mTrainingCompleteDialog != null) {
+			mTrainingCompleteDialog.dismiss();
+			mTrainingCompleteDialog = null;
+			Log.d(TAG, "Training complete dialog dismissed in onPause");
+		}
 		cleanUp();
 	}
 
@@ -335,6 +351,13 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 	 */
 	public void preparePlayerForVideo(int videoIndex) {
 		Log.d(TAG, "preparePlayerForVideo called for index " + videoIndex);
+
+		// Check if this is the first training video and show training intro if needed
+		if (Session.isFirstTrainingTrack(videoIndex) && !mTrainingIntroShown) {
+			Log.i(TAG, "First training video at index " + videoIndex + ", showing training intro");
+			showTrainingIntroScreen();
+			return;
+		}
 
 		// Check if this is a BREAK command
 		if (videoIndex < Session.sTracks.size()) {
@@ -574,6 +597,9 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 	 * Starts the next video after a dialog has been closed by the user
 	 */
 	private void nextVideo() {
+		// Check if we just finished the last training video (before incrementing track)
+		int justCompletedTrack = Session.sCurrentTrack;
+
 		// show the next video if possible
 		Session.sCurrentTrack++;
 		if (Session.sCurrentTrack < Session.sTracks.size()) {
@@ -583,6 +609,14 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 			if (Session.sCurrentMethod == Methods.TYPE_ACR_CATEGORICAL) {
 				SubjectivePlayerSession.this.removeDialog(DIALOG_ACR_CATEGORICAL);
 			}
+
+			// Check if we just completed the last training video and need to show training complete
+			if (Session.isLastTrainingTrack(justCompletedTrack)) {
+				Log.i(TAG, "Last training video completed at index " + justCompletedTrack + ", showing training complete");
+				showTrainingCompleteScreen();
+				return;
+			}
+
 			// Show the surface first to trigger recreation if needed
 			if (mPlayView != null) {
 				mPlayView.setVisibility(View.VISIBLE);
@@ -1146,6 +1180,129 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
         // Reset session and finish activity
         Session.reset();
         finish();
+    }
+
+    /**
+     * Shows the training intro screen before the first training video.
+     * Uses custom message from config file if available, otherwise uses default.
+     */
+    private void showTrainingIntroScreen() {
+        Log.d(TAG, "showTrainingIntroScreen called");
+        mTrainingIntroShown = true;
+
+        // Hide the video surface while showing the training intro screen
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        // Create and show the training intro dialog
+        mTrainingIntroDialog = new CustomDialog(this);
+        mTrainingIntroDialog.setContentView(R.layout.dialog_training_intro);
+        mTrainingIntroDialog.setCancelable(false);
+
+        final TextView messageView = (TextView) mTrainingIntroDialog.findViewById(R.id.training_intro_message);
+        final Button continueButton = (Button) mTrainingIntroDialog.findViewById(R.id.training_intro_continue_button);
+
+        // Use custom message from config if available, otherwise use default
+        if (Session.sTrainingMessage != null && !Session.sTrainingMessage.isEmpty()) {
+            messageView.setText(Session.sTrainingMessage);
+            Log.d(TAG, "Using custom training message from config");
+        } else {
+            messageView.setText(R.string.training_intro_message_default);
+            Log.d(TAG, "Using default training intro message");
+        }
+
+        // Continue button click handler
+        continueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Training intro continue button clicked");
+                onTrainingIntroFinished();
+            }
+        });
+
+        mTrainingIntroDialog.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mTrainingIntroDialog.show();
+        Log.d(TAG, "Training intro dialog shown");
+    }
+
+    /**
+     * Called when the training intro screen is finished (user clicks Continue).
+     * Proceeds to prepare and play the first training video.
+     */
+    private void onTrainingIntroFinished() {
+        Log.d(TAG, "onTrainingIntroFinished called");
+
+        // Dismiss the training intro dialog
+        if (mTrainingIntroDialog != null) {
+            mTrainingIntroDialog.dismiss();
+            mTrainingIntroDialog = null;
+            Log.d(TAG, "Training intro dialog dismissed");
+        }
+
+        // Show the surface and prepare first training video
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.VISIBLE);
+        }
+        preparePlayerForVideo(Session.sCurrentTrack);
+    }
+
+    /**
+     * Shows the training complete screen after the last training video.
+     */
+    private void showTrainingCompleteScreen() {
+        Log.d(TAG, "showTrainingCompleteScreen called");
+
+        // Hide the video surface while showing the training complete screen
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        // Create and show the training complete dialog
+        mTrainingCompleteDialog = new CustomDialog(this);
+        mTrainingCompleteDialog.setContentView(R.layout.dialog_training_complete);
+        mTrainingCompleteDialog.setCancelable(false);
+
+        final TextView messageView = (TextView) mTrainingCompleteDialog.findViewById(R.id.training_complete_message);
+        final Button continueButton = (Button) mTrainingCompleteDialog.findViewById(R.id.training_complete_continue_button);
+
+        // Use default message (training complete message is not customizable)
+        messageView.setText(R.string.training_complete_message_default);
+        Log.d(TAG, "Using default training complete message");
+
+        // Continue button click handler
+        continueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Training complete continue button clicked");
+                onTrainingCompleteFinished();
+            }
+        });
+
+        mTrainingCompleteDialog.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mTrainingCompleteDialog.show();
+        Log.d(TAG, "Training complete dialog shown");
+    }
+
+    /**
+     * Called when the training complete screen is finished (user clicks Continue).
+     * Proceeds to prepare and play the next video (first main test video).
+     */
+    private void onTrainingCompleteFinished() {
+        Log.d(TAG, "onTrainingCompleteFinished called");
+
+        // Dismiss the training complete dialog
+        if (mTrainingCompleteDialog != null) {
+            mTrainingCompleteDialog.dismiss();
+            mTrainingCompleteDialog = null;
+            Log.d(TAG, "Training complete dialog dismissed");
+        }
+
+        // Show the surface and prepare next video
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.VISIBLE);
+        }
+        preparePlayerForVideo(Session.sCurrentTrack);
     }
 
     /**

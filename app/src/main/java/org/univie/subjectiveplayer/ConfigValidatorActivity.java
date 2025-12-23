@@ -125,6 +125,10 @@ public class ConfigValidatorActivity extends AppCompatActivity {
             String line;
             int lineNumber = 0;
             boolean firstNonEmptyLine = true;
+            boolean hasTrainingStart = false;
+            boolean hasTrainingEnd = false;
+            int trainingStartLine = -1;
+            int trainingEndLine = -1;
 
             while ((line = br.readLine()) != null) {
                 lineNumber++;
@@ -150,6 +154,27 @@ public class ConfigValidatorActivity extends AppCompatActivity {
 
                 firstNonEmptyLine = false;
 
+                // Check for TRAINING_START marker
+                if (Session.isTrainingStartMarker(trimmedLine)) {
+                    hasTrainingStart = true;
+                    trainingStartLine = lineNumber;
+                    continue;
+                }
+
+                // Check for TRAINING_END marker
+                if (Session.isTrainingEndMarker(trimmedLine)) {
+                    hasTrainingEnd = true;
+                    trainingEndLine = lineNumber;
+                    continue;
+                }
+
+                // Skip other directive lines (START_MESSAGE, FINISH_MESSAGE, TRAINING_MESSAGE)
+                if (Session.isStartMessageDirective(trimmedLine) ||
+                    Session.isFinishMessageDirective(trimmedLine) ||
+                    Session.isTrainingMessageDirective(trimmedLine)) {
+                    continue;
+                }
+
                 if (Session.isBreakCommand(trimmedLine)) {
                     String[] parts = trimmedLine.split("\\s+");
                     if (parts.length >= 2) {
@@ -171,6 +196,21 @@ public class ConfigValidatorActivity extends AppCompatActivity {
 
                 videoToConfigFiles.computeIfAbsent(trimmedLine, k -> new ArrayList<>())
                         .add(configFile.getName());
+            }
+
+            // Validate TRAINING_START and TRAINING_END pairing
+            if (hasTrainingStart && !hasTrainingEnd) {
+                errors.add("Config file \"" + configFile.getName() +
+                        "\" has TRAINING_START at line " + trainingStartLine +
+                        " but is missing TRAINING_END");
+            } else if (!hasTrainingStart && hasTrainingEnd) {
+                errors.add("Config file \"" + configFile.getName() +
+                        "\" has TRAINING_END at line " + trainingEndLine +
+                        " but is missing TRAINING_START");
+            } else if (hasTrainingStart && hasTrainingEnd && trainingEndLine <= trainingStartLine) {
+                errors.add("Config file \"" + configFile.getName() +
+                        "\": TRAINING_END (line " + trainingEndLine +
+                        ") must come after TRAINING_START (line " + trainingStartLine + ")");
             }
 
         } catch (Exception e) {

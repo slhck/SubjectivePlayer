@@ -86,4 +86,9 @@
     <string name="validate_success">All config files are valid and all videos exist.</string>
     <string name="validate_no_config_files">No config files found in SubjectiveCfg folder.</string>
     <string name="validate_errors_found">Found %d error(s):</string>
+
+    <!-- Training section strings -->
+    <string name="training_intro_message_default">In the following, you will see a few training sequences. These videos will demonstrate what you can expect in the main test, and allow you to familiarize yourself with the rating procedure.\n\nWhen you click \"Continue\", they will start.\n\nPlease ask the experimenter for help if you are unsure what to do, or if you need clarification.</string>
+    <string name="training_complete_message_default">Training complete!\n\nYou have finished the training section. The main test will now begin.\n\nClick \"Continue\" to start.</string>
+    <string name="training_continue">Continue</string>
 </resources>
