@@ -11,11 +11,13 @@ Author: Werner Robitza
 - [Features](#features)
 - [Recent Changes](#recent-changes)
 - [Requirements](#requirements)
-- [Quick Start](#quick-start)
-- [How to Use](#how-to-use)
+- [Usage Guide](#usage-guide)
+  - [Installation of the .apk](#installation-of-the-apk)
+  - [Quick Setup Example](#quick-setup-example)
   - [Prepare Video Files](#prepare-video-files)
   - [Prepare Playlists](#prepare-playlists)
   - [Move the Files to the Device](#move-the-files-to-the-device)
+  - [Validate the Playlists](#validate-the-playlists)
   - [Run the Test](#run-the-test)
   - [Obtain the Results](#obtain-the-results)
 - [Output Format](#output-format)
@@ -23,6 +25,8 @@ Author: Werner Robitza
   - [Display](#display)
   - [Configuration Files](#configuration-files)
   - [Continuous Rating](#continuous-rating)
+- [Developer Guide](#developer-guide)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
@@ -65,41 +69,33 @@ For running the app, you need:
 
 - Android device running Android 7.0 (Nougat) or higher (API level 24+)
 - Storage access for video files and playlists
-- Enable "Install from unknown sources" or use ADB to install the APK
 
-Pre-built APKs are available from the [Releases page](https://github.com/slhck/SubjectivePlayer/releases/latest). These are unsigned builds that can be installed via `adb install`.
+Pre-built APKs are available from the [Releases page](https://github.com/slhck/SubjectivePlayer/releases/latest). These are unsigned builds.
 
-For building it yourself, you need:
+If you want to make changes to the functionality, you need to build the app yourself. Check the [Developer Guide](#developer-guide) for more information.
 
-- Android SDK with:
-  - Build Tools 34.0.0 or higher
-  - Platform SDK 35 (Android 15) or higher
-- Java Development Kit (JDK) 17 or higher
-- Gradle 8.9 or higher (included via wrapper)
+## Usage Guide
 
-To build the project, run:
+### Installation of the .apk
 
-```bash
-./gradlew assembleDebug
-```
+First, downlaod the latest APK from the [Releases page](https://github.com/slhck/SubjectivePlayer/releases/latest).
+Then, install it on your Android device.
 
-The APK will be generated at `app/build/outputs/apk/debug/app-debug.apk`.
+- Make sure you have [`adb` installed](https://developer.android.com/tools/adb) on your computer.
+- [Enable developer mode](https://developer.android.com/studio/debug/dev-options) on the device
+- Connect the device to your computer via USB
+- When the device is recognized, allow debugging access
+- Then run:
 
-For a release build:
+    ```bash
+    adb install <path-to-apk>
+    ```
 
-```bash
-./gradlew assembleRelease
-```
-
-## Quick Start
-
-To run the app you need to build and install it. Connect an Android phone, make sure you have the build tools installed, and call:
-
-```bash
-./gradlew installDebug
-```
+### Quick Setup Example
 
 Then, to run a test, you need to put a playlist file (with the videos to be rated) and the actual videos onto the device.
+The details of this will be explained below, but for a quick start, you can use the provided sample files.
+
 Push sample test files with:
 
 ```bash
@@ -112,16 +108,12 @@ It will show three videos, ask for a rating, and then finish.
 
 To create your own test files, see the detailed usage instructions below.
 
-## How to Use
-
-To create your own test setup, follow these steps.
-
 ### Prepare Video Files
 
 The app uses Android's native `MediaPlayer` for playback, which supports a wide range of video codecs and containers. Here's what's available:
 
-| Codec          | Container Formats | Notes                                                    |
-| -------------- | ----------------- | -------------------------------------------------------- |
+| Codec      | Container Formats | Notes                                                    |
+| ---------- | ----------------- | -------------------------------------------------------- |
 | H.264/AVC  | MP4, MKV, 3GP     | Best compatibility across all devices                    |
 | H.265/HEVC | MP4, MKV          | Better compression; Android 5.0+ (all supported devices) |
 | AV1        | MP4, WebM, MKV    | Best compression; Android 10+ (hardware support varies)  |
@@ -200,6 +192,7 @@ FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 ```
 
 In this example:
+
 - A custom start message is shown first
 - Then a training introduction screen appears
 - Two training videos are played with ratings
@@ -232,11 +225,24 @@ adb push your_video.mp4 /storage/emulated/0/Android/data/org.univie.subjectivepl
 adb push playlist1.cfg /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
 ```
 
+### Validate the Playlists
+
+The app can validate the playlists to ensure all referenced video files exist. This is optional, but recommended.
+
+To validate the playlists:
+
+- Start the app
+- Open the menu (three dots in the top-right corner)
+- Select *Validate Config Files*.
+- The app will check all playlist files in the `SubjectiveCfg` folder and report any missing video files or invalid syntax.
+
 ### Run the Test
 
-Now, when you start the app again, you can select the playlist by having the user enter their respective ID.
+When you start the app, you can select the playlist by having the user enter their respective ID.
 
-After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one user's test.
+The test is self-guided and will show videos, ask for ratings, and handle breaks as defined in the playlist (see above).
+
+After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one user's test results.
 
 ### Obtain the Results
 
@@ -288,6 +294,46 @@ The app allows some level of customization. Access the settings via the main men
 | Setting      | Description                                                                                           | Default  |
 | ------------ | ----------------------------------------------------------------------------------------------------- | -------- |
 | **No ticks** | When enabled, the continuous rating slider shows only Min/Max labels without intermediate tick marks. | Disabled |
+
+## Developer Guide
+
+To build the app from source, clone the repository and open it in Android Studio. Make sure you have the required SDK components installed:
+
+- Android SDK with:
+  - Build Tools 34.0.0 or higher
+  - Platform SDK 35 (Android 15) or higher
+- Java Development Kit (JDK) 17 or higher
+- Gradle 8.9 or higher (included via wrapper)
+
+To build it from the command line, use:
+
+```bash
+./gradlew assembleDebug
+```
+
+Or, for a release build:
+
+```bash
+./gradlew assembleRelease
+```
+
+If you want to run the app directly on a connected device or emulator, use:
+
+```bash
+./gradlew installDebug
+```
+
+Or, for release:
+
+```bash
+./gradlew installRelease
+```
+
+## Contributing
+
+Contributions are welcome! Please open issues for bug reports or feature requests.
+
+Note that your contributions will be licensed under the GNU General Public License v3, and that by submitting a pull request, you agree to this.
 
 ## License
 
