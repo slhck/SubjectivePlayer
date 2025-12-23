@@ -2,6 +2,16 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.1.0] - 2025-12-23
+
+### Build
+
+- Make release script auto-push
+
+### Features
+
+- Add translations for French, Italian, Spanish, Japanese, Korean, Chinese (Simplified)
+
 ## [2.0.2] - 2025-12-23
 
 ### CI/CD
