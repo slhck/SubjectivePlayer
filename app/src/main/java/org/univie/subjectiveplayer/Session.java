@@ -51,13 +51,23 @@ public abstract class Session {
     /** the rating time for each corresponding track */
     public static List<Long> sRatingTime = new ArrayList<>();
 
+    /** Custom start message from config file */
+    public static String sStartMessage = null;
 
+    /** Custom finish message from config file */
+    public static String sFinishMessage = null;
 
     /** Prefix for BREAK commands in playlist files */
 	public static final String BREAK_PREFIX = "BREAK";
 
 	/** Prefix for METHOD directive in playlist files */
 	public static final String METHOD_PREFIX = "METHOD";
+
+	/** Prefix for START_MESSAGE directive in playlist files */
+	public static final String START_MESSAGE_PREFIX = "START_MESSAGE";
+
+	/** Prefix for FINISH_MESSAGE directive in playlist files */
+	public static final String FINISH_MESSAGE_PREFIX = "FINISH_MESSAGE";
 
 	/**
 	 * Checks if a track entry is a BREAK command
@@ -99,6 +109,47 @@ public abstract class Session {
 	 */
 	public static boolean isMethodDirective(String line) {
 		return line != null && line.toUpperCase().startsWith(METHOD_PREFIX);
+	}
+
+	/**
+	 * Checks if a line is a START_MESSAGE directive
+	 * @param line The line to check
+	 * @return true if the line is a START_MESSAGE directive
+	 */
+	public static boolean isStartMessageDirective(String line) {
+		return line != null && line.toUpperCase().startsWith(START_MESSAGE_PREFIX);
+	}
+
+	/**
+	 * Checks if a line is a FINISH_MESSAGE directive
+	 * @param line The line to check
+	 * @return true if the line is a FINISH_MESSAGE directive
+	 */
+	public static boolean isFinishMessageDirective(String line) {
+		return line != null && line.toUpperCase().startsWith(FINISH_MESSAGE_PREFIX);
+	}
+
+	/**
+	 * Parses the message from a directive line (START_MESSAGE or FINISH_MESSAGE).
+	 * Supports escaped newlines: \\n in the config file becomes actual newlines.
+	 * @param line The directive line (e.g., "START_MESSAGE Hello\\nWorld")
+	 * @param prefix The directive prefix to strip (e.g., "START_MESSAGE")
+	 * @return The parsed message with escaped newlines converted, or null if invalid
+	 */
+	public static String parseMessageDirective(String line, String prefix) {
+		if (line == null || !line.toUpperCase().startsWith(prefix)) {
+			return null;
+		}
+		// Get everything after the prefix
+		String message = line.substring(prefix.length()).trim();
+		if (message.isEmpty()) {
+			Log.w(TAG, prefix + " directive without message");
+			return null;
+		}
+		// Convert escaped newlines to actual newlines
+		message = message.replace("\\n", "\n");
+		Log.d(TAG, "Parsed " + prefix + ": " + message.replace("\n", "\\n"));
+		return message;
 	}
 
 	/**
@@ -160,21 +211,36 @@ public abstract class Session {
 
 				// read from the file
 				String currentLine;
-				boolean firstLine = true;
 				while ((currentLine = br.readLine()) != null) {
 					currentLine = currentLine.trim();
 					if (!currentLine.isEmpty()) {
-						// Check if first non-empty line is a METHOD directive
-						if (firstLine && isMethodDirective(currentLine)) {
+						// Check for METHOD directive
+						if (isMethodDirective(currentLine)) {
 							int method = parseMethodType(currentLine);
 							if (method != Methods.UNDEFINED) {
 								sCurrentMethod = method;
 								Log.i(TAG, "Method set from config file: " + Methods.METHOD_NAMES[method]);
 							}
-							firstLine = false;
 							continue; // Don't add METHOD line to tracks
 						}
-						firstLine = false;
+						// Check for START_MESSAGE directive
+						if (isStartMessageDirective(currentLine)) {
+							String message = parseMessageDirective(currentLine, START_MESSAGE_PREFIX);
+							if (message != null) {
+								sStartMessage = message;
+								Log.i(TAG, "Start message set from config file");
+							}
+							continue; // Don't add START_MESSAGE line to tracks
+						}
+						// Check for FINISH_MESSAGE directive
+						if (isFinishMessageDirective(currentLine)) {
+							String message = parseMessageDirective(currentLine, FINISH_MESSAGE_PREFIX);
+							if (message != null) {
+								sFinishMessage = message;
+								Log.i(TAG, "Finish message set from config file");
+							}
+							continue; // Don't add FINISH_MESSAGE line to tracks
+						}
 						sTracks.add(currentLine);
 						Log.d(TAG, "Added track: " + currentLine);
 					}
@@ -220,5 +286,7 @@ public abstract class Session {
 		sTracks = new ArrayList<>();
 		sRatings = new ArrayList<>();
         sRatingTime = new ArrayList<>();
+		sStartMessage = null;
+		sFinishMessage = null;
 	}
 }

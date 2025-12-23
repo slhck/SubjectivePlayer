@@ -1,5 +1,7 @@
 # Subjective Player
 
+![](app/src/main/res/mipmap-xxxhdpi/ic_launcher.webp)
+
 A video player for Android, enabling subjective quality assessment.
 
 Author: Werner Robitza
@@ -7,6 +9,7 @@ Author: Werner Robitza
 **Contents:**
 
 - [Features](#features)
+- [Recent Changes](#recent-changes)
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
 - [Usage](#usage)
@@ -26,7 +29,7 @@ Author: Werner Robitza
 
 - Playback of MPEG-4 AVC (H.264) coded videos, either in .mp4 format
 - After each video, users are asked for their opinion using different methodologies:
-  - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad)
+  - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
   - Continuous slider-based rating (0-100)
   - (DSIS impairment scale – ⚠️ not fully implemented)
   - (Continuous real-time rating using volume buttons – ⚠️ not tested)
@@ -35,6 +38,17 @@ Author: Werner Robitza
 - Logging of the user ratings to CSV files
 - Breaks between videos to prevent viewer fatigue
 - On-device validation of playlists
+- Internationalization (i18n) support – currently English and German
+
+Here the ACR rating screen is shown after a video playback:
+
+<img src="docs/subjective_player_acr.png" alt="Subjective Player ACR Rating Screen" width="500"/>
+
+## Recent Changes
+
+- v2.0 – complete rewrite using new Android dependencies and many more features.
+- Commit [323123](https://github.com/slhck/SubjectivePlayer/commit/323123c43480ca5d846ac2fe56bd405bf03a3425) – updates for ITU-T Rec. P.1203 model development in 2017
+- Commit [742593b69cc4096368d9cbcafce362a3d9d2236c](https://github.com/slhck/SubjectivePlayer/commit/742593b69cc4096368d9cbcafce362a3d9d2236c) – initial commit in 2012
 
 ## Requirements
 
@@ -43,6 +57,7 @@ For running the app, you need:
 - Android device running Android 7.0 (Nougat) or higher (API level 24+)
 - Storage access for video files and playlists
 - Enable "Install from unknown sources" or use ADB to install the APK
+- **Note:** We currently do not provide pre-built APKs – but we are working on it. You need to build the app from source.
 
 For building it, you need:
 
@@ -102,6 +117,8 @@ Prepare your videos as H.264/AAC in MP4 format for device compatibility. We reco
 - Bitrate: Use CRF (`-crf 18` or lower in FFmpeg) for good quality that should be visually lossless but still reasonable in size
 - Container: MP4
 
+Note: Depending on hardware capabilities, some devices may have limitations on maximum resolution or bitrate. On the other side of the spectrum, if the device has HEVC hardware decoding support, you may consider using H.265/HEVC for better compression efficiency or quality.
+
 ### Prepare Playlists
 
 Each user who will take part in the test must have their own playlist file specifying the videos to be shown and rated.
@@ -121,11 +138,14 @@ The file is a simple text file with one entry per line. Lines can contain:
 - `BREAK` commands – insert breaks between videos to prevent viewer fatigue
   - `BREAK` – shows a message telling the user to wait for the test supervisor
   - `BREAK 60` – timed break of 60 seconds with countdown timer
+- `START_MESSAGE <message>` (optional) – shows a custom start message before the first video. You can use `\n` for line breaks.
+- `FINISH_MESSAGE <message>` (optional) – shows a custom finish message after the last video. You can use `\n` for line breaks.
 
 For example, `subject_1.cfg` could look like this:
 
 ```
 METHOD ACR
+START_MESSAGE Welcome to the test!\nPlease watch the following videos and rate their quality.
 video1.mp4
 video2.mp4
 video3.mp4
@@ -133,9 +153,10 @@ BREAK 30
 video4.mp4
 video5.mp4
 video6.mp4
-BREAK
+BREAK 30
 video7.mp4
 video8.mp4
+FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 ```
 
 ### Move the Files to the Device

@@ -71,6 +71,14 @@
     <string name="break_supervisor_message">Your test supervisor will let you know when you can continue.</string>
     <string name="break_continue">Continue</string>
 
+    <!-- Start screen strings -->
+    <string name="start_message_default">Thank you for participating in this test!\n\nWhen you click \"Continue\", a video will be played. After each video, you will be asked to rate the quality.\n\nPlease provide your rating and click \"Rate\".</string>
+    <string name="start_continue">Continue</string>
+
+    <!-- Finish screen strings -->
+    <string name="finish_message_default">Thank you for having participated in this test.\n\nYou are now finished.\n\nPlease let your test supervisor know.</string>
+    <string name="finish_ok">OK</string>
+
     <!-- Config validation strings -->
     <string name="menu_validate">Validate config files</string>
     <string name="validate_title">Config Validation</string>

@@ -125,6 +125,12 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
     private Dialog mDialog;
     /** Separate dialog instance for break dialogs to avoid interfering with rating dialogs */
     private Dialog mBreakDialog;
+    /** Dialog instance for start screen */
+    private Dialog mStartDialog;
+    /** Dialog instance for finish screen */
+    private Dialog mFinishDialog;
+    /** Tracks whether the start screen has been shown */
+    private boolean mStartScreenShown = false;
 	private static final int DIALOG_ACR_CATEGORICAL = 0;
 	private static final int DIALOG_DSIS_CATEGORICAL = 1;
 	private static final int DIALOG_CONTINUOUS = 2;
@@ -259,6 +265,16 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 			mBreakDialog = null;
 			Log.d(TAG, "Break dialog dismissed in onPause");
 		}
+		if (mStartDialog != null) {
+			mStartDialog.dismiss();
+			mStartDialog = null;
+			Log.d(TAG, "Start dialog dismissed in onPause");
+		}
+		if (mFinishDialog != null) {
+			mFinishDialog.dismiss();
+			mFinishDialog = null;
+			Log.d(TAG, "Finish dialog dismissed in onPause");
+		}
 		cleanUp();
 	}
 
@@ -285,9 +301,9 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 			int videoIndex = mPendingVideoIndex;
 			mPendingVideoIndex = -1;
 			preparePlayerForVideo(videoIndex);
-		} else if (Session.sCurrentTrack == 0 && mPlayer == null) {
-			// First video - prepare it
-			preparePlayerForVideo(Session.sCurrentTrack);
+		} else if (Session.sCurrentTrack == 0 && mPlayer == null && !mStartScreenShown) {
+			// First video - show start screen before preparing
+			showStartScreen();
 		}
 	}
 
@@ -542,7 +558,7 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 
 	/**
 	 * Finishes the current rating session by cleaning up the player and writing
-	 * the rating logs.
+	 * the rating logs. Shows finish screen before actually finishing.
 	 */
 	private void finishSession() {
 		cleanUp();
@@ -550,8 +566,8 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 		if (Session.sCurrentMethod != Methods.TYPE_CONTINUOUS_RATING) {
 			Logger.writeSessionLogCSV();
 		}
-		Session.reset();
-		finish();
+		// Show finish screen before ending
+		showFinishScreen();
 	}
 
 	/**
@@ -1003,6 +1019,133 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 
         // Proceed to next video
         nextVideo();
+    }
+
+    /**
+     * Shows the start screen before the first video.
+     * Uses custom message from config file if available, otherwise uses default.
+     */
+    private void showStartScreen() {
+        Log.d(TAG, "showStartScreen called");
+        mStartScreenShown = true;
+
+        // Hide the video surface while showing the start screen
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        // Create and show the start dialog
+        mStartDialog = new CustomDialog(this);
+        mStartDialog.setContentView(R.layout.dialog_start);
+        mStartDialog.setCancelable(false);
+
+        final TextView messageView = (TextView) mStartDialog.findViewById(R.id.start_message);
+        final Button continueButton = (Button) mStartDialog.findViewById(R.id.start_continue_button);
+
+        // Use custom message from config if available, otherwise use default
+        if (Session.sStartMessage != null && !Session.sStartMessage.isEmpty()) {
+            messageView.setText(Session.sStartMessage);
+            Log.d(TAG, "Using custom start message from config");
+        } else {
+            messageView.setText(R.string.start_message_default);
+            Log.d(TAG, "Using default start message");
+        }
+
+        // Continue button click handler
+        continueButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Start screen continue button clicked");
+                onStartScreenFinished();
+            }
+        });
+
+        mStartDialog.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mStartDialog.show();
+        Log.d(TAG, "Start screen dialog shown");
+    }
+
+    /**
+     * Called when the start screen is finished (user clicks Continue).
+     * Proceeds to prepare and play the first video.
+     */
+    private void onStartScreenFinished() {
+        Log.d(TAG, "onStartScreenFinished called");
+
+        // Dismiss the start dialog
+        if (mStartDialog != null) {
+            mStartDialog.dismiss();
+            mStartDialog = null;
+            Log.d(TAG, "Start dialog dismissed");
+        }
+
+        // Show the surface and prepare first video
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.VISIBLE);
+        }
+        preparePlayerForVideo(Session.sCurrentTrack);
+    }
+
+    /**
+     * Shows the finish screen after all videos have been rated.
+     * Uses custom message from config file if available, otherwise uses default.
+     */
+    private void showFinishScreen() {
+        Log.d(TAG, "showFinishScreen called");
+
+        // Hide the video surface while showing the finish screen
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        // Create and show the finish dialog
+        mFinishDialog = new CustomDialog(this);
+        mFinishDialog.setContentView(R.layout.dialog_finish);
+        mFinishDialog.setCancelable(false);
+
+        final TextView messageView = (TextView) mFinishDialog.findViewById(R.id.finish_message);
+        final Button okButton = (Button) mFinishDialog.findViewById(R.id.finish_ok_button);
+
+        // Use custom message from config if available, otherwise use default
+        if (Session.sFinishMessage != null && !Session.sFinishMessage.isEmpty()) {
+            messageView.setText(Session.sFinishMessage);
+            Log.d(TAG, "Using custom finish message from config");
+        } else {
+            messageView.setText(R.string.finish_message_default);
+            Log.d(TAG, "Using default finish message");
+        }
+
+        // OK button click handler
+        okButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Log.i(TAG, "Finish screen OK button clicked");
+                onFinishScreenClosed();
+            }
+        });
+
+        mFinishDialog.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mFinishDialog.show();
+        Log.d(TAG, "Finish screen dialog shown");
+    }
+
+    /**
+     * Called when the finish screen is closed (user clicks OK).
+     * Resets session and finishes the activity.
+     */
+    private void onFinishScreenClosed() {
+        Log.d(TAG, "onFinishScreenClosed called");
+
+        // Dismiss the finish dialog
+        if (mFinishDialog != null) {
+            mFinishDialog.dismiss();
+            mFinishDialog = null;
+            Log.d(TAG, "Finish dialog dismissed");
+        }
+
+        // Reset session and finish activity
+        Session.reset();
+        finish();
     }
 
     /**
