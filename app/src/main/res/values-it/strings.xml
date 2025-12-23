@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Benvenuto in SubjectivePlayer per Android!</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">Seleziona un file di configurazione contenente i video!</string>
+    <string name="select_id">Inserisci il tuo ID partecipante!</string>
+    <string name="hint_enter_id">Inserisci ID</string>
+    <string name="button_start">Avvia</string>
+    <string name="menu_about">Informazioni</string>
+    <string name="menu_exit">Esci</string>
+    <string name="select_filebrowser">Seleziona un file di configurazione</string>
+
+    <string name="select_method">Seleziona un metodo di test!</string>
+    <string name="select_method_browser">Seleziona un metodo</string>
+
+
+    <string name="menu_preferences">Preferenze</string>
+
+    <string name="preferences_categories_display">Visualizzazione</string>
+    <string name="preferences_edgetoedge">Riproduzione a schermo intero</string>
+    <string name="preferences_edgetoedge_summary_true">Il video riempie l\'intero schermo (potrebbe essere tagliato dalla fotocamera)</string>
+    <string name="preferences_edgetoedge_summary_false">Il video evita il ritaglio della fotocamera e gli angoli arrotondati</string>
+
+    <string name="preferences_categories_config">File di configurazione</string>
+    <string name="error_nodata_body">File di configurazione, metodo o ID mancante. Inserisci tutti i dati!</string>
+    <string name="error_nodata_caption">Dati mancanti</string>
+    <string name="error_id_used_body">Questo ID è già stato utilizzato!</string>
+    <string name="error_id_used_caption">ID già utilizzato</string>
+    <string name="about_caption">Informazioni su SubjectivePlayer</string>
+    <string name="about_body">SubjectivePlayer per Android è stato sviluppato da Werner Robitza all\'Università di Vienna. Grazie mille per l\'utilizzo!</string>
+    <string name="select_config_selected">Configurazione selezionata:</string>
+    <string name="select_method_selected">Metodo selezionato:</string>
+    <string name="rate_ACR_caption">Valuta</string>
+    <string name="rate_ACR_caption_extended">Valuta la qualità audiovisiva!</string>
+    <string name="rate_ACR_caption_short">Valuta:</string>
+    <string name="preferences_allowduplicateids">Consenti ID duplicati</string>
+    <string name="preferences_allowduplicateids_summary_true">Consenti ID duplicati nel test</string>
+    <string name="preferences_allowduplicateids_summary_false">Non consentire ID duplicati nel test</string>
+    <string name="rate_continuous_caption">Valuta</string>
+    <string name="dialog_no_ticks_max">Max</string>
+    <string name="dialog_no_ticks_min">Min</string>
+    <string name="preferences_categories_continuous">Preferenze di valutazione continua</string>
+    <string name="preferences_noticks_caption">Nessuna tacca</string>
+    <string name="preferences_noticks_summary_true">Non mostrare tacche sul cursore</string>
+    <string name="preferences_noticks_summary_false">Mostra tacche sul cursore</string>
+
+    <string name="submit">Invia</string>
+    <string name="rate">VALUTA</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">Ottimo</string>
+    <string name="acr_good">Buono</string>
+    <string name="acr_fair">Discreto</string>
+    <string name="acr_poor">Mediocre</string>
+    <string name="acr_bad">Cattivo</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>Ottimo</item>
+        <item>Buono</item>
+        <item>Discreto</item>
+        <item>Mediocre</item>
+        <item>Cattivo</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">Pausa</string>
+    <string name="break_message">Prenditi una pausa dalla valutazione dei video.</string>
+    <string name="break_timer_countdown">Puoi continuare tra %d secondi</string>
+    <string name="break_timer_ready">Puoi continuare ora</string>
+    <string name="break_supervisor_message">Il tuo supervisore del test ti comunicherà quando potrai continuare.</string>
+    <string name="break_continue">Continua</string>
+
+    <!-- Start screen strings -->
+    <string name="start_message_default">Grazie per aver partecipato a questo test!\n\nQuando farai clic su \"Continua\", verrà riprodotto un video. Dopo ogni video, ti verrà chiesto di valutare la qualità.\n\nFornisci la tua valutazione e fai clic su \"Valuta\".</string>
+    <string name="start_continue">Continua</string>
+
+    <!-- Finish screen strings -->
+    <string name="finish_message_default">Grazie per aver partecipato a questo test.\n\nHai terminato.\n\nInforma il tuo supervisore del test.</string>
+    <string name="finish_ok">OK</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">Convalida file di configurazione</string>
+    <string name="validate_title">Convalida configurazione</string>
+    <string name="validate_running">Convalida dei file di configurazione in corso…</string>
+    <string name="validate_success">Tutti i file di configurazione sono validi e tutti i video esistono.</string>
+    <string name="validate_no_config_files">Nessun file di configurazione trovato nella cartella SubjectiveCfg.</string>
+    <string name="validate_errors_found">Trovati %d errori:</string>
+
+    <!-- Training section strings -->
+    <string name="training_intro_message_default">Di seguito vedrai alcune sequenze di addestramento. Questi video ti mostreranno cosa aspettarti nel test principale e ti permetteranno di familiarizzare con la procedura di valutazione.\n\nQuando farai clic su \"Continua\", inizieranno.\n\nChiedi aiuto allo sperimentatore se non sei sicuro di cosa fare o se hai bisogno di chiarimenti.</string>
+    <string name="training_complete_message_default">Addestramento completato!\n\nHai completato la sezione di addestramento. Il test principale inizierà ora.\n\nFai clic su \"Continua\" per iniziare.</string>
+    <string name="training_continue">Continua</string>
+</resources>

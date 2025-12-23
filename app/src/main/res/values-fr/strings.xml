@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Bienvenue dans SubjectivePlayer pour Android !</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">Veuillez sélectionner un fichier de configuration contenant les vidéos !</string>
+    <string name="select_id">Veuillez entrer votre identifiant de participant !</string>
+    <string name="hint_enter_id">Entrer l\'ID</string>
+    <string name="button_start">Démarrer</string>
+    <string name="menu_about">À propos</string>
+    <string name="menu_exit">Quitter</string>
+    <string name="select_filebrowser">Sélectionner un fichier de configuration</string>
+
+    <string name="select_method">Veuillez sélectionner une méthode de test !</string>
+    <string name="select_method_browser">Sélectionner une méthode</string>
+
+
+    <string name="menu_preferences">Préférences</string>
+
+    <string name="preferences_categories_display">Affichage</string>
+    <string name="preferences_edgetoedge">Lecture bord à bord</string>
+    <string name="preferences_edgetoedge_summary_true">La vidéo remplit tout l\'écran (peut être coupée par la caméra)</string>
+    <string name="preferences_edgetoedge_summary_false">La vidéo évite l\'encoche de la caméra et les coins arrondis</string>
+
+    <string name="preferences_categories_config">Fichiers de configuration</string>
+    <string name="error_nodata_body">Fichier de configuration, méthode ou ID manquant. Veuillez entrer toutes les données !</string>
+    <string name="error_nodata_caption">Données manquantes</string>
+    <string name="error_id_used_body">Cet identifiant a déjà été utilisé !</string>
+    <string name="error_id_used_caption">ID déjà utilisé</string>
+    <string name="about_caption">À propos de SubjectivePlayer</string>
+    <string name="about_body">SubjectivePlayer pour Android a été développé par Werner Robitza à l\'Université de Vienne. Merci beaucoup de l\'utiliser !</string>
+    <string name="select_config_selected">Configuration sélectionnée :</string>
+    <string name="select_method_selected">Méthode sélectionnée :</string>
+    <string name="rate_ACR_caption">Veuillez évaluer</string>
+    <string name="rate_ACR_caption_extended">Veuillez évaluer la qualité audiovisuelle !</string>
+    <string name="rate_ACR_caption_short">Veuillez évaluer :</string>
+    <string name="preferences_allowduplicateids">Autoriser les ID en double</string>
+    <string name="preferences_allowduplicateids_summary_true">Autoriser les ID en double dans le test</string>
+    <string name="preferences_allowduplicateids_summary_false">Ne pas autoriser les ID en double dans le test</string>
+    <string name="rate_continuous_caption">Veuillez évaluer</string>
+    <string name="dialog_no_ticks_max">Max</string>
+    <string name="dialog_no_ticks_min">Min</string>
+    <string name="preferences_categories_continuous">Préférences d\'évaluation continue</string>
+    <string name="preferences_noticks_caption">Pas de graduations</string>
+    <string name="preferences_noticks_summary_true">Ne pas afficher les graduations sur le curseur</string>
+    <string name="preferences_noticks_summary_false">Afficher les graduations sur le curseur</string>
+
+    <string name="submit">Soumettre</string>
+    <string name="rate">ÉVALUER</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">Excellent</string>
+    <string name="acr_good">Bon</string>
+    <string name="acr_fair">Assez Bon</string>
+    <string name="acr_poor">Médiocre</string>
+    <string name="acr_bad">Mauvais</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>Excellent</item>
+        <item>Bon</item>
+        <item>Assez Bon</item>
+        <item>Médiocre</item>
+        <item>Mauvais</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">Pause</string>
+    <string name="break_message">Veuillez faire une pause dans l\'évaluation des vidéos.</string>
+    <string name="break_timer_countdown">Vous pouvez continuer dans %d secondes</string>
+    <string name="break_timer_ready">Vous pouvez continuer maintenant</string>
+    <string name="break_supervisor_message">Votre superviseur de test vous indiquera quand vous pourrez continuer.</string>
+    <string name="break_continue">Continuer</string>
+
+    <!-- Start screen strings -->
+    <string name="start_message_default">Merci de participer à ce test !\n\nLorsque vous cliquerez sur « Continuer », une vidéo sera lue. Après chaque vidéo, il vous sera demandé d\'évaluer la qualité.\n\nVeuillez donner votre évaluation et cliquer sur « Évaluer ».</string>
+    <string name="start_continue">Continuer</string>
+
+    <!-- Finish screen strings -->
+    <string name="finish_message_default">Merci d\'avoir participé à ce test.\n\nVous avez maintenant terminé.\n\nVeuillez en informer votre superviseur de test.</string>
+    <string name="finish_ok">OK</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">Valider les fichiers de configuration</string>
+    <string name="validate_title">Validation de la configuration</string>
+    <string name="validate_running">Validation des fichiers de configuration…</string>
+    <string name="validate_success">Tous les fichiers de configuration sont valides et toutes les vidéos existent.</string>
+    <string name="validate_no_config_files">Aucun fichier de configuration trouvé dans le dossier SubjectiveCfg.</string>
+    <string name="validate_errors_found">%d erreur(s) trouvée(s) :</string>
+
+    <!-- Training section strings -->
+    <string name="training_intro_message_default">Dans ce qui suit, vous verrez quelques séquences d\'entraînement. Ces vidéos vous montreront ce que vous pouvez attendre du test principal et vous permettront de vous familiariser avec la procédure d\'évaluation.\n\nLorsque vous cliquerez sur « Continuer », elles commenceront.\n\nVeuillez demander de l\'aide à l\'expérimentateur si vous n\'êtes pas sûr de ce qu\'il faut faire ou si vous avez besoin de clarifications.</string>
+    <string name="training_complete_message_default">Entraînement terminé !\n\nVous avez terminé la section d\'entraînement. Le test principal va maintenant commencer.\n\nCliquez sur « Continuer » pour démarrer.</string>
+    <string name="training_continue">Continuer</string>
+</resources>

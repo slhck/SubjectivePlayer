@@ -46,7 +46,15 @@ Author: Werner Robitza
   - User ratings are based on IDs, so we can identify different participants later
   - Logging of the user ratings to CSV files
   - On-device validation of playlists
-  - Internationalization (i18n) support – currently English and German
+  - Internationalization (i18n) support:
+    - 🇺🇸 English
+    - 🇩🇪 German
+    - 🇫🇷 French
+    - 🇮🇹 Italian
+    - 🇪🇸 Spanish
+    - 🇯🇵 Japanese
+    - 🇰🇷 Korean
+    - 🇨🇳 Chinese (Simplified)
 - Session management:
   - Training sessions to familiarize users with the rating procedure
   - Breaks between videos to prevent viewer fatigue

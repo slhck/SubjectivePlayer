@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Android용 SubjectivePlayer에 오신 것을 환영합니다!</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">비디오가 포함된 설정 파일을 선택하세요!</string>
+    <string name="select_id">참가자 ID를 입력하세요!</string>
+    <string name="hint_enter_id">ID 입력</string>
+    <string name="button_start">시작</string>
+    <string name="menu_about">앱 정보</string>
+    <string name="menu_exit">종료</string>
+    <string name="select_filebrowser">설정 파일 선택</string>
+
+    <string name="select_method">테스트 방법을 선택하세요!</string>
+    <string name="select_method_browser">방법 선택</string>
+
+
+    <string name="menu_preferences">설정</string>
+
+    <string name="preferences_categories_display">디스플레이</string>
+    <string name="preferences_edgetoedge">전체 화면 재생</string>
+    <string name="preferences_edgetoedge_summary_true">비디오가 전체 화면을 채웁니다 (카메라에 의해 잘릴 수 있음)</string>
+    <string name="preferences_edgetoedge_summary_false">비디오가 카메라 컷아웃과 둥근 모서리를 피합니다</string>
+
+    <string name="preferences_categories_config">설정 파일</string>
+    <string name="error_nodata_body">설정 파일, 방법 또는 ID가 없습니다. 모든 데이터를 입력하세요!</string>
+    <string name="error_nodata_caption">데이터 누락</string>
+    <string name="error_id_used_body">이 ID는 이미 사용되었습니다!</string>
+    <string name="error_id_used_caption">ID 이미 사용됨</string>
+    <string name="about_caption">SubjectivePlayer 정보</string>
+    <string name="about_body">Android용 SubjectivePlayer는 비엔나 대학교의 Werner Robitza가 개발했습니다. 사용해 주셔서 감사합니다!</string>
+    <string name="select_config_selected">선택된 설정:</string>
+    <string name="select_method_selected">선택된 방법:</string>
+    <string name="rate_ACR_caption">평가해 주세요</string>
+    <string name="rate_ACR_caption_extended">시청각 품질을 평가해 주세요!</string>
+    <string name="rate_ACR_caption_short">평가:</string>
+    <string name="preferences_allowduplicateids">중복 ID 허용</string>
+    <string name="preferences_allowduplicateids_summary_true">테스트에서 중복 ID 허용</string>
+    <string name="preferences_allowduplicateids_summary_false">테스트에서 중복 ID 허용 안 함</string>
+    <string name="rate_continuous_caption">평가해 주세요</string>
+    <string name="dialog_no_ticks_max">최대</string>
+    <string name="dialog_no_ticks_min">최소</string>
+    <string name="preferences_categories_continuous">연속 평가 설정</string>
+    <string name="preferences_noticks_caption">눈금 없음</string>
+    <string name="preferences_noticks_summary_true">슬라이더에 눈금 표시 안 함</string>
+    <string name="preferences_noticks_summary_false">슬라이더에 눈금 표시</string>
+
+    <string name="submit">제출</string>
+    <string name="rate">평가</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">매우 좋음</string>
+    <string name="acr_good">좋음</string>
+    <string name="acr_fair">보통</string>
+    <string name="acr_poor">나쁨</string>
+    <string name="acr_bad">매우 나쁨</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>매우 좋음</item>
+        <item>좋음</item>
+        <item>보통</item>
+        <item>나쁨</item>
+        <item>매우 나쁨</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">휴식</string>
+    <string name="break_message">비디오 평가를 잠시 쉬어 주세요.</string>
+    <string name="break_timer_countdown">%d초 후에 계속할 수 있습니다</string>
+    <string name="break_timer_ready">지금 계속할 수 있습니다</string>
+    <string name="break_supervisor_message">테스트 감독관이 계속할 수 있는 시간을 알려드립니다.</string>
+    <string name="break_continue">계속</string>
+
+    <!-- Start screen strings -->
+    <string name="start_message_default">이 테스트에 참여해 주셔서 감사합니다!\n\n\"계속\"을 클릭하면 비디오가 재생됩니다. 각 비디오 후에 품질을 평가하도록 요청받게 됩니다.\n\n평가를 입력하고 \"평가\"를 클릭해 주세요.</string>
+    <string name="start_continue">계속</string>
+
+    <!-- Finish screen strings -->
+    <string name="finish_message_default">이 테스트에 참여해 주셔서 감사합니다.\n\n이제 완료되었습니다.\n\n테스트 감독관에게 알려 주세요.</string>
+    <string name="finish_ok">확인</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">설정 파일 검증</string>
+    <string name="validate_title">설정 검증</string>
+    <string name="validate_running">설정 파일 검증 중…</string>
+    <string name="validate_success">모든 설정 파일이 유효하고 모든 비디오가 존재합니다.</string>
+    <string name="validate_no_config_files">SubjectiveCfg 폴더에서 설정 파일을 찾을 수 없습니다.</string>
+    <string name="validate_errors_found">%d개의 오류 발견:</string>
+
+    <!-- Training section strings -->
+    <string name="training_intro_message_default">다음으로 몇 가지 훈련 시퀀스를 보게 됩니다. 이 비디오들은 본 테스트에서 무엇을 기대할 수 있는지 보여주고 평가 절차에 익숙해지도록 도와줍니다.\n\n\"계속\"을 클릭하면 시작됩니다.\n\n무엇을 해야 할지 확실하지 않거나 설명이 필요하면 실험자에게 도움을 요청하세요.</string>
+    <string name="training_complete_message_default">훈련 완료!\n\n훈련 섹션을 완료했습니다. 이제 본 테스트가 시작됩니다.\n\n\"계속\"을 클릭하여 시작하세요.</string>
+    <string name="training_continue">계속</string>
+</resources>

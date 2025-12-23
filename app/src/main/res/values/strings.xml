@@ -44,7 +44,7 @@
     <string name="preferences_noticks_summary_true">Show no ticks on the slider</string>
     <string name="preferences_noticks_summary_false">Show ticks on the slider</string>
 
-    <string name="submi1t">Submit</string>
+    <string name="submit">Submit</string>
     <string name="rate">RATE</string>
 
     <!-- Individual items for custom dialogs -->

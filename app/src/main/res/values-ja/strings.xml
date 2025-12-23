@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Android用SubjectivePlayerへようこそ！</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">ビデオを含む設定ファイルを選択してください！</string>
+    <string name="select_id">参加者IDを入力してください！</string>
+    <string name="hint_enter_id">IDを入力</string>
+    <string name="button_start">開始</string>
+    <string name="menu_about">アプリについて</string>
+    <string name="menu_exit">終了</string>
+    <string name="select_filebrowser">設定ファイルを選択</string>
+
+    <string name="select_method">テスト方法を選択してください！</string>
+    <string name="select_method_browser">方法を選択</string>
+
+
+    <string name="menu_preferences">設定</string>
+
+    <string name="preferences_categories_display">表示</string>
+    <string name="preferences_edgetoedge">エッジツーエッジ再生</string>
+    <string name="preferences_edgetoedge_summary_true">ビデオが画面全体に表示されます（カメラにより一部切れる場合があります）</string>
+    <string name="preferences_edgetoedge_summary_false">ビデオはカメラの切り欠きと角の丸みを避けて表示されます</string>
+
+    <string name="preferences_categories_config">設定ファイル</string>
+    <string name="error_nodata_body">設定ファイル、方法、またはIDがありません。すべてのデータを入力してください！</string>
+    <string name="error_nodata_caption">データ不足</string>
+    <string name="error_id_used_body">このIDはすでに使用されています！</string>
+    <string name="error_id_used_caption">ID使用済み</string>
+    <string name="about_caption">SubjectivePlayerについて</string>
+    <string name="about_body">Android用SubjectivePlayerはウィーン大学のWerner Robitzaによって開発されました。ご利用いただきありがとうございます！</string>
+    <string name="select_config_selected">選択された設定：</string>
+    <string name="select_method_selected">選択された方法：</string>
+    <string name="rate_ACR_caption">評価してください</string>
+    <string name="rate_ACR_caption_extended">映像音声品質を評価してください！</string>
+    <string name="rate_ACR_caption_short">評価：</string>
+    <string name="preferences_allowduplicateids">重複IDを許可</string>
+    <string name="preferences_allowduplicateids_summary_true">テストで重複IDを許可する</string>
+    <string name="preferences_allowduplicateids_summary_false">テストで重複IDを許可しない</string>
+    <string name="rate_continuous_caption">評価してください</string>
+    <string name="dialog_no_ticks_max">最大</string>
+    <string name="dialog_no_ticks_min">最小</string>
+    <string name="preferences_categories_continuous">連続評価の設定</string>
+    <string name="preferences_noticks_caption">目盛りなし</string>
+    <string name="preferences_noticks_summary_true">スライダーに目盛りを表示しない</string>
+    <string name="preferences_noticks_summary_false">スライダーに目盛りを表示する</string>
+
+    <string name="submit">送信</string>
+    <string name="rate">評価</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">非常に良い</string>
+    <string name="acr_good">良い</string>
+    <string name="acr_fair">普通</string>
+    <string name="acr_poor">悪い</string>
+    <string name="acr_bad">非常に悪い</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>非常に良い</item>
+        <item>良い</item>
+        <item>普通</item>
+        <item>悪い</item>
+        <item>非常に悪い</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">休憩</string>
+    <string name="break_message">ビデオ評価から休憩してください。</string>
+    <string name="break_timer_countdown">%d秒後に続行できます</string>
+    <string name="break_timer_ready">続行できます</string>
+    <string name="break_supervisor_message">続行できるタイミングはテスト監督者がお知らせします。</string>
+    <string name="break_continue">続行</string>
+
+    <!-- Start screen strings -->
+    <string name="start_message_default">このテストにご参加いただきありがとうございます！\n\n「続行」をクリックするとビデオが再生されます。各ビデオの後、品質を評価していただきます。\n\n評価を入力して「評価」をクリックしてください。</string>
+    <string name="start_continue">続行</string>
+
+    <!-- Finish screen strings -->
+    <string name="finish_message_default">このテストにご参加いただきありがとうございました。\n\nこれで終了です。\n\nテスト監督者にお知らせください。</string>
+    <string name="finish_ok">OK</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">設定ファイルを検証</string>
+    <string name="validate_title">設定の検証</string>
+    <string name="validate_running">設定ファイルを検証中…</string>
+    <string name="validate_success">すべての設定ファイルが有効で、すべてのビデオが存在します。</string>
+    <string name="validate_no_config_files">SubjectiveCfgフォルダに設定ファイルが見つかりません。</string>
+    <string name="validate_errors_found">%d件のエラーが見つかりました：</string>
+
+    <!-- Training section strings -->
+    <string name="training_intro_message_default">次に、いくつかのトレーニングシーケンスをご覧いただきます。これらのビデオは本テストで何を期待できるかを示し、評価手順に慣れていただくためのものです。\n\n「続行」をクリックすると開始します。\n\n何をすべきかわからない場合や説明が必要な場合は、実験者に助けを求めてください。</string>
+    <string name="training_complete_message_default">トレーニング完了！\n\nトレーニングセクションが終了しました。本テストが始まります。\n\n「続行」をクリックして開始してください。</string>
+    <string name="training_continue">続行</string>
+</resources>

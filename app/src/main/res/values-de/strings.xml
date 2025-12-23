@@ -44,21 +44,22 @@
     <string name="preferences_noticks_summary_true">Keine Markierungen am Slider angezeigt</string>
     <string name="preferences_noticks_summary_false">Markierungen am Slider werden angezeigt</string>
 
+    <string name="submit">Absenden</string>
     <string name="rate">BEWERTEN</string>
 
     <!-- Individual items for custom dialogs -->
-    <string name="acr_excellent">Ausgezeichnet</string>
+    <string name="acr_excellent">Sehr gut</string>
     <string name="acr_good">Gut</string>
-    <string name="acr_fair">Ordentlich</string>
-    <string name="acr_poor">Dürftig</string>
+    <string name="acr_fair">Annehmbar</string>
+    <string name="acr_poor">Mäßig</string>
     <string name="acr_bad">Schlecht</string>
 
     <!-- String array for standard dialogs -->
     <string-array name="acr_labels">
-        <item>Ausgezeichnet</item>
+        <item>Sehr gut</item>
         <item>Gut</item>
-        <item>Ordentlich</item>
-        <item>Dürftig</item>
+        <item>Annehmbar</item>
+        <item>Mäßig</item>
         <item>Schlecht</item>
     </string-array>
 
