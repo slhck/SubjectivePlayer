@@ -2,6 +2,19 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.0.2] - 2025-12-23
+
+### CI/CD
+
+- Fix formatting
+- Fix formatting
+- Better file naming
+
+### Documentation
+
+- Link to changelog
+- Update readme
+
 ## [2.0.1] - 2025-12-23
 
 ### Bug Fixes
