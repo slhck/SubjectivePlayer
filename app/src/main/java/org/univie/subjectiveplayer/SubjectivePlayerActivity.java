@@ -17,7 +17,6 @@
 package org.univie.subjectiveplayer;
 
 import java.io.File;
-import java.io.FilenameFilter;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -41,12 +40,12 @@ import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.TextView;
+
 import com.google.android.material.appbar.MaterialToolbar;
 
-public class SubjectivePlayer extends AppCompatActivity {
+public class SubjectivePlayerActivity extends AppCompatActivity {
 
-	private static final String TAG = SubjectivePlayer.class.getSimpleName();
+	private static final String TAG = SubjectivePlayerActivity.class.getSimpleName();
 
 	static final int DIALOG_ABOUT_ID = 0;
 	static final int DIALOG_FILEBROWSER = 1;
@@ -151,14 +150,14 @@ public class SubjectivePlayer extends AppCompatActivity {
 		} else if (itemId == R.id.menu_preferences) {
 			Intent prefIntent = new Intent();
 			prefIntent.setClass(getApplicationContext(),
-					SubjectivePlayerPreferences.class);
+					PreferencesActivity.class);
 			startActivity(prefIntent);
 			return true;
 		} else if (itemId == R.id.menu_about) {
 			showDialog(DIALOG_ABOUT_ID);
 			return true;
 		} else if (itemId == R.id.menu_exit) {
-			SubjectivePlayer.this.finish();
+			SubjectivePlayerActivity.this.finish();
 			return true;
 		}
 
@@ -281,7 +280,7 @@ public class SubjectivePlayer extends AppCompatActivity {
 
                 // check if ID hasn't been used already
                 if (Configuration.sAllowDuplicateIds == false) {
-                    if (Logger.idExists(Session.sParticipantId)) {
+                    if (CsvLogger.idExists(Session.sParticipantId)) {
 						Log.w(TAG, "Participant ID " + Session.sParticipantId + " already used");
                         showDialog(DIALOG_ID_ALREADY_USED);
                         return;
@@ -296,7 +295,7 @@ public class SubjectivePlayer extends AppCompatActivity {
 				if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS_RATING) {
 					Log.d(TAG, "Starting session with continuous rating method");
 					Intent sessionIntent = new Intent();
-					sessionIntent.setClass(getApplicationContext(), SubjectivePlayerSession.class);
+					sessionIntent.setClass(getApplicationContext(), SessionActivity.class);
 					startActivity(sessionIntent);
 				}
 				// else, use the classical method of rating (one video after another)
@@ -304,7 +303,7 @@ public class SubjectivePlayer extends AppCompatActivity {
 					Log.d(TAG, "Starting session with standard rating method");
 					Intent sessionIntent = new Intent();
 					sessionIntent.setClass(getApplicationContext(),
-							SubjectivePlayerSession.class);
+							SessionActivity.class);
 					startActivity(sessionIntent);
 				}
 			}

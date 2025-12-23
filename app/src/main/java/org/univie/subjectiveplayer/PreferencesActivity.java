@@ -29,7 +29,7 @@ import androidx.preference.PreferenceFragmentCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-public class SubjectivePlayerPreferences extends AppCompatActivity {
+public class PreferencesActivity extends AppCompatActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);

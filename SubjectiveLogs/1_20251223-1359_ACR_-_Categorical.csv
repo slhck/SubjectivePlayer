@@ -1,0 +1,5 @@
+video_position,video_name,rating,rated_at
+0,test_video_01.mp4,3,2025-12-23T13:59:02+01:00
+1,test_video_02.mp4,3,2025-12-23T13:59:08+01:00
+-1,BREAK,,
+3,test_video_03.mp4,3,2025-12-23T13:59:26+01:00

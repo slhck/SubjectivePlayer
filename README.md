@@ -253,7 +253,7 @@ Results are written as CSV files. Each file is named with the pattern:
 <participant_id>_<datetime>_<method>.csv
 ```
 
-For example: `1_20250115-1430_ACR.csv`
+For example: `1_20250115-143055_ACR.csv`
 
 The CSV file contains one line per video rated, plus additional lines for breaks:
 

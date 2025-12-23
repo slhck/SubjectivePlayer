@@ -32,11 +32,12 @@ Output APK location: `app/build/outputs/apk/debug/app-debug.apk`
 
 The app follows a simple activity-based architecture with static utility classes:
 
-- `SubjectivePlayer` - Main activity: participant ID entry, loads playlist config file (`playlist<ID>.cfg`)
-- `SubjectivePlayerSession` - Video playback activity: uses `MediaPlayer` with `SurfaceView`, shows rating dialogs after each video
+- `SubjectivePlayerActivity` - Main activity: participant ID entry, loads playlist config file (`playlist<ID>.cfg`)
+- `SessionActivity` - Video playback activity: uses `MediaPlayer` with `SurfaceView`, shows rating dialogs after each video
+- `PreferencesActivity` - Settings activity: app preferences (storage paths, UI options)
 - `Configuration` - Static class managing storage paths and app preferences. Uses app-specific external storage (`/storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/`)
 - `Session` - Static class holding current test session state (participant ID, video list, ratings)
-- `Logger` - Static class writing CSV result files to `SubjectiveLogs/`
+- `CsvLogger` - Static class writing CSV result files to `SubjectiveLogs/`
 - `Methods` - Constants for rating methodologies (ACR Categorical, Continuous, DSIS)
 
 Strings are localized in `res/values/strings.xml`.
@@ -46,6 +47,7 @@ Layouts are in `res/layout/`.
 ## Rating Methods
 
 Defined in `Methods.java`:
+
 - `TYPE_ACR_CATEGORICAL` (0) - 5-point quality scale (Excellent/Good/Fair/Poor/Bad)
 - `TYPE_CONTINUOUS` (1) - Slider-based rating after each video
 - `TYPE_DSIS_CATEGORICAL` (2) - Impairment scale (not fully implemented)
@@ -104,6 +106,14 @@ All under app-specific storage (`ctx.getExternalFilesDir(null)`):
 - `SubjectiveCfg/` - Playlist files (`playlist1.cfg`, `playlist2.cfg`, etc.)
 - `SubjectiveMovies/` - Video files (H.264, H.265, VP9, VP8, AV1 in MP4/WebM/MKV containers)
 - `SubjectiveLogs/` - Output CSV files with ratings
+
+## Logging Behavior
+
+Ratings are logged continuously to the CSV file as they are collected. This prevents data loss if the test is cancelled before completion.
+
+**File naming**: `<participant_id>_<start_time>_<method>.csv` (e.g., `1_20231215-143052_ACR.csv`)
+
+**CSV format**: `video_position,video_name,rating,rated_at`
 
 ## Testing with Device
 

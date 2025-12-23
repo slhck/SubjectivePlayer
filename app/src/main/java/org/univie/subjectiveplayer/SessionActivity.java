@@ -49,7 +49,6 @@ import androidx.core.view.WindowInsetsCompat;
 import androidx.preference.PreferenceManager;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
@@ -60,7 +59,6 @@ import android.widget.AbsListView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
-import android.widget.RadioGroup;
 //import android.widget.LinearLayout.LayoutParams;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -77,11 +75,11 @@ import android.widget.Toast;
  * /apis/media/MediaPlayerDemo_Video.html - Licensed under the Apache License,
  * Version 2.0 - http://www.apache.org/licenses/LICENSE-2.0
  */
-public class SubjectivePlayerSession extends AppCompatActivity implements Callback,
+public class SessionActivity extends AppCompatActivity implements Callback,
 		OnCompletionListener, OnPreparedListener, OnVideoSizeChangedListener,
 		OnErrorListener {
 
-	private static final String TAG = SubjectivePlayerSession.class
+	private static final String TAG = SessionActivity.class
 			.getSimpleName();
 
 	private View mSeekBarDialogView = null;
@@ -302,6 +300,8 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 		super.onDestroy();
 		releasePlayer();
 		cleanUp();
+		// Close the session log file (ensures data is saved even if test is cancelled)
+		CsvLogger.closeSessionLog();
 		Session.reset();
 	}
 
@@ -580,14 +580,14 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 	}
 
 	/**
-	 * Finishes the current rating session by cleaning up the player and writing
-	 * the rating logs. Shows finish screen before actually finishing.
+	 * Finishes the current rating session by cleaning up the player and closing
+	 * the log file. Shows finish screen before actually finishing.
 	 */
 	private void finishSession() {
 		cleanUp();
 		releasePlayer();
 		if (Session.sCurrentMethod != Methods.TYPE_CONTINUOUS_RATING) {
-			Logger.writeSessionLogCSV();
+			CsvLogger.closeSessionLog();
 		}
 		// Show finish screen before ending
 		showFinishScreen();
@@ -604,10 +604,10 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 		Session.sCurrentTrack++;
 		if (Session.sCurrentTrack < Session.sTracks.size()) {
 			if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS) {
-				SubjectivePlayerSession.this.removeDialog(DIALOG_CONTINUOUS);
+				SessionActivity.this.removeDialog(DIALOG_CONTINUOUS);
 			}
 			if (Session.sCurrentMethod == Methods.TYPE_ACR_CATEGORICAL) {
-				SubjectivePlayerSession.this.removeDialog(DIALOG_ACR_CATEGORICAL);
+				SessionActivity.this.removeDialog(DIALOG_ACR_CATEGORICAL);
 			}
 
 			// Check if we just completed the last training video and need to show training complete
@@ -671,20 +671,20 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 		public void run() {
 			Log.d(TAG, "Running the thread for " + videoName);
 			try {
-				Logger.startContinuousLogCSV(videoName);
+				CsvLogger.startContinuousLogCSV(videoName);
 				while (mIsVideoPlaying) {
-					Logger.writeContinuousData(videoName, "" + mPlayer.getCurrentPosition(), "" + sCurrentRating);
+					CsvLogger.writeContinuousData(videoName, "" + mPlayer.getCurrentPosition(), "" + sCurrentRating);
 					Thread.sleep(RATING_INTERVAL);
 				}
 				Log.d(TAG, "Video " + videoName + " not playing anymore, stopping.");
-				Logger.closeContinuousLogCSV();
+				CsvLogger.closeContinuousLogCSV();
 			} catch (Exception e) {
-				Logger.closeContinuousLogCSV();
+				CsvLogger.closeContinuousLogCSV();
 			}
 		}
 		
 		public void stop() {
-			Logger.closeContinuousLogCSV();
+			CsvLogger.closeContinuousLogCSV();
 			Log.d(TAG, "Stopped logging thread for " + videoName);
 		}
 	}
@@ -715,8 +715,12 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 					new DialogInterface.OnClickListener() {
 						public void onClick(DialogInterface dialog, int item) {
 							int rating = item;
+							long ratedAt = System.currentTimeMillis();
 							Session.sRatings.add(rating);
-                            Session.sRatingTime.add(System.currentTimeMillis());
+                            Session.sRatingTime.add(ratedAt);
+							// Log rating immediately to file
+							String videoName = Session.sTracks.get(Session.sCurrentTrack);
+							CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt);
 							dialog.dismiss();
 							nextVideo();
 						}
@@ -869,9 +873,13 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
                     if (!v.isEnabled()) {
                         return;
                     }
+                    long ratedAt = System.currentTimeMillis();
                     Session.sRatings.add(mCurrentRating);
                     Log.d(TAG, "Rating saved: " + mCurrentRating);
-                    Session.sRatingTime.add(System.currentTimeMillis());
+                    Session.sRatingTime.add(ratedAt);
+                    // Log rating immediately to file
+                    String videoName = Session.sTracks.get(Session.sCurrentTrack);
+                    CsvLogger.logRating(Session.sCurrentTrack, videoName, mCurrentRating, ratedAt);
                     dismissCurrentDialog();
                     // reset buttons
                     for (RadioButton rb : radioButtonList) {
@@ -915,9 +923,13 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
 				@Override
 				public void onClick(View v) {
 					int rating = seekBar.getProgress();
+					long ratedAt = System.currentTimeMillis();
 					Session.sRatings.add(rating);
-					Session.sRatingTime.add(System.currentTimeMillis());
+					Session.sRatingTime.add(ratedAt);
 					Log.d(TAG, "Continuous rating saved: " + rating);
+					// Log rating immediately to file
+					String videoName = Session.sTracks.get(Session.sCurrentTrack);
+					CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt);
 					dismissCurrentDialog();
 					// Reset slider to center for next video
 					seekBar.setProgress(50);
@@ -1051,6 +1063,9 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
         Session.sRatingTime.add(System.currentTimeMillis());
         Log.d(TAG, "Added placeholder rating (" + BREAK_RATING_PLACEHOLDER + ") for BREAK at index " + Session.sCurrentTrack);
 
+        // Log break entry to file
+        CsvLogger.logBreak();
+
         // Proceed to next video
         nextVideo();
     }
@@ -1105,6 +1120,11 @@ public class SubjectivePlayerSession extends AppCompatActivity implements Callba
      */
     private void onStartScreenFinished() {
         Log.d(TAG, "onStartScreenFinished called");
+
+        // Start the session log file (for non-continuous rating methods)
+        if (Session.sCurrentMethod != Methods.TYPE_CONTINUOUS_RATING) {
+            CsvLogger.startSessionLog();
+        }
 
         // Dismiss the start dialog
         if (mStartDialog != null) {
