@@ -57,6 +57,8 @@ Here the ACR rating screen is shown after a video playback:
 - v1.1 – Commit [323123](https://github.com/slhck/SubjectivePlayer/commit/323123c43480ca5d846ac2fe56bd405bf03a3425) – updates for ITU-T Rec. P.1203 model development in 2017
 - v1.0 – Commit [742593b69cc4096368d9cbcafce362a3d9d2236c](https://github.com/slhck/SubjectivePlayer/commit/742593b69cc4096368d9cbcafce362a3d9d2236c) – initial commit in 2012
 
+For more details, see the [Changelog](CHANGELOG.md).
+
 ## Requirements
 
 For running the app, you need:
