@@ -39,3 +39,6 @@ Thumbs.db
 .classpath
 .project
 project.properties
+
+# logs
+SubjectiveLogs
