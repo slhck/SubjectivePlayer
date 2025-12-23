@@ -51,12 +51,41 @@ Defined in `Methods.java`:
 - `TYPE_DSIS_CATEGORICAL` (2) - Impairment scale (not fully implemented)
 - `TYPE_CONTINUOUS_RATING` (3) - Real-time rating during playback using volume buttons
 
-Enabled via playlist config file (e.g., `subject_1.cfg`):
+Enabled via playlist config file (e.g., `subject_1.cfg`).
+
+## Config File Syntax
+
+Config files (`subject_<id>.cfg`) support the following directives:
 
 ```
 METHOD ACR
-...
+START_MESSAGE Welcome to the test!\nClick Continue to begin.
+FINISH_MESSAGE Thank you!\nPlease notify the supervisor.
+BREAK 30
+video1.mp4
+video2.mp4
 ```
+
+**Directives** (parsed in `Session.readVideosFromFile()`):
+- `METHOD <type>` - Rating method: `ACR`, `CONTINUOUS`, `DSIS`, `CONTINUOUS_RATING`
+- `START_MESSAGE <text>` - Custom start screen message (optional)
+- `FINISH_MESSAGE <text>` - Custom finish screen message (optional)
+- `BREAK [seconds]` - Insert a break; if seconds specified, shows countdown timer
+
+**Newlines**: Use `\n` in message strings to insert line breaks.
+
+If `START_MESSAGE` or `FINISH_MESSAGE` are omitted, default messages from `strings.xml` are used.
+
+## Session Flow
+
+1. **Start Screen** → Shown before first video (Continue button)
+2. **Video Playback** → Video plays fullscreen
+3. **Rating Dialog** → User rates quality (ACR buttons or continuous slider)
+4. **Break Dialog** → If `BREAK` command encountered (optional timed countdown)
+5. **Repeat 2-4** → Until all videos rated
+6. **Finish Screen** → Shown after last rating (OK button)
+
+Start/finish screens use custom dialogs (`dialog_start.xml`, `dialog_finish.xml`) with the same button styling as rating dialogs (120×48dp, white text on gray background).
 
 ## Storage Directories
 
