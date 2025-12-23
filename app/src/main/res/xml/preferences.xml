@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:key="display"
+        android:title="@string/preferences_categories_display"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="true"
+            android:key="edgetoedge"
+            android:summaryOff="@string/preferences_edgetoedge_summary_false"
+            android:summaryOn="@string/preferences_edgetoedge_summary_true"
+            android:title="@string/preferences_edgetoedge"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="config"
+        android:title="@string/preferences_categories_config"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="allowduplicateids"
+            android:summaryOff="@string/preferences_allowduplicateids_summary_false"
+            android:summaryOn="@string/preferences_allowduplicateids_summary_true"
+            android:title="@string/preferences_allowduplicateids"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:key="continuous"
+        android:title="@string/preferences_categories_continuous"
+        app:iconSpaceReserved="false">
+
+        <SwitchPreferenceCompat
+            android:defaultValue="false"
+            android:key="noticks"
+            android:summaryOff="@string/preferences_noticks_summary_false"
+            android:summaryOn="@string/preferences_noticks_summary_true"
+            android:title="@string/preferences_noticks_caption"
+            app:iconSpaceReserved="false" />
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Willkommen im SubjectivePlayer für Android!</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">Bitte Konfigurationsdatei mit Videos auswählen!</string>
+    <string name="select_id">Bitte geben Sie die Teilnehmer-ID ein!</string>
+    <string name="hint_enter_id">ID eingeben</string>
+    <string name="button_start">Start</string>
+    <string name="menu_about">Über</string>
+    <string name="menu_exit">Beenden</string>
+    <string name="select_filebrowser">Konfigurationsdatei wählen</string>
+
+    <string name="select_method">Bitte wählen Sie eine Testmethode!</string>
+    <string name="select_method_browser">Methode wählen</string>
+
+
+    <string name="menu_preferences">Einstellungen</string>
+
+    <string name="preferences_categories_display">Anzeige</string>
+    <string name="preferences_edgetoedge">Randlose Wiedergabe</string>
+    <string name="preferences_edgetoedge_summary_true">Video füllt gesamten Bildschirm (kann von Kamera abgeschnitten werden)</string>
+    <string name="preferences_edgetoedge_summary_false">Video vermeidet Kameraausschnitt und abgerundete Ecken</string>
+
+    <string name="preferences_categories_config">Konfigurationsdateien</string>
+    <string name="error_nodata_body">ID oder Konfig-Datei zu ID fehlt!</string>
+    <string name="error_nodata_caption">Daten fehlen</string>
+    <string name="error_id_used_body">Diese ID wurde bereits verwendet!</string>
+    <string name="error_id_used_caption">ID schon verwendet</string>
+    <string name="about_caption">Über SubjectivePlayer</string>
+    <string name="about_body">SubjectivePlayer wurde von Werner Robitza an der Universität Wien entwickelt. Vielen Dank für die Nutzung!</string>
+    <string name="select_config_selected">Ausgewählte Konfiguration:</string>
+    <string name="select_method_selected">Ausgewählte Methode:</string>
+    <string name="rate_ACR_caption">Bitte bewerten</string>
+    <string name="rate_ACR_caption_extended">Bitte bewerten Sie die audiovisuelle Qualität!</string>
+    <string name="preferences_allowduplicateids">Mehrfache IDs</string>
+    <string name="preferences_allowduplicateids_summary_true">Erlaube mehrfache Verwendung von IDs</string>
+    <string name="preferences_allowduplicateids_summary_false">Erlaube keine mehrfache Verwendung von IDs</string>
+    <string name="rate_continuous_caption">Bitte bewerten</string>
+    <string name="rate_ACR_caption_short">Bitte bewerten:</string>
+    <string name="dialog_no_ticks_max">Max</string>
+    <string name="dialog_no_ticks_min">Min</string>
+    <string name="preferences_categories_continuous">Kontinuierliche Bewertung</string>
+    <string name="preferences_noticks_caption">Keine Markierungen</string>
+    <string name="preferences_noticks_summary_true">Keine Markierungen am Slider angezeigt</string>
+    <string name="preferences_noticks_summary_false">Markierungen am Slider werden angezeigt</string>
+
+    <string name="submit">Absenden</string>
+    <string name="rate">BEWERTEN</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">Ausgezeichnet</string>
+    <string name="acr_good">Gut</string>
+    <string name="acr_fair">Ordentlich</string>
+    <string name="acr_poor">Dürftig</string>
+    <string name="acr_bad">Schlecht</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>Ausgezeichnet</item>
+        <item>Gut</item>
+        <item>Ordentlich</item>
+        <item>Dürftig</item>
+        <item>Schlecht</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">Pause</string>
+    <string name="break_message">Bitte machen Sie eine Pause von der Bewertung.</string>
+    <string name="break_timer_countdown">Sie können in %d Sekunden fortfahren</string>
+    <string name="break_timer_ready">Sie können jetzt fortfahren</string>
+    <string name="break_supervisor_message">Ihr Testleiter wird Ihnen mitteilen, wann Sie fortfahren können.</string>
+    <string name="break_continue">Weiter</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">Konfigurationsdateien prüfen</string>
+    <string name="validate_title">Konfigurationsprüfung</string>
+    <string name="validate_running">Prüfe Konfigurationsdateien…</string>
+    <string name="validate_success">Alle Konfigurationsdateien sind gültig und alle Videos vorhanden.</string>
+    <string name="validate_no_config_files">Keine Konfigurationsdateien im SubjectiveCfg-Ordner gefunden.</string>
+    <string name="validate_errors_found">%d Fehler gefunden:</string>
+</resources>

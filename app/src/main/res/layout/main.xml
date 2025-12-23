@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:app="http://schemas.android.com/apk/res-auto"
+	android:id="@+id/main_layout"
+	android:orientation="vertical"
+	android:background="@color/background_dark"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent">
+
+	<com.google.android.material.appbar.MaterialToolbar
+		android:id="@+id/toolbar"
+		android:layout_width="match_parent"
+		android:layout_height="?attr/actionBarSize"
+		android:background="@color/primary_dark"
+		app:title="@string/app_name"
+		app:titleTextColor="@color/white" />
+
+	<ScrollView
+		android:id="@+id/scroll_view"
+		android:layout_width="match_parent"
+		android:layout_height="match_parent"
+		android:fillViewport="true">
+
+		<LinearLayout
+			android:id="@+id/content_layout"
+			android:orientation="vertical"
+			android:layout_width="match_parent"
+			android:layout_height="wrap_content"
+			android:padding="16dp">
+
+			<TextView
+				android:id="@+id/text_select_config_selected"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:textColor="@color/white" />
+
+			<TextView
+				android:id="@+id/text_select_id"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:text="@string/select_id"
+				android:paddingTop="10dp"
+				android:textColor="@color/white" />
+
+			<EditText
+				android:id="@+id/edit_id"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="8dp"
+				android:digits="0123456789"
+				android:inputType="number"
+				android:hint="@string/hint_enter_id"
+				android:textColor="@color/white"
+				android:textColorHint="@color/text_hint">
+				<requestFocus />
+			</EditText>
+
+			<Button
+				android:id="@+id/button_start"
+				android:layout_width="match_parent"
+				android:layout_height="wrap_content"
+				android:layout_marginTop="16dp"
+				android:text="@string/button_start" />
+
+		</LinearLayout>
+
+	</ScrollView>
+</LinearLayout>

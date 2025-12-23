@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="hello">Welcome to SubjectivePlayer for Android!</string>
+    <string name="app_name">SubjectivePlayer</string>
+    <string name="select_config">Please select a config file containing the videos!</string>
+    <string name="select_id">Please enter your participant ID!</string>
+    <string name="hint_enter_id">Enter ID</string>
+    <string name="button_start">Start</string>
+    <string name="menu_about">About</string>
+    <string name="menu_exit">Exit</string>
+    <string name="select_filebrowser">Select a config file</string>
+
+    <string name="select_method">Please select a testing method!</string>
+    <string name="select_method_browser">Select a method</string>
+
+
+    <string name="menu_preferences">Preferences</string>
+
+    <string name="preferences_categories_display">Display</string>
+    <string name="preferences_edgetoedge">Edge-to-edge playback</string>
+    <string name="preferences_edgetoedge_summary_true">Video fills entire screen (may be cut off by camera)</string>
+    <string name="preferences_edgetoedge_summary_false">Video avoids camera cutout and rounded corners</string>
+
+    <string name="preferences_categories_config">Configuration files</string>
+    <string name="error_nodata_body">Missing config file, method or ID. Please enter all data!</string>
+    <string name="error_nodata_caption">Missing data</string>
+    <string name="error_id_used_body">This ID has already been used!</string>
+    <string name="error_id_used_caption">ID already used</string>
+    <string name="about_caption">About SubjectivePlayer</string>
+    <string name="about_body">SubjectivePlayer for Android was developed by Werner Robitza at the University of Vienna. Thanks a lot for using!</string>
+    <string name="select_config_selected">Selected config:</string>
+    <string name="select_method_selected">Selected method:</string>
+    <string name="rate_ACR_caption">Please rate</string>
+    <string name="rate_ACR_caption_extended">Please rate the audiovisual quality!</string>
+    <string name="rate_ACR_caption_short">Please rate:</string>
+    <string name="preferences_allowduplicateids">Allow duplicate IDs</string>
+    <string name="preferences_allowduplicateids_summary_true">Allow duplicate IDs in the test</string>
+    <string name="preferences_allowduplicateids_summary_false">Do not allow duplicate IDs in the test</string>
+    <string name="rate_continuous_caption">Please rate</string>
+    <string name="dialog_no_ticks_max">Max</string>
+    <string name="dialog_no_ticks_min">Min</string>
+    <string name="preferences_categories_continuous">Continuous rating preferences</string>
+    <string name="preferences_noticks_caption">No ticks</string>
+    <string name="preferences_noticks_summary_true">Show no ticks on the slider</string>
+    <string name="preferences_noticks_summary_false">Show ticks on the slider</string>
+
+    <string name="submi1t">Submit</string>
+    <string name="rate">RATE</string>
+
+    <!-- Individual items for custom dialogs -->
+    <string name="acr_excellent">Excellent</string>
+    <string name="acr_good">Good</string>
+    <string name="acr_fair">Fair</string>
+    <string name="acr_poor">Poor</string>
+    <string name="acr_bad">Bad</string>
+
+    <!-- String array for standard dialogs -->
+    <string-array name="acr_labels">
+        <item>Excellent</item>
+        <item>Good</item>
+        <item>Fair</item>
+        <item>Poor</item>
+        <item>Bad</item>
+    </string-array>
+
+    <!-- Break dialog strings -->
+    <string name="break_title">Break</string>
+    <string name="break_message">Please take a break from rating videos.</string>
+    <string name="break_timer_countdown">You may continue in %d seconds</string>
+    <string name="break_timer_ready">You may continue now</string>
+    <string name="break_supervisor_message">Your test supervisor will let you know when you can continue.</string>
+    <string name="break_continue">Continue</string>
+
+    <!-- Config validation strings -->
+    <string name="menu_validate">Validate config files</string>
+    <string name="validate_title">Config Validation</string>
+    <string name="validate_running">Validating config files…</string>
+    <string name="validate_success">All config files are valid and all videos exist.</string>
+    <string name="validate_no_config_files">No config files found in SubjectiveCfg folder.</string>
+    <string name="validate_errors_found">Found %d error(s):</string>
+</resources>
