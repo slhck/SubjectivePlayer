@@ -31,16 +31,25 @@ jobs:
       - name: Build Release APK
         run: ./gradlew assembleRelease
 
+      - name: Get version from tag
+        if: startsWith(github.ref, 'refs/tags/')
+        id: get_version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Rename APK
+        run: |
+          cd app/build/outputs/apk/release
+          if [ -n "${{ steps.get_version.outputs.VERSION }}" ]; then
+            mv app-release-unsigned.apk SubjectivePlayer-${{ steps.get_version.outputs.VERSION }}.apk
+          else
+            mv app-release-unsigned.apk SubjectivePlayer-dev.apk
+          fi
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: SubjectivePlayer-release
           path: app/build/outputs/apk/release/*.apk
-
-      - name: Get version from tag
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
-        id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
       - name: Create GitHub Release
         if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
@@ -59,7 +68,7 @@ jobs:
             **Note:** This is an unsigned release build. To install, run the following, or enable installation from unknown sources on your device:
 
             ```bash
-            adb install app-release-unsigned.apk
+            adb install SubjectivePlayer-${{ steps.get_version.outputs.VERSION }}.apk
             ```
 
         env:
