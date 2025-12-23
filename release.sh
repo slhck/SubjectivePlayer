@@ -150,9 +150,10 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
     echo
     echo "Release v$NEW_VERSION created successfully!"
     echo
-    echo "To push the release:"
-    echo "  git push origin master"
-    echo "  git push origin v$NEW_VERSION"
+    git push origin "$CURRENT_BRANCH"
+    git push origin "$CURRENT_BRANCH" --tags
+    echo
+    echo "Pushed changes and tags to remote repository."
 else
     echo "Aborted."
     exit 1
