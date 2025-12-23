@@ -56,13 +56,12 @@ jobs:
 
             Download the APK file below and install it on your Android device.
 
-            **Note:** This is an unsigned release build. To install:
+            **Note:** This is an unsigned release build. To install, run the following, or enable installation from unknown sources on your device:
 
             ```bash
             adb install app-release-unsigned.apk
             ```
 
-            Alternatively, enable "Install from unknown sources" in your device settings and install directly.
             ---
 
         env:
