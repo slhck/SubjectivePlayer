@@ -64,13 +64,14 @@ For running the app, you need:
 - Android device running Android 7.0 (Nougat) or higher (API level 24+)
 - Storage access for video files and playlists
 - Enable "Install from unknown sources" or use ADB to install the APK
-- **Note:** We currently do not provide pre-built APKs – but we are working on it. You need to build the app from source.
 
-For building it, you need:
+Pre-built APKs are available from the [Releases page](https://github.com/slhck/SubjectivePlayer/releases/latest). These are unsigned builds that can be installed via `adb install`.
+
+For building it yourself, you need:
 
 - Android SDK with:
- - Build Tools 34.0.0 or higher
- - Platform SDK 35 (Android 15) or higher
+  - Build Tools 34.0.0 or higher
+  - Platform SDK 35 (Android 15) or higher
 - Java Development Kit (JDK) 17 or higher
 - Gradle 8.9 or higher (included via wrapper)
 
