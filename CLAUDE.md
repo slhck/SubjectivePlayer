@@ -102,7 +102,7 @@ Start/finish/training screens use custom dialogs (`dialog_start.xml`, `dialog_fi
 
 All under app-specific storage (`ctx.getExternalFilesDir(null)`):
 - `SubjectiveCfg/` - Playlist files (`playlist1.cfg`, `playlist2.cfg`, etc.)
-- `SubjectiveMovies/` - Video files (H.264/AAC MP4)
+- `SubjectiveMovies/` - Video files (H.264, H.265, VP9, VP8, AV1 in MP4/WebM/MKV containers)
 - `SubjectiveLogs/` - Output CSV files with ratings
 
 ## Testing with Device

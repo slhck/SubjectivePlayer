@@ -12,7 +12,7 @@ Author: Werner Robitza
 - [Recent Changes](#recent-changes)
 - [Requirements](#requirements)
 - [Quick Start](#quick-start)
-- [Usage](#usage)
+- [How to Use](#how-to-use)
   - [Prepare Video Files](#prepare-video-files)
   - [Prepare Playlists](#prepare-playlists)
   - [Move the Files to the Device](#move-the-files-to-the-device)
@@ -28,7 +28,8 @@ Author: Werner Robitza
 ## Features
 
 - Playback:
-  - MPEG-4 AVC (H.264) coded videos, either in .mp4 format
+  - Multiple video codecs: H.264, H.265/HEVC, VP9, VP8, AV1
+  - Multiple container formats: MP4, WebM, MKV, 3GP
   - Edge-to-edge playback, utilizing the full screen, or avoiding display cutouts and rounded corners
   - Playlists to define which videos to show to which users – different playlists for different users may be used
 - Rating:
@@ -108,22 +109,40 @@ It will show three videos, ask for a rating, and then finish.
 
 To create your own test files, see the detailed usage instructions below.
 
-## Usage
+## How to Use
 
 To create your own test setup, follow these steps.
 
 ### Prepare Video Files
 
-Prepare your videos as H.264/AAC in MP4 format for device compatibility. We recommend using the following encoding settings:
+The app uses Android's native `MediaPlayer` for playback, which supports a wide range of video codecs and containers. Here's what's available:
 
-- Video codec: H.264 (AVC), High Profile, using a tool like FFmpeg or HandBrake
-- Audio codec: AAC, 320 kbps, stereo
-- Resolution: Match device display (e.g., 1920x1080 for Full HD)
-- Frame rate: 30 fps or 60 fps
-- Bitrate: Use CRF (`-crf 18` or lower in FFmpeg) for good quality that should be visually lossless but still reasonable in size
+| Codec          | Container Formats | Notes                                                    |
+| -------------- | ----------------- | -------------------------------------------------------- |
+| H.264/AVC  | MP4, MKV, 3GP     | Best compatibility across all devices                    |
+| H.265/HEVC | MP4, MKV          | Better compression; Android 5.0+ (all supported devices) |
+| AV1        | MP4, WebM, MKV    | Best compression; Android 10+ (hardware support varies)  |
+| VP9        | WebM, MKV, MP4    | Royalty-free alternative; Android 4.4+                   |
+| VP8        | WebM, MKV         | Older royalty-free codec; Android 4.0+; not recommended  |
+
+For more information, see the Android documentation on [Supported Media Formats](https://developer.android.com/media/platform/supported-formats).
+
+When preparing video files for subjective testing, consider the following recommendations to ensure compatibility and quality.
+
+- Video codec: H.264 (AVC), High Profile
+- Audio codec: AAC, 128-320 kbps, stereo
+- Resolution: Match device display (e.g., 1920×1080 for Full HD), otherwise the device will scale the video during playback
+- Frame rate: keep the original frame rate (e.g., 24, 25, 30, 60 fps)
+- Bitrate: Use CRF (`-crf 18` or lower in FFmpeg) for visually lossless quality
 - Container: MP4
 
-Note: Depending on hardware capabilities, some devices may have limitations on maximum resolution or bitrate. On the other side of the spectrum, if the device has HEVC hardware decoding support, you may consider using H.265/HEVC for better compression efficiency or quality.
+Example FFmpeg command:
+
+```bash
+ffmpeg -i input.mp4 -c:v libx264 -crf 18 -preset slow -c:a aac -b:a 320k output.mp4
+```
+
+Note that hardware decoding support varies by device; software decoding may be used as fallback. The maximum resolution/bitrate depends on device hardware capabilities
 
 ### Prepare Playlists
 
