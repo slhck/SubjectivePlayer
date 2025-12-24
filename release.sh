@@ -132,6 +132,15 @@ else
 fi
 
 if [[ $REPLY =~ ^[Yy]$ ]]; then
+    # run lint and tests before releasing
+    echo "Running lint and tests..."
+    if ! ./gradlew lint test; then
+        echo "Error: lint or tests failed. Please fix issues before releasing."
+        exit 1
+    fi
+    echo "Lint and tests passed."
+    echo
+
     # replace version number in build.gradle.kts (Kotlin DSL syntax)
     perl -pi -e "s/versionCode = \d+/versionCode = $VERSION_CODE/g" "$VERSION_FILE"
     perl -pi -e "s/versionName = \"[^\"]+\"/versionName = \"$NEW_VERSION\"/g" "$VERSION_FILE"
