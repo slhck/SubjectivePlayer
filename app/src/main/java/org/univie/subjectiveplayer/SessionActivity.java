@@ -822,13 +822,6 @@ public class SessionActivity extends AppCompatActivity implements Callback,
             RadioButton acrButtonPoor        = (RadioButton) mDialog.findViewById(R.id.radioButtonPoor);
             RadioButton acrButtonBad         = (RadioButton) mDialog.findViewById(R.id.radioButtonBad);
 
-            // Just some IDs
-            acrButtonExcellent.setId(0);
-            acrButtonGood.setId(1);
-            acrButtonFair.setId(2);
-            acrButtonPoor.setId(3);
-            acrButtonBad.setId(4);
-
             // Add all buttons to "group"
             radioButtonList.add(acrButtonExcellent);
             radioButtonList.add(acrButtonGood);
