@@ -118,7 +118,6 @@ public class SubjectivePlayerActivity extends AppCompatActivity {
 
 		mEditId = (EditText) findViewById(R.id.edit_id);
 		mEditId.setInputType(InputType.TYPE_CLASS_NUMBER);
-		mEditId.requestFocus();
 
 		Button buttonStart = (Button) findViewById(R.id.button_start);
 		buttonStart.setOnClickListener(mButtonStartListener);

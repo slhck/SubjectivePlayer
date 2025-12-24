@@ -26,7 +26,10 @@
 			android:orientation="vertical"
 			android:layout_width="match_parent"
 			android:layout_height="wrap_content"
-			android:padding="16dp">
+			android:paddingStart="48dp"
+			android:paddingEnd="48dp"
+			android:paddingTop="16dp"
+			android:paddingBottom="16dp">
 
 			<TextView
 				android:id="@+id/text_select_config_selected"
@@ -51,15 +54,14 @@
 				android:inputType="number"
 				android:hint="@string/hint_enter_id"
 				android:textColor="@color/white"
-				android:textColorHint="@color/text_hint">
-				<requestFocus />
-			</EditText>
+				android:textColorHint="@color/text_hint" />
 
 			<Button
 				android:id="@+id/button_start"
 				android:layout_width="match_parent"
-				android:layout_height="wrap_content"
-				android:layout_marginTop="16dp"
+				android:layout_height="64dp"
+				android:layout_marginTop="24dp"
+				android:textSize="18sp"
 				android:text="@string/button_start" />
 
 		</LinearLayout>
