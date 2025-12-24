@@ -2,6 +2,24 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.3.0] - 2025-12-24
+
+### Bug Fixes
+
+- Do not request focus on app start, increase button size
+
+### Documentation
+
+- Update readme
+
+### Features
+
+- Device permissions, add unit tests
+
+### Refactoring
+
+- Rename to time-continuous rating
+
 ## [2.2.0] - 2025-12-24
 
 ### Bug Fixes
