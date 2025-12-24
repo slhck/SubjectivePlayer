@@ -154,34 +154,47 @@ Playlists must be named like `subject_<ID>.cfg` suffix. For example, for user ID
 
 To generate multiple playlists for multiple users, you can look at the `create_playlists_mobile.py` script.
 
-The file is a simple text file with one entry per line. Lines can contain:
+The file is a simple text file with one entry per line.
 
-- `METHOD <type>` (optional, first line only) – sets the rating method for this playlist
-  - `ACR` – 5-point quality scale (Excellent/Good/Fair/Poor/Bad) – **default if not specified**
-  - `CONTINUOUS` – slider-based rating (0-100) shown after each video
-  - `DSIS` – impairment scale (⚠️ not fully implemented)
-  - `CONTINUOUS_RATING` – real-time rating during playback using volume buttons (⚠️ not tested!)
-- Video file names – the name of a video file (e.g., `video1.mp4`)
-  - The file must exist in the `SubjectiveMovies/` folder!
-- `BREAK` commands – insert breaks between videos to prevent viewer fatigue
-  - `BREAK` – shows a message telling the user to wait for the test supervisor
-  - `BREAK 60` – timed break of 60 seconds with countdown timer
-- `START_MESSAGE <message>` (optional) – shows a custom start message before the first video. You can use `\n` for line breaks.
-- `FINISH_MESSAGE <message>` (optional) – shows a custom finish message after the last video. You can use `\n` for line breaks.
-- Training section (optional) – define a training section to familiarize users with the rating procedure:
+Each line can be either:
+
+- A video file name – the name of a video file (e.g., `video1.mp4`). The file must exist in the `SubjectiveMovies/` folder!
+- A special command (see below)
+
+The special commands are:
+
+- `METHOD <type>` (optional, first line only)
+  - This sets the rating method for this playlist.
+  - The possible `<type>` values are:
+    - `ACR` – 5-point quality scale (Excellent/Good/Fair/Poor/Bad) – **default if not specified**
+    - `CONTINUOUS` – slider-based rating (0-100) shown after each video
+    - `DSIS` – impairment scale (⚠️ not fully implemented)
+    - `CONTINUOUS_RATING` – real-time rating during playback using volume buttons (⚠️ not tested!)
+- `BREAK`
+  - Inserts a break between videos to prevent viewer fatigue. The user must click a button to continue.
+  - `BREAK` – shows a message telling the user to wait for the test supervisor.
+  - `BREAK <seconds>` – timed break of where `<seconds>` is the duration in seconds, with a countdown timer.
+- `START_MESSAGE <message>`
+  - Shows a custom start message (`<message>`) before the first video. You can use `\n` for line breaks.
+- `FINISH_MESSAGE <message>`
+  - Shows a custom finish message (`<message>`) after the last video. You can use `\n` for line breaks.
+- `TRAINING_START` and `TRAINING_END`
+  - This defines a training section to familiarize users with the rating procedure.
   - `TRAINING_START` – marks the beginning of the training section
   - `TRAINING_END` – marks the end of the training section
-  - `TRAINING_MESSAGE <message>` (optional) – custom message shown before training begins. You can use `\n` for line breaks.
   - Videos between `TRAINING_START` and `TRAINING_END` are considered training videos
   - A training introduction screen is shown before the first training video
   - A training complete screen is shown after the last training video, before the main test begins
   - **Note:** If you use `TRAINING_START`, you must also include `TRAINING_END`, and vice versa
+- `TRAINING_MESSAGE <message>`
+  - Defines a custom message (`<message>`) before training begins. You can use `\n` for line breaks.
 
-For example, `subject_1.cfg` could look like this:
+For example, a very arbitrary `subject_1.cfg` could look like this:
 
 ```
 METHOD ACR
 START_MESSAGE Welcome to the test!\nPlease watch the following videos and rate their quality.
+TRAINING_MESSAGE This is the training section.\nPlease get familiar with the rating procedure.
 TRAINING_START
 training_video1.mp4
 training_video2.mp4
@@ -202,7 +215,7 @@ FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 In this example:
 
 - A custom start message is shown first
-- Then a training introduction screen appears
+- Then a training introduction screen appears, with a custom training message
 - Two training videos are played with ratings
 - A training complete screen is shown
 - The main test begins with `video1.mp4` through `video8.mp4`, with breaks in between
@@ -233,6 +246,8 @@ adb push your_video.mp4 /storage/emulated/0/Android/data/org.univie.subjectivepl
 adb push playlist1.cfg /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
 ```
 
+To automate this process, you can use the provided `push_to_device.sh` script in the `examples/` directory and adapt it to your needs.
+
 ### Validate the Playlists
 
 The app can validate the playlists to ensure all referenced video files exist. This is optional, but recommended.
@@ -243,6 +258,7 @@ To validate the playlists:
 - Open the menu (three dots in the top-right corner)
 - Select *Validate Config Files*.
 - The app will check all playlist files in the `SubjectiveCfg` folder and report any missing video files or invalid syntax.
+- You can also see which playlist uses which method, if training is used, and how many videos are in each playlist.
 
 ### Run the Test
 
