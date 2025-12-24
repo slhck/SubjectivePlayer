@@ -24,8 +24,10 @@ Author: Werner Robitza
 - [Configuration Options](#configuration-options)
   - [Display](#display)
   - [Configuration Files](#configuration-files)
-  - [Continuous Rating](#continuous-rating)
+  - [Time-Continuous Rating](#time-continuous-rating)
 - [Developer Guide](#developer-guide)
+  - [Building](#building)
+  - [Testing](#testing)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -42,7 +44,6 @@ Author: Werner Robitza
     - Continuous slider-based rating (0-100)
     - Continuous real-time rating using volume buttons
     - (DSIS impairment scale – ⚠️ not fully implemented)
-    - (Continuous real-time rating using volume buttons – ⚠️ not tested)
 - General:
   - User ratings are based on IDs, so we can identify different participants later
   - Logging of the user ratings to CSV files
@@ -91,9 +92,9 @@ First, downlaod the latest APK from the [Releases page](https://github.com/slhck
 Then, install it on your Android device.
 
 - Make sure you have [`adb` installed](https://developer.android.com/tools/adb) on your computer.
-- [Enable developer mode](https://developer.android.com/studio/debug/dev-options) on the device
-- Connect the device to your computer via USB
-- When the device is recognized, allow debugging access
+- [Enable developer mode](https://developer.android.com/studio/debug/dev-options) on the device.
+- Connect the device to your computer via USB.
+- When the device is recognized, allow debugging access.
 - Then run:
 
     ```bash
@@ -108,11 +109,13 @@ The details of this will be explained below, but for a quick start, you can use 
 Push sample test files with:
 
 ```bash
+# First, open the app on your device to create storage directories
+# Then push the example files:
 cd examples
 ./push_to_device.sh
 ```
 
-Now, in the app, enter a valid user ID (`1` or `2`), and run a test.
+Now, in the app, enter a valid user ID (`1`, `2`, `3`, or `4`), and run a test.
 It will show three videos, ask for a rating, and then finish.
 
 To create your own test files, see the detailed usage instructions below.
@@ -146,7 +149,7 @@ Example FFmpeg command:
 ffmpeg -i input.mp4 -c:v libx264 -crf 18 -preset slow -c:a aac -b:a 320k output.mp4
 ```
 
-Note that hardware decoding support varies by device; software decoding may be used as fallback. The maximum resolution/bitrate depends on device hardware capabilities
+Note that hardware decoding support varies by device; software decoding may be used as fallback. The maximum resolution/bitrate depends on device hardware capabilities.
 
 ### Prepare Playlists
 
@@ -233,21 +236,30 @@ The application stores videos, playlists, and logs in app-specific storage. Due 
 └── SubjectiveLogs/    # Test result logs
 ```
 
-Use ADB to push files to the device:
+> [!IMPORTANT]
+> The app must be run at least once before transferring files to create the necessary directories with the right permissions.
+
+To move your files (videos and config files) to the device automatically, use the provided `push_to_device.sh` script:
 
 ```bash
-# Create directories (app must be run at least once first)
-adb shell mkdir -p /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveMovies
-adb shell mkdir -p /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg
+# Push your own test files from a custom directory
+examples/push_to_device.sh -d /path/to/your/test/files
 
+# Or push the included example files
+examples/push_to_device.sh
+```
+
+Run `examples/push_to_device.sh --help` for all options.
+
+Alternatively, use ADB manually to push files to the device:
+
+```bash
 # Push video files
 adb push your_video.mp4 /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveMovies/
 
 # Push playlist files
-adb push playlist1.cfg /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
+adb push subject_1.cfg /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
 ```
-
-To automate this process, you can use the provided `push_to_device.sh` script in the `examples/` directory and adapt it to your needs.
 
 ### Validate the Playlists
 
@@ -255,8 +267,8 @@ The app can validate the playlists to ensure all referenced video files exist. T
 
 To validate the playlists:
 
-- Start the app
-- Open the menu (three dots in the top-right corner)
+- Start the app.
+- Open the menu (three dots in the top-right corner).
 - Select *Validate Config Files*.
 - The app will check all playlist files in the `SubjectiveCfg` folder and report any missing video files or invalid syntax.
 - You can also see which playlist uses which method, if training is used, and how many videos are in each playlist.
@@ -332,6 +344,8 @@ To build the app from source, clone the repository and open it in Android Studio
 - Java Development Kit (JDK) 17 or higher
 - Gradle 8.9 or higher (included via wrapper)
 
+### Building
+
 To build it from the command line, use:
 
 ```bash
@@ -355,6 +369,16 @@ Or, for release:
 ```bash
 ./gradlew installRelease
 ```
+
+### Testing
+
+To run the unit tests, use:
+
+```bash
+./gradlew test
+```
+
+Note that full UI tests are not included at this time. The unit tests only cover some utility functions like loading and parsing playlists.
 
 ## Contributing
 
