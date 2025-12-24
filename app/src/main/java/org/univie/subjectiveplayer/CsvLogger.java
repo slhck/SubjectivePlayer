@@ -46,14 +46,6 @@ public abstract class CsvLogger {
 	/** Whether session logging has started */
 	private static boolean sSessionLogStarted = false;
 
-	/** File handle for continuous rating log file */
-	private static File sContinuousLogFile = null;
-	/** FileWriter for continuous rating log */
-	private static FileWriter sContinuousFileWriter = null;
-	/** BufferedWriter for continuous rating log */
-	private static BufferedWriter sContinuousBufferedWriter = null;
-	/** Whether continuous logging has started */
-	private static boolean sContinuousLogStarted = false;
 
 	/**
 	 * The date format as specified in SimpleDateFormat for writing the filename
@@ -223,83 +215,29 @@ public abstract class CsvLogger {
 	}
 
 	/**
-	 * Starts a continuous results file for TYPE_CONTINUOUS_RATING method.
-	 * This logs ratings at regular intervals during video playback.
-	 *
-	 * @param videoName The name of the video, to be used for the file name
+	 * @deprecated Use logRating() instead - continuous ratings now go to the session log
 	 */
+	@Deprecated
 	public static void startContinuousLogCSV(String videoName) {
-		try {
-			SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT, Locale.US);
-			String methodName = Methods.METHOD_NAMES[Session.sCurrentMethod];
-			methodName = methodName.replace(' ', SEP_FILE);
-
-			String fileName = "" + Session.sParticipantId + SEP_FILE
-					+ format.format(new Date()) + SEP_FILE + methodName
-					+ SEP_FILE + videoName + "." + SUFFIX;
-			sContinuousLogFile = new File(Configuration.sFolderLogs, fileName);
-
-			sContinuousFileWriter = new FileWriter(sContinuousLogFile);
-			sContinuousBufferedWriter = new BufferedWriter(sContinuousFileWriter);
-
-			if (HEADER) {
-				sContinuousBufferedWriter.write("USERID" + SEP_CSV + "VIDEONAME"
-						+ SEP_CSV + "TIMESTAMP" + SEP_CSV + "RATING");
-				sContinuousBufferedWriter.newLine();
-			}
-
-			sContinuousLogStarted = true;
-			Log.d(TAG, "Started continuous log: " + fileName);
-		} catch (IOException e) {
-			Log.e(TAG, "Error starting continuous log: " + e.getMessage());
-			e.printStackTrace();
-		}
+		// No-op: continuous ratings now use the session log
+		Log.d(TAG, "startContinuousLogCSV is deprecated, using session log instead");
 	}
 
 	/**
-	 * Writes one continuous data line to the file.
-	 *
-	 * @param videoName The name of the video file itself
-	 * @param timeStamp The timestamp that should appear in the result file
-	 * @param data The rating itself
+	 * @deprecated Use logRating() instead - continuous ratings now go to the session log
 	 */
+	@Deprecated
 	public static void writeContinuousData(String videoName, String timeStamp, String data) {
-		try {
-			if (!sContinuousLogStarted) {
-				throw new IOException("Can't log if file wasn't started yet.");
-			}
-
-			sContinuousBufferedWriter.write("" + Session.sParticipantId + SEP_CSV
-					+ videoName + SEP_CSV + timeStamp + SEP_CSV + data);
-			sContinuousBufferedWriter.newLine();
-			sContinuousBufferedWriter.flush();
-		} catch (IOException e) {
-			Log.e(TAG, "Error writing continuous data: " + e.getMessage());
-			e.printStackTrace();
-		}
+		// No-op: continuous ratings now use the session log
+		Log.w(TAG, "writeContinuousData is deprecated, use logRating() instead");
 	}
 
 	/**
-	 * Closes the continuous log file.
+	 * @deprecated Use closeSessionLog() instead - continuous ratings now go to the session log
 	 */
+	@Deprecated
 	public static void closeContinuousLogCSV() {
-		sContinuousLogStarted = false;
-
-		try {
-			if (sContinuousBufferedWriter != null) {
-				sContinuousBufferedWriter.close();
-			}
-			if (sContinuousFileWriter != null) {
-				sContinuousFileWriter.close();
-			}
-			Log.d(TAG, "Closed continuous log");
-		} catch (IOException e) {
-			Log.e(TAG, "Error closing continuous log: " + e.getMessage());
-			e.printStackTrace();
-		} finally {
-			sContinuousBufferedWriter = null;
-			sContinuousFileWriter = null;
-			sContinuousLogFile = null;
-		}
+		// No-op: continuous ratings now use the session log
+		Log.d(TAG, "closeContinuousLogCSV is deprecated, using session log instead");
 	}
 }

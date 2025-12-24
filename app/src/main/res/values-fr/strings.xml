@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">Veuillez évaluer</string>
     <string name="dialog_no_ticks_max">Max</string>
     <string name="dialog_no_ticks_min">Min</string>
-    <string name="preferences_categories_continuous">Préférences d\'évaluation continue</string>
+    <string name="preferences_categories_continuous">Préférences d\'évaluation continue dans le temps</string>
     <string name="preferences_noticks_caption">Pas de graduations</string>
     <string name="preferences_noticks_summary_true">Ne pas afficher les graduations sur le curseur</string>
     <string name="preferences_noticks_summary_false">Afficher les graduations sur le curseur</string>

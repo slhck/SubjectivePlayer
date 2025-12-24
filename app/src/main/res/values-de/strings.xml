@@ -39,7 +39,7 @@
     <string name="rate_ACR_caption_short">Bitte bewerten:</string>
     <string name="dialog_no_ticks_max">Max</string>
     <string name="dialog_no_ticks_min">Min</string>
-    <string name="preferences_categories_continuous">Kontinuierliche Bewertung</string>
+    <string name="preferences_categories_continuous">Zeitkontinuierliche Bewertung</string>
     <string name="preferences_noticks_caption">Keine Markierungen</string>
     <string name="preferences_noticks_summary_true">Keine Markierungen am Slider angezeigt</string>
     <string name="preferences_noticks_summary_false">Markierungen am Slider werden angezeigt</string>

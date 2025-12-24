@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">評価してください</string>
     <string name="dialog_no_ticks_max">最大</string>
     <string name="dialog_no_ticks_min">最小</string>
-    <string name="preferences_categories_continuous">連続評価の設定</string>
+    <string name="preferences_categories_continuous">時間連続評価の設定</string>
     <string name="preferences_noticks_caption">目盛りなし</string>
     <string name="preferences_noticks_summary_true">スライダーに目盛りを表示しない</string>
     <string name="preferences_noticks_summary_false">スライダーに目盛りを表示する</string>

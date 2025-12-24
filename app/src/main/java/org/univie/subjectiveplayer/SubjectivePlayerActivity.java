@@ -289,10 +289,10 @@ public class SubjectivePlayerActivity extends AppCompatActivity {
 				Session.readVideosFromFile(Configuration.sFileConfig);
 				Log.i(TAG, "Loaded " + Session.sTracks.size() + " tracks from playlist");
 
-				// if we use continuous rating
+				// if we use time-continuous rating
 				// TODO: refactor, this is unnecessarily duplicated
-				if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS_RATING) {
-					Log.d(TAG, "Starting session with continuous rating method");
+				if (Session.sCurrentMethod == Methods.TYPE_TIME_CONTINUOUS) {
+					Log.d(TAG, "Starting session with time-continuous rating method");
 					Intent sessionIntent = new Intent();
 					sessionIntent.setClass(getApplicationContext(), SessionActivity.class);
 					startActivity(sessionIntent);

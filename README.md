@@ -40,6 +40,7 @@ Author: Werner Robitza
   - After each video, users are asked for their opinion using different methodologies:
     - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
     - Continuous slider-based rating (0-100)
+    - Continuous real-time rating using volume buttons
     - (DSIS impairment scale – ⚠️ not fully implemented)
     - (Continuous real-time rating using volume buttons – ⚠️ not tested)
 - General:
@@ -169,7 +170,7 @@ The special commands are:
     - `ACR` – 5-point quality scale (Excellent/Good/Fair/Poor/Bad) – **default if not specified**
     - `CONTINUOUS` – slider-based rating (0-100) shown after each video
     - `DSIS` – impairment scale (⚠️ not fully implemented)
-    - `CONTINUOUS_RATING` – real-time rating during playback using volume buttons (⚠️ not tested!)
+    - `TIME_CONTINUOUS` – real-time rating during playback using volume buttons (⚠️ not tested!)
 - `BREAK`
   - Inserts a break between videos to prevent viewer fatigue. The user must click a button to continue.
   - `BREAK` – shows a message telling the user to wait for the test supervisor.
@@ -297,6 +298,8 @@ The CSV file contains one line per video rated, plus additional lines for breaks
 | `rating`         | Integer rating value. Empty for BREAK entries. For ACR: 0=Excellent, 1=Good, 2=Fair, 3=Poor, 4=Bad. For continuous: 0-100. |
 | `rated_at`       | ISO8601 timestamp when the rating was submitted (e.g., `2025-01-15T14:32:05+01:00`). Empty for BREAK entries.              |
 
+For time-continuous ratings, there will be one line per second of video playback, with the `rating` column containing the current rating value at that second, and the `rated_at` column indicating when that rating was recorded.
+
 ## Configuration Options
 
 The app allows some level of customization. Access the settings via the main menu (three dots) and clicking *Preferences*. The following options are available:
@@ -313,11 +316,11 @@ The app allows some level of customization. Access the settings via the main men
 | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
 | **Allow duplicate IDs** | When enabled, allows the same participant ID to be used multiple times. When disabled, warns if an ID has already been used in existing log files. | Disabled |
 
-### Continuous Rating
+### Time-Continuous Rating
 
-| Setting      | Description                                                                                           | Default  |
-| ------------ | ----------------------------------------------------------------------------------------------------- | -------- |
-| **No ticks** | When enabled, the continuous rating slider shows only Min/Max labels without intermediate tick marks. | Disabled |
+| Setting      | Description                                                                                                    | Default  |
+| ------------ | -------------------------------------------------------------------------------------------------------------- | -------- |
+| **No ticks** | When enabled, the time-continuous rating slider shows only Min/Max labels without intermediate tick marks. | Disabled |
 
 ## Developer Guide
 

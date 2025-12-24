@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">Por favor, evalúa</string>
     <string name="dialog_no_ticks_max">Máx</string>
     <string name="dialog_no_ticks_min">Mín</string>
-    <string name="preferences_categories_continuous">Preferencias de evaluación continua</string>
+    <string name="preferences_categories_continuous">Preferencias de evaluación continua en el tiempo</string>
     <string name="preferences_noticks_caption">Sin marcas</string>
     <string name="preferences_noticks_summary_true">No mostrar marcas en el control deslizante</string>
     <string name="preferences_noticks_summary_false">Mostrar marcas en el control deslizante</string>

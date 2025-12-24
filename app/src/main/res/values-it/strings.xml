@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">Valuta</string>
     <string name="dialog_no_ticks_max">Max</string>
     <string name="dialog_no_ticks_min">Min</string>
-    <string name="preferences_categories_continuous">Preferenze di valutazione continua</string>
+    <string name="preferences_categories_continuous">Preferenze di valutazione continua nel tempo</string>
     <string name="preferences_noticks_caption">Nessuna tacca</string>
     <string name="preferences_noticks_summary_true">Non mostrare tacche sul cursore</string>
     <string name="preferences_noticks_summary_false">Mostra tacche sul cursore</string>

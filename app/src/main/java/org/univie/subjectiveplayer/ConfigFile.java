@@ -128,7 +128,7 @@ public class ConfigFile {
                         String methodName = parts.length >= 2 ? parts[1] : "(empty)";
                         parseErrors.add(new ParseError(lineNumber,
                                 "Unknown METHOD \"" + methodName +
-                                "\" (valid: ACR, CONTINUOUS, DSIS, CONTINUOUS_RATING)"));
+                                "\" (valid: ACR, CONTINUOUS, DSIS, TIME_CONTINUOUS)"));
                     } else {
                         method = parsedMethod;
                     }

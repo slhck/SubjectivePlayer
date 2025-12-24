@@ -378,10 +378,10 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 
 		try {
 
-			if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS_RATING) {
+			if (Session.sCurrentMethod == Methods.TYPE_TIME_CONTINUOUS) {
 				String videoName = Session.sTracks.get(videoIndex);
 				Log.d(TAG, "Creating new logging thread for video " + videoName);
-				mLoggingThread = new LoggingThread(videoName);
+				mLoggingThread = new LoggingThread(videoName, videoIndex);
 				sCurrentRating = RATING_DEFAULT;
 			}
 
@@ -471,7 +471,7 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 		case Methods.TYPE_CONTINUOUS:
 			showDialog(DIALOG_CONTINUOUS);
 			break;
-		case Methods.TYPE_CONTINUOUS_RATING:
+		case Methods.TYPE_TIME_CONTINUOUS:
 			nextVideo();
 			break;
 		default:
@@ -523,7 +523,7 @@ public class SessionActivity extends AppCompatActivity implements Callback,
         mPlayView.setLayoutParams(mParams);
         mIsVideoPlaying = true;
 		
-		if (Session.sCurrentMethod == Methods.TYPE_CONTINUOUS_RATING) {
+		if (Session.sCurrentMethod == Methods.TYPE_TIME_CONTINUOUS) {
 			Log.d(TAG, "Running thread");
 			mThread = new Thread(mLoggingThread);
 			mThread.start();
@@ -586,7 +586,7 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 	private void finishSession() {
 		cleanUp();
 		releasePlayer();
-		if (Session.sCurrentMethod != Methods.TYPE_CONTINUOUS_RATING) {
+		if (Session.sCurrentMethod != Methods.TYPE_TIME_CONTINUOUS) {
 			CsvLogger.closeSessionLog();
 		}
 		// Show finish screen before ending
@@ -659,32 +659,32 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 
 	public class LoggingThread implements Runnable {
 		String videoName;
-		
-		public LoggingThread(String videoName) {
+		int videoPosition;
+
+		public LoggingThread(String videoName, int videoPosition) {
 			Log.d(TAG, "Created logging thread for " + videoName);
 			this.videoName = videoName;
+			this.videoPosition = videoPosition;
 		}
 
 		/**
-		 * Runs the logging thread in the background
+		 * Runs the logging thread in the background.
+		 * Logs continuous ratings to the session log file.
 		 */
 		public void run() {
 			Log.d(TAG, "Running the thread for " + videoName);
 			try {
-				CsvLogger.startContinuousLogCSV(videoName);
 				while (mIsVideoPlaying) {
-					CsvLogger.writeContinuousData(videoName, "" + mPlayer.getCurrentPosition(), "" + sCurrentRating);
+					CsvLogger.logRating(videoPosition, videoName, sCurrentRating, System.currentTimeMillis());
 					Thread.sleep(RATING_INTERVAL);
 				}
 				Log.d(TAG, "Video " + videoName + " not playing anymore, stopping.");
-				CsvLogger.closeContinuousLogCSV();
 			} catch (Exception e) {
-				CsvLogger.closeContinuousLogCSV();
+				Log.e(TAG, "Error in logging thread: " + e.getMessage());
 			}
 		}
-		
+
 		public void stop() {
-			CsvLogger.closeContinuousLogCSV();
 			Log.d(TAG, "Stopped logging thread for " + videoName);
 		}
 	}
@@ -1133,7 +1133,7 @@ public class SessionActivity extends AppCompatActivity implements Callback,
         Log.d(TAG, "onStartScreenFinished called");
 
         // Start the session log file (for non-continuous rating methods)
-        if (Session.sCurrentMethod != Methods.TYPE_CONTINUOUS_RATING) {
+        if (Session.sCurrentMethod != Methods.TYPE_TIME_CONTINUOUS) {
             CsvLogger.startSessionLog();
         }
 

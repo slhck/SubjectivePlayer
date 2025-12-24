@@ -23,7 +23,7 @@ public abstract class Methods {
 
 	// method names
 	public static final String[] METHOD_NAMES = { "ACR - Categorical",
-			"Continuous scale", "DSIS", "Continuous rating" };
+			"Continuous scale", "DSIS", "Time-continuous" };
 
 	// method IDs, these should be in the same order
 	// as the names above!
@@ -31,7 +31,7 @@ public abstract class Methods {
 	public static final int TYPE_ACR_CATEGORICAL = 0;
 	public static final int TYPE_CONTINUOUS = 1;
 	public static final int TYPE_DSIS_CATEGORICAL = 2;
-	public static final int TYPE_CONTINUOUS_RATING = 3;
+	public static final int TYPE_TIME_CONTINUOUS = 3;
 
 	// labels for the ACR category
 	public static final String[] STATIC_LABELS_ACR = {

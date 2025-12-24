@@ -237,7 +237,7 @@ public abstract class Session {
 
 	/**
 	 * Parses the method type from a METHOD directive.
-	 * Supported values: ACR, CONTINUOUS, DSIS, CONTINUOUS_RATING
+	 * Supported values: ACR, CONTINUOUS, DSIS, TIME_CONTINUOUS
 	 * @param line The METHOD directive string (e.g., "METHOD ACR")
 	 * @return The method type constant, or Methods.UNDEFINED if invalid
 	 */
@@ -258,9 +258,9 @@ public abstract class Session {
 				case "DSIS":
 					Log.d(TAG, "Parsed METHOD: DSIS (TYPE_DSIS_CATEGORICAL)");
 					return Methods.TYPE_DSIS_CATEGORICAL;
-				case "CONTINUOUS_RATING":
-					Log.d(TAG, "Parsed METHOD: CONTINUOUS_RATING (TYPE_CONTINUOUS_RATING)");
-					return Methods.TYPE_CONTINUOUS_RATING;
+				case "TIME_CONTINUOUS":
+					Log.d(TAG, "Parsed METHOD: TIME_CONTINUOUS (TYPE_TIME_CONTINUOUS)");
+					return Methods.TYPE_TIME_CONTINUOUS;
 				default:
 					Log.w(TAG, "Unknown method type: " + methodName);
 					return Methods.UNDEFINED;

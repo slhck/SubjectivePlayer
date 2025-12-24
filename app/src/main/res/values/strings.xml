@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">Please rate</string>
     <string name="dialog_no_ticks_max">Max</string>
     <string name="dialog_no_ticks_min">Min</string>
-    <string name="preferences_categories_continuous">Continuous rating preferences</string>
+    <string name="preferences_categories_continuous">Time-continuous rating preferences</string>
     <string name="preferences_noticks_caption">No ticks</string>
     <string name="preferences_noticks_summary_true">Show no ticks on the slider</string>
     <string name="preferences_noticks_summary_false">Show ticks on the slider</string>

@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">请评分</string>
     <string name="dialog_no_ticks_max">最大</string>
     <string name="dialog_no_ticks_min">最小</string>
-    <string name="preferences_categories_continuous">连续评分设置</string>
+    <string name="preferences_categories_continuous">时间连续评分设置</string>
     <string name="preferences_noticks_caption">无刻度</string>
     <string name="preferences_noticks_summary_true">滑块上不显示刻度</string>
     <string name="preferences_noticks_summary_false">滑块上显示刻度</string>

@@ -51,7 +51,7 @@ Defined in `Methods.java`:
 - `TYPE_ACR_CATEGORICAL` (0) - 5-point quality scale (Excellent/Good/Fair/Poor/Bad)
 - `TYPE_CONTINUOUS` (1) - Slider-based rating after each video
 - `TYPE_DSIS_CATEGORICAL` (2) - Impairment scale (not fully implemented)
-- `TYPE_CONTINUOUS_RATING` (3) - Real-time rating during playback using volume buttons
+- `TYPE_TIME_CONTINUOUS` (3) - Real-time rating during playback using volume buttons
 
 Enabled via playlist config file (e.g., `subject_1.cfg`).
 
@@ -74,7 +74,7 @@ FINISH_MESSAGE Thank you!\nPlease notify the supervisor.
 ```
 
 **Directives** (parsed in `Session.readVideosFromFile()`):
-- `METHOD <type>` - Rating method: `ACR`, `CONTINUOUS`, `DSIS`, `CONTINUOUS_RATING`
+- `METHOD <type>` - Rating method: `ACR`, `CONTINUOUS`, `DSIS`, `TIME_CONTINUOUS`
 - `START_MESSAGE <text>` - Custom start screen message (optional)
 - `FINISH_MESSAGE <text>` - Custom finish screen message (optional)
 - `BREAK [seconds]` - Insert a break; if seconds specified, shows countdown timer

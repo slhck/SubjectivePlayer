@@ -39,7 +39,7 @@
     <string name="rate_continuous_caption">평가해 주세요</string>
     <string name="dialog_no_ticks_max">최대</string>
     <string name="dialog_no_ticks_min">최소</string>
-    <string name="preferences_categories_continuous">연속 평가 설정</string>
+    <string name="preferences_categories_continuous">시간 연속 평가 설정</string>
     <string name="preferences_noticks_caption">눈금 없음</string>
     <string name="preferences_noticks_summary_true">슬라이더에 눈금 표시 안 함</string>
     <string name="preferences_noticks_summary_false">슬라이더에 눈금 표시</string>
