@@ -2,6 +2,21 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.2.0] - 2025-12-24
+
+### Bug Fixes
+
+- Remove accidental commit
+
+### Features
+
+- Advanced config validation
+- Show ticks and respect noTicks option
+
+### Miscellaneous
+
+- Udpate gitignore
+
 ## [2.1.0] - 2025-12-23
 
 ### Build
