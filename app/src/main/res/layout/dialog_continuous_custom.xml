@@ -44,11 +44,13 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="16dp" />
 
-            <!-- Min/Max labels row -->
+            <!-- Tick labels row (0-100 in steps of 10) - shown when ticks enabled -->
             <LinearLayout
+                android:id="@+id/tick_labels_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <TextView
                     android:layout_width="0dp"
@@ -57,13 +59,112 @@
                     android:text="0"
                     android:textColor="@color/text_hint"
                     android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="10"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="20"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="30"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="40"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="50"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="60"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="70"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="80"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="90"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="100"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
+                    android:gravity="center" />
+
+            </LinearLayout>
+
+            <!-- Min/Max labels row - shown when no ticks -->
+            <LinearLayout
+                android:id="@+id/min_max_labels_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="visible">
+
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/dialog_no_ticks_min"
+                    android:textColor="@color/text_hint"
+                    android:textSize="14sp"
                     android:gravity="start" />
 
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="100"
+                    android:text="@string/dialog_no_ticks_max"
                     android:textColor="@color/text_hint"
                     android:textSize="14sp"
                     android:gravity="end" />

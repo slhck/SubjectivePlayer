@@ -900,6 +900,17 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 			mDialog.setContentView(R.layout.dialog_continuous_custom);
 			mDialog.setCancelable(false);
 
+			// Show tick labels or min/max labels based on preference
+			View tickLabelsContainer = mDialog.findViewById(R.id.tick_labels_container);
+			View minMaxLabelsContainer = mDialog.findViewById(R.id.min_max_labels_container);
+			if (Configuration.sNoTicks) {
+				tickLabelsContainer.setVisibility(View.GONE);
+				minMaxLabelsContainer.setVisibility(View.VISIBLE);
+			} else {
+				tickLabelsContainer.setVisibility(View.VISIBLE);
+				minMaxLabelsContainer.setVisibility(View.GONE);
+			}
+
 			final SeekBar seekBar = (SeekBar) mDialog.findViewById(R.id.dialog_continuous_seekbar);
 			final TextView valueLabel = (TextView) mDialog.findViewById(R.id.continuous_value_label);
 			final Button rateButton = (Button) mDialog.findViewById(R.id.buttonSendRating);
