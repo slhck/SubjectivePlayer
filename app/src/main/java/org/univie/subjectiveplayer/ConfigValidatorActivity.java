@@ -34,10 +34,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 import com.google.android.material.appbar.MaterialToolbar;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,6 +47,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private TextView mStatusText;
     private TextView mResultText;
+    private List<ConfigFile> mConfigFiles = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +90,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
 
     private List<String> validateConfigFiles() {
         List<String> errors = new ArrayList<>();
+        mConfigFiles.clear();
 
         File configFolder = Configuration.sFolderApproot;
         if (configFolder == null || !configFolder.exists()) {
@@ -99,134 +98,64 @@ public class ConfigValidatorActivity extends AppCompatActivity {
             return errors;
         }
 
-        File[] configFiles = configFolder.listFiles((dir, name) -> name.endsWith(".cfg"));
-        if (configFiles == null || configFiles.length == 0) {
+        File[] files = configFolder.listFiles((dir, name) -> name.endsWith(".cfg"));
+        if (files == null || files.length == 0) {
             return errors;
         }
 
-        Map<String, List<String>> videoToConfigFiles = new HashMap<>();
-
-        for (File configFile : configFiles) {
-            Log.d(TAG, "Validating config file: " + configFile.getName());
-            validateSingleConfigFile(configFile, errors, videoToConfigFiles);
+        // Parse all config files
+        for (File file : files) {
+            Log.d(TAG, "Parsing config file: " + file.getName());
+            mConfigFiles.add(new ConfigFile(file));
         }
 
-        checkMissingVideos(videoToConfigFiles, errors);
+        // Sort by ID (numerically if possible)
+        mConfigFiles.sort((a, b) -> {
+            try {
+                int idA = Integer.parseInt(a.getId());
+                int idB = Integer.parseInt(b.getId());
+                return Integer.compare(idA, idB);
+            } catch (NumberFormatException e) {
+                return a.getId().compareTo(b.getId());
+            }
+        });
+
+        // Collect parse errors from each config file
+        for (ConfigFile config : mConfigFiles) {
+            for (ConfigFile.ParseError parseError : config.getParseErrors()) {
+                String errorMsg = "Config file \"" + config.getFilename() + "\"";
+                if (parseError.lineNumber > 0) {
+                    errorMsg += " at line " + parseError.lineNumber;
+                }
+                errorMsg += ": " + parseError.message;
+                errors.add(errorMsg);
+            }
+        }
+
+        // Check for missing videos
+        checkMissingVideos(errors);
 
         return errors;
     }
 
-    private void validateSingleConfigFile(File configFile, List<String> errors,
-                                          Map<String, List<String>> videoToConfigFiles) {
-        try (FileInputStream fis = new FileInputStream(configFile);
-             InputStreamReader isr = new InputStreamReader(fis);
-             BufferedReader br = new BufferedReader(isr)) {
-
-            String line;
-            int lineNumber = 0;
-            boolean firstNonEmptyLine = true;
-            boolean hasTrainingStart = false;
-            boolean hasTrainingEnd = false;
-            int trainingStartLine = -1;
-            int trainingEndLine = -1;
-
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                String trimmedLine = line.trim();
-
-                if (trimmedLine.isEmpty()) {
-                    continue;
-                }
-
-                if (firstNonEmptyLine && Session.isMethodDirective(trimmedLine)) {
-                    int method = Session.parseMethodType(trimmedLine);
-                    if (method == Methods.UNDEFINED) {
-                        String[] parts = trimmedLine.split("\\s+");
-                        String methodName = parts.length >= 2 ? parts[1] : "(empty)";
-                        errors.add("Config file \"" + configFile.getName() +
-                                "\" has invalid syntax at line " + lineNumber +
-                                ": Unknown METHOD \"" + methodName +
-                                "\" (valid: ACR, CONTINUOUS, DSIS, CONTINUOUS_RATING)");
-                    }
-                    firstNonEmptyLine = false;
-                    continue;
-                }
-
-                firstNonEmptyLine = false;
-
-                // Check for TRAINING_START marker
-                if (Session.isTrainingStartMarker(trimmedLine)) {
-                    hasTrainingStart = true;
-                    trainingStartLine = lineNumber;
-                    continue;
-                }
-
-                // Check for TRAINING_END marker
-                if (Session.isTrainingEndMarker(trimmedLine)) {
-                    hasTrainingEnd = true;
-                    trainingEndLine = lineNumber;
-                    continue;
-                }
-
-                // Skip other directive lines (START_MESSAGE, FINISH_MESSAGE, TRAINING_MESSAGE)
-                if (Session.isStartMessageDirective(trimmedLine) ||
-                    Session.isFinishMessageDirective(trimmedLine) ||
-                    Session.isTrainingMessageDirective(trimmedLine)) {
-                    continue;
-                }
-
-                if (Session.isBreakCommand(trimmedLine)) {
-                    String[] parts = trimmedLine.split("\\s+");
-                    if (parts.length >= 2) {
-                        try {
-                            int duration = Integer.parseInt(parts[1]);
-                            if (duration < 0) {
-                                errors.add("Config file \"" + configFile.getName() +
-                                        "\" has invalid syntax at line " + lineNumber +
-                                        ": BREAK duration must be non-negative");
-                            }
-                        } catch (NumberFormatException e) {
-                            errors.add("Config file \"" + configFile.getName() +
-                                    "\" has invalid syntax at line " + lineNumber +
-                                    ": BREAK duration \"" + parts[1] + "\" is not a valid number");
-                        }
-                    }
-                    continue;
-                }
-
-                videoToConfigFiles.computeIfAbsent(trimmedLine, k -> new ArrayList<>())
-                        .add(configFile.getName());
-            }
-
-            // Validate TRAINING_START and TRAINING_END pairing
-            if (hasTrainingStart && !hasTrainingEnd) {
-                errors.add("Config file \"" + configFile.getName() +
-                        "\" has TRAINING_START at line " + trainingStartLine +
-                        " but is missing TRAINING_END");
-            } else if (!hasTrainingStart && hasTrainingEnd) {
-                errors.add("Config file \"" + configFile.getName() +
-                        "\" has TRAINING_END at line " + trainingEndLine +
-                        " but is missing TRAINING_START");
-            } else if (hasTrainingStart && hasTrainingEnd && trainingEndLine <= trainingStartLine) {
-                errors.add("Config file \"" + configFile.getName() +
-                        "\": TRAINING_END (line " + trainingEndLine +
-                        ") must come after TRAINING_START (line " + trainingStartLine + ")");
-            }
-
-        } catch (Exception e) {
-            Log.e(TAG, "Error reading config file: " + configFile.getName(), e);
-            errors.add("Config file \"" + configFile.getName() +
-                    "\" could not be read: " + e.getMessage());
-        }
-    }
-
-    private void checkMissingVideos(Map<String, List<String>> videoToConfigFiles,
-                                    List<String> errors) {
+    private void checkMissingVideos(List<String> errors) {
         File videosFolder = Configuration.sFolderVideos;
-        if (videosFolder == null || !videosFolder.exists()) {
-            if (!videoToConfigFiles.isEmpty()) {
-                errors.add("Videos folder does not exist but config files reference videos");
+
+        // Build map of video -> config files that reference it
+        Map<String, List<String>> videoToConfigFiles = new HashMap<>();
+        for (ConfigFile config : mConfigFiles) {
+            for (String videoName : config.getVideoFilenames()) {
+                videoToConfigFiles.computeIfAbsent(videoName, k -> new ArrayList<>())
+                        .add(config.getFilename());
             }
+        }
+
+        if (videoToConfigFiles.isEmpty()) {
+            return;
+        }
+
+        if (videosFolder == null || !videosFolder.exists()) {
+            errors.add("Videos folder does not exist but config files reference videos");
             return;
         }
 
@@ -258,26 +187,26 @@ public class ConfigValidatorActivity extends AppCompatActivity {
         mProgressBar.setVisibility(View.GONE);
         mStatusText.setVisibility(View.GONE);
 
-        File configFolder = Configuration.sFolderApproot;
-        File[] configFiles = configFolder != null ?
-                configFolder.listFiles((dir, name) -> name.endsWith(".cfg")) : null;
-
-        if (configFiles == null || configFiles.length == 0) {
+        if (mConfigFiles.isEmpty()) {
             mResultText.setText(R.string.validate_no_config_files);
             mResultText.setTextColor(ContextCompat.getColor(this, R.color.text_secondary));
             return;
         }
 
-        if (errors.isEmpty()) {
-            mResultText.setText(R.string.validate_success);
-            mResultText.setTextColor(ContextCompat.getColor(this, R.color.success));
-        } else {
-            SpannableStringBuilder builder = new SpannableStringBuilder();
+        SpannableStringBuilder builder = new SpannableStringBuilder();
 
-            String header = getString(R.string.validate_errors_found, errors.size());
-            builder.append(header);
+        // Add validation result section first
+        if (errors.isEmpty()) {
+            int successStart = builder.length();
+            builder.append(getString(R.string.validate_success));
+            builder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.success)),
+                    successStart, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        } else {
+            String errorHeader = getString(R.string.validate_errors_found, errors.size());
+            int errorStart = builder.length();
+            builder.append(errorHeader);
             builder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.error)),
-                    0, header.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    errorStart, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             builder.append("\n\n");
 
@@ -291,8 +220,54 @@ public class ConfigValidatorActivity extends AppCompatActivity {
                     builder.append("\n\n");
                 }
             }
-
-            mResultText.setText(builder);
         }
+
+        builder.append("\n\n");
+
+        // Add config files summary section
+        String summaryHeader = getString(R.string.validate_config_files_header, mConfigFiles.size());
+        int headerStart = builder.length();
+        builder.append(summaryHeader);
+        builder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.white)),
+                headerStart, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.append("\n\n");
+
+        for (ConfigFile config : mConfigFiles) {
+            int lineStart = builder.length();
+            // Line 1: ID - filename - video count
+            builder.append(config.getId())
+                    .append(" - ")
+                    .append(config.getFilename())
+                    .append(" - ")
+                    .append(getString(R.string.validate_video_count, config.getTotalVideoCount()));
+            builder.append("\n");
+
+            // Line 2: Method - breaks - training
+            String methodName = config.getMethodName();
+            if (methodName == null) {
+                methodName = getString(R.string.validate_method_undefined);
+            }
+
+            builder.append("    ")
+                    .append(methodName)
+                    .append(" - ");
+
+            if (config.getBreakCount() > 0) {
+                builder.append(getString(R.string.validate_break_count, config.getBreakCount()));
+            } else {
+                builder.append(getString(R.string.validate_no_breaks));
+            }
+
+            if (config.hasTrainingSection()) {
+                builder.append(" - ")
+                        .append(getString(R.string.validate_training_count, config.getTrainingVideoCount()));
+            }
+
+            builder.setSpan(new ForegroundColorSpan(ContextCompat.getColor(this, R.color.text_secondary)),
+                    lineStart, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+            builder.append("\n\n");
+        }
+
+        mResultText.setText(builder);
     }
 }

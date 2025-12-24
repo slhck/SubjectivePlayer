@@ -86,6 +86,12 @@
     <string name="validate_success">所有配置文件均有效，所有视频均存在。</string>
     <string name="validate_no_config_files">在SubjectiveCfg文件夹中未找到配置文件。</string>
     <string name="validate_errors_found">发现%d个错误：</string>
+    <string name="validate_config_files_header">配置文件 (%d):</string>
+    <string name="validate_video_count">%d个视频</string>
+    <string name="validate_method_undefined">无方法</string>
+    <string name="validate_break_count">%d次休息</string>
+    <string name="validate_no_breaks">无休息</string>
+    <string name="validate_training_count">%d个训练</string>
 
     <!-- Training section strings -->
     <string name="training_intro_message_default">接下来，您将观看一些训练视频。这些视频将展示您在正式测试中可以期待的内容，并帮助您熟悉评分程序。\n\n点击"继续"后将开始播放。\n\n如果您不确定该怎么做或需要说明，请向实验员寻求帮助。</string>

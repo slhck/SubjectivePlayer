@@ -86,6 +86,12 @@
     <string name="validate_success">Tutti i file di configurazione sono validi e tutti i video esistono.</string>
     <string name="validate_no_config_files">Nessun file di configurazione trovato nella cartella SubjectiveCfg.</string>
     <string name="validate_errors_found">Trovati %d errori:</string>
+    <string name="validate_config_files_header">File di configurazione (%d):</string>
+    <string name="validate_video_count">%d video</string>
+    <string name="validate_method_undefined">Nessun metodo</string>
+    <string name="validate_break_count">%d pause</string>
+    <string name="validate_no_breaks">Nessuna pausa</string>
+    <string name="validate_training_count">%d addestramento</string>
 
     <!-- Training section strings -->
     <string name="training_intro_message_default">Di seguito vedrai alcune sequenze di addestramento. Questi video ti mostreranno cosa aspettarti nel test principale e ti permetteranno di familiarizzare con la procedura di valutazione.\n\nQuando farai clic su \"Continua\", inizieranno.\n\nChiedi aiuto allo sperimentatore se non sei sicuro di cosa fare o se hai bisogno di chiarimenti.</string>

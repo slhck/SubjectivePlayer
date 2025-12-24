@@ -86,6 +86,12 @@
     <string name="validate_success">모든 설정 파일이 유효하고 모든 비디오가 존재합니다.</string>
     <string name="validate_no_config_files">SubjectiveCfg 폴더에서 설정 파일을 찾을 수 없습니다.</string>
     <string name="validate_errors_found">%d개의 오류 발견:</string>
+    <string name="validate_config_files_header">설정 파일 (%d):</string>
+    <string name="validate_video_count">%d개의 비디오</string>
+    <string name="validate_method_undefined">방법 없음</string>
+    <string name="validate_break_count">%d개의 휴식</string>
+    <string name="validate_no_breaks">휴식 없음</string>
+    <string name="validate_training_count">%d개의 훈련</string>
 
     <!-- Training section strings -->
     <string name="training_intro_message_default">다음으로 몇 가지 훈련 시퀀스를 보게 됩니다. 이 비디오들은 본 테스트에서 무엇을 기대할 수 있는지 보여주고 평가 절차에 익숙해지도록 도와줍니다.\n\n\"계속\"을 클릭하면 시작됩니다.\n\n무엇을 해야 할지 확실하지 않거나 설명이 필요하면 실험자에게 도움을 요청하세요.</string>

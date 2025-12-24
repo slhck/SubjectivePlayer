@@ -86,6 +86,12 @@
     <string name="validate_success">Alle Konfigurationsdateien sind gültig und alle Videos vorhanden.</string>
     <string name="validate_no_config_files">Keine Konfigurationsdateien im SubjectiveCfg-Ordner gefunden.</string>
     <string name="validate_errors_found">%d Fehler gefunden:</string>
+    <string name="validate_config_files_header">Konfigurationsdateien (%d):</string>
+    <string name="validate_video_count">%d Videos</string>
+    <string name="validate_method_undefined">Keine Methode</string>
+    <string name="validate_break_count">%d Pausen</string>
+    <string name="validate_no_breaks">Keine Pausen</string>
+    <string name="validate_training_count">%d Training</string>
 
     <!-- Training section strings -->
     <string name="training_intro_message_default">Im Folgenden sehen Sie einige Trainingssequenzen. Diese Videos zeigen Ihnen, was Sie im Haupttest erwartet, und ermöglichen Ihnen, sich mit dem Bewertungsverfahren vertraut zu machen.\n\nWenn Sie auf \"Weiter\" klicken, beginnen sie.\n\nBitte fragen Sie den Versuchsleiter um Hilfe, wenn Sie unsicher sind oder Klärung benötigen.</string>
