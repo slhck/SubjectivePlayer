@@ -2,6 +2,16 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.3.1] - 2025-12-24
+
+### Bug Fixes
+
+- Linting issues
+
+### Build
+
+- Lint and test on release
+
 ## [2.3.0] - 2025-12-24
 
 ### Bug Fixes
