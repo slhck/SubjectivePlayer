@@ -113,7 +113,9 @@ Ratings are logged continuously to the CSV file as they are collected. This prev
 
 **File naming**: `<participant_id>_<start_time>_<method>.csv` (e.g., `1_20231215-143052_ACR.csv`)
 
-**CSV format**: `video_position,video_name,rating,rated_at`
+**CSV format**: `video_position,video_name,rating,rated_at,rating_duration`
+
+The `rating_duration` column contains the time in seconds the user took to submit the rating. It is empty for time-continuous ratings (which are logged automatically during playback) and for BREAK entries.
 
 ## Testing with Device
 

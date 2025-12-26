@@ -78,10 +78,10 @@ public class CsvLoggerTest {
     public void sessionLog_writesHeaderAndRatings() throws IOException {
         // Simulates a full test session with ratings and a break
         CsvLogger.startSessionLog();
-        CsvLogger.logRating(0, "video1.mp4", 5, 1702650000000L);
-        CsvLogger.logRating(1, "video2.mp4", 4, 1702650010000L);
+        CsvLogger.logRating(0, "video1.mp4", 5, 1702650000000L, 2.5);
+        CsvLogger.logRating(1, "video2.mp4", 4, 1702650010000L, 1.234);
         CsvLogger.logBreak();
-        CsvLogger.logRating(2, "video3.mp4", 3, 1702650020000L);
+        CsvLogger.logRating(2, "video3.mp4", 3, 1702650020000L, 3.0);
         CsvLogger.closeSessionLog();
 
         File[] files = tempLogsDir.listFiles();
@@ -92,18 +92,19 @@ public class CsvLoggerTest {
 
         List<String> lines = readFileLines(files[0]);
         assertEquals(lines.size(), 5);
-        assertEquals(lines.get(0), "video_position,video_name,rating,rated_at");
-        assertTrue(lines.get(1).startsWith("0,video1.mp4,5,"));
-        assertTrue(lines.get(2).startsWith("1,video2.mp4,4,"));
-        // BREAK entries have position -1 and empty rating/timestamp
-        assertEquals(lines.get(3), "-1,BREAK,,");
-        assertTrue(lines.get(4).startsWith("2,video3.mp4,3,"));
+        assertEquals(lines.get(0), "video_position,video_name,rating,rated_at,rating_duration");
+        // Check that rating_duration is included (format: X.XXX)
+        assertTrue(lines.get(1).contains(",2.500"));
+        assertTrue(lines.get(2).contains(",1.234"));
+        // BREAK entries have position -1 and empty rating/timestamp/duration
+        assertEquals(lines.get(3), "-1,BREAK,,,");
+        assertTrue(lines.get(4).contains(",3.000"));
     }
 
     @Test
     public void logRating_autoStartsSession() throws IOException {
         // Logging without explicit startSessionLog() should work
-        CsvLogger.logRating(0, "video.mp4", 5, System.currentTimeMillis());
+        CsvLogger.logRating(0, "video.mp4", 5, System.currentTimeMillis(), 1.5);
         CsvLogger.closeSessionLog();
 
         assertEquals(tempLogsDir.listFiles().length, 1);
@@ -114,13 +115,13 @@ public class CsvLoggerTest {
 
     @Test
     public void continuousRatings_useSessionLog() throws IOException {
-        // Continuous ratings now use the same format as regular ratings
+        // Time-continuous ratings use null duration (empty in CSV)
         CsvLogger.startSessionLog();
         long baseTime = 1702650000000L;
-        // Multiple ratings for same video during playback
-        CsvLogger.logRating(0, "video.mp4", 50, baseTime);
-        CsvLogger.logRating(0, "video.mp4", 55, baseTime + 1000);
-        CsvLogger.logRating(0, "video.mp4", 60, baseTime + 2000);
+        // Multiple ratings for same video during playback (no user interaction, so null duration)
+        CsvLogger.logRating(0, "video.mp4", 50, baseTime, null);
+        CsvLogger.logRating(0, "video.mp4", 55, baseTime + 1000, null);
+        CsvLogger.logRating(0, "video.mp4", 60, baseTime + 2000, null);
         CsvLogger.closeSessionLog();
 
         File[] files = tempLogsDir.listFiles();
@@ -128,10 +129,14 @@ public class CsvLoggerTest {
 
         List<String> lines = readFileLines(files[0]);
         assertEquals(lines.size(), 4);
-        assertEquals(lines.get(0), "video_position,video_name,rating,rated_at");
+        assertEquals(lines.get(0), "video_position,video_name,rating,rated_at,rating_duration");
+        // Time-continuous ratings have empty rating_duration
         assertTrue(lines.get(1).startsWith("0,video.mp4,50,"));
+        assertTrue(lines.get(1).endsWith(","));
         assertTrue(lines.get(2).startsWith("0,video.mp4,55,"));
+        assertTrue(lines.get(2).endsWith(","));
         assertTrue(lines.get(3).startsWith("0,video.mp4,60,"));
+        assertTrue(lines.get(3).endsWith(","));
     }
 
     // ========== Helpers ==========

@@ -152,6 +152,9 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 
     private int mCurrentRating = 0;
 
+    /** Timestamp when the rating dialog was shown (for tracking rating duration) */
+    private long mRatingDialogShownTime = 0;
+
     /** Current display insets (for cutout/safe area) */
     private int mInsetLeft = 0;
     private int mInsetRight = 0;
@@ -464,11 +467,13 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 		case Methods.TYPE_ACR_CATEGORICAL:
             // P.NATS
 			//showDialog(DIALOG_ACR_CATEGORICAL);
+			mRatingDialogShownTime = System.currentTimeMillis();
             showDialog(DIALOG_ACR_CUSTOM);
 			break;
 		case Methods.TYPE_DSIS_CATEGORICAL:
 			break;
 		case Methods.TYPE_CONTINUOUS:
+			mRatingDialogShownTime = System.currentTimeMillis();
 			showDialog(DIALOG_CONTINUOUS);
 			break;
 		case Methods.TYPE_TIME_CONTINUOUS:
@@ -670,12 +675,14 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 		/**
 		 * Runs the logging thread in the background.
 		 * Logs continuous ratings to the session log file.
+		 * Note: rating_duration is null for time-continuous ratings since
+		 * ratings are logged automatically during playback, not after user interaction.
 		 */
 		public void run() {
 			Log.d(TAG, "Running the thread for " + videoName);
 			try {
 				while (mIsVideoPlaying) {
-					CsvLogger.logRating(videoPosition, videoName, sCurrentRating, System.currentTimeMillis());
+					CsvLogger.logRating(videoPosition, videoName, sCurrentRating, System.currentTimeMillis(), null);
 					Thread.sleep(RATING_INTERVAL);
 				}
 				Log.d(TAG, "Video " + videoName + " not playing anymore, stopping.");
@@ -716,11 +723,12 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 						public void onClick(DialogInterface dialog, int item) {
 							int rating = item;
 							long ratedAt = System.currentTimeMillis();
+							Double ratingDuration = (ratedAt - mRatingDialogShownTime) / 1000.0;
 							Session.sRatings.add(rating);
                             Session.sRatingTime.add(ratedAt);
 							// Log rating immediately to file
 							String videoName = Session.sTracks.get(Session.sCurrentTrack);
-							CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt);
+							CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt, ratingDuration);
 							dialog.dismiss();
 							nextVideo();
 						}
@@ -867,12 +875,13 @@ public class SessionActivity extends AppCompatActivity implements Callback,
                         return;
                     }
                     long ratedAt = System.currentTimeMillis();
+                    Double ratingDuration = (ratedAt - mRatingDialogShownTime) / 1000.0;
                     Session.sRatings.add(mCurrentRating);
-                    Log.d(TAG, "Rating saved: " + mCurrentRating);
+                    Log.d(TAG, "Rating saved: " + mCurrentRating + " (took " + ratingDuration + "s)");
                     Session.sRatingTime.add(ratedAt);
                     // Log rating immediately to file
                     String videoName = Session.sTracks.get(Session.sCurrentTrack);
-                    CsvLogger.logRating(Session.sCurrentTrack, videoName, mCurrentRating, ratedAt);
+                    CsvLogger.logRating(Session.sCurrentTrack, videoName, mCurrentRating, ratedAt, ratingDuration);
                     dismissCurrentDialog();
                     // reset buttons
                     for (RadioButton rb : radioButtonList) {
@@ -928,12 +937,13 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 				public void onClick(View v) {
 					int rating = seekBar.getProgress();
 					long ratedAt = System.currentTimeMillis();
+					Double ratingDuration = (ratedAt - mRatingDialogShownTime) / 1000.0;
 					Session.sRatings.add(rating);
 					Session.sRatingTime.add(ratedAt);
-					Log.d(TAG, "Continuous rating saved: " + rating);
+					Log.d(TAG, "Continuous rating saved: " + rating + " (took " + ratingDuration + "s)");
 					// Log rating immediately to file
 					String videoName = Session.sTracks.get(Session.sCurrentTrack);
-					CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt);
+					CsvLogger.logRating(Session.sCurrentTrack, videoName, rating, ratedAt, ratingDuration);
 					dismissCurrentDialog();
 					// Reset slider to center for next video
 					seekBar.setProgress(50);

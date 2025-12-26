@@ -125,7 +125,7 @@ public abstract class CsvLogger {
 
 			if (HEADER) {
 				sSessionBufferedWriter.write("video_position" + SEP_CSV + "video_name" + SEP_CSV
-						+ "rating" + SEP_CSV + "rated_at");
+						+ "rating" + SEP_CSV + "rated_at" + SEP_CSV + "rating_duration");
 				sSessionBufferedWriter.newLine();
 				sSessionBufferedWriter.flush();
 			}
@@ -146,19 +146,25 @@ public abstract class CsvLogger {
 	 * @param videoName The name of the video file
 	 * @param rating The rating value
 	 * @param ratedAtMillis The timestamp when the rating was made (Unix epoch ms)
+	 * @param ratingDurationSeconds The time in seconds the user took to submit the rating,
+	 *                              or null if not applicable (e.g., time-continuous rating)
 	 */
-	public static void logRating(int videoPosition, String videoName, int rating, long ratedAtMillis) {
+	public static void logRating(int videoPosition, String videoName, int rating, long ratedAtMillis, Double ratingDurationSeconds) {
 		if (!sSessionLogStarted) {
 			Log.w(TAG, "Session log not started, starting now");
 			startSessionLog();
 		}
 
 		try {
+			String durationStr = "";
+			if (ratingDurationSeconds != null) {
+				durationStr = String.format(Locale.US, "%.3f", ratingDurationSeconds);
+			}
 			sSessionBufferedWriter.write("" + videoPosition + SEP_CSV + videoName + SEP_CSV
-					+ rating + SEP_CSV + formatAsIso8601(ratedAtMillis));
+					+ rating + SEP_CSV + formatAsIso8601(ratedAtMillis) + SEP_CSV + durationStr);
 			sSessionBufferedWriter.newLine();
 			sSessionBufferedWriter.flush();
-			Log.d(TAG, "Logged rating: video=" + videoName + ", rating=" + rating);
+			Log.d(TAG, "Logged rating: video=" + videoName + ", rating=" + rating + ", duration=" + durationStr + "s");
 		} catch (IOException e) {
 			Log.e(TAG, "Error logging rating: " + e.getMessage());
 			e.printStackTrace();
@@ -167,7 +173,7 @@ public abstract class CsvLogger {
 
 	/**
 	 * Logs a BREAK entry to the session log file.
-	 * BREAK entries have video_position=-1, video_name=BREAK, and empty rating/rated_at.
+	 * BREAK entries have video_position=-1, video_name=BREAK, and empty rating/rated_at/rating_duration.
 	 */
 	public static void logBreak() {
 		if (!sSessionLogStarted) {
@@ -176,7 +182,7 @@ public abstract class CsvLogger {
 		}
 
 		try {
-			sSessionBufferedWriter.write("" + BREAK_VIDEO_POSITION + SEP_CSV + "BREAK" + SEP_CSV + SEP_CSV);
+			sSessionBufferedWriter.write("" + BREAK_VIDEO_POSITION + SEP_CSV + "BREAK" + SEP_CSV + SEP_CSV + SEP_CSV);
 			sSessionBufferedWriter.newLine();
 			sSessionBufferedWriter.flush();
 			Log.d(TAG, "Logged BREAK entry");
