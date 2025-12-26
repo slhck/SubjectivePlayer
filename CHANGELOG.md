@@ -2,6 +2,16 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.4.0] - 2025-12-26
+
+### CI/CD
+
+- Add lint/test
+
+### Features
+
+- Add rating duration, implements #10
+
 ## [2.3.1] - 2025-12-24
 
 ### Bug Fixes
