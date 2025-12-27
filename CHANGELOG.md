@@ -2,6 +2,12 @@
 
 All notable changes to SubjectivePlayer will be documented in this file.
 
+## [2.5.0] - 2025-12-27
+
+### Features
+
+- Questionnaire and dynamic layout
+
 ## [2.4.0] - 2025-12-26
 
 ### CI/CD
