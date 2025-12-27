@@ -22,7 +22,6 @@
         <activity
             android:name=".SubjectivePlayerActivity"
             android:exported="true"
-            android:screenOrientation="landscape"
             android:theme="@style/Theme.SubjectivePlayer.Fullscreen">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -38,13 +37,12 @@
         <activity
             android:name=".SessionActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
+            android:configChanges="orientation|screenSize|screenLayout"
             android:theme="@style/Theme.SubjectivePlayer.Fullscreen" />
 
         <activity
             android:name=".ConfigValidatorActivity"
             android:exported="false"
-            android:screenOrientation="landscape"
             android:label="@string/validate_title" />
 
     </application>

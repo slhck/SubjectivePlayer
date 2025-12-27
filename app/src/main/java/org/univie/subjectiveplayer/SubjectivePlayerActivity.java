@@ -265,13 +265,21 @@ public class SubjectivePlayerActivity extends AppCompatActivity {
 				Session.sParticipantId = Integer.parseInt(editIdString.toString());
 				Log.i(TAG, "Participant ID: " + Session.sParticipantId);
 
-                // set config file from ID (format: subject_<id>.cfg)
-                Configuration.sFileConfig = new File(
+                // set config file from ID (try .json first, then .cfg)
+                File jsonConfig = new File(
+                        Configuration.sFolderApproot, "subject_" + Session.sParticipantId + ".json");
+                File cfgConfig = new File(
                         Configuration.sFolderApproot, "subject_" + Session.sParticipantId + ".cfg");
-				Log.d(TAG, "Looking for config file: " + Configuration.sFileConfig.getAbsolutePath());
 
-                if (!(Configuration.sFileConfig.exists() && Configuration.sFileConfig.canRead())) {
-					Log.e(TAG, "Config file not found or not readable: " + Configuration.sFileConfig.getAbsolutePath());
+                if (jsonConfig.exists() && jsonConfig.canRead()) {
+                    Configuration.sFileConfig = jsonConfig;
+                    Log.d(TAG, "Using JSON config file: " + jsonConfig.getAbsolutePath());
+                } else if (cfgConfig.exists() && cfgConfig.canRead()) {
+                    Configuration.sFileConfig = cfgConfig;
+                    Log.d(TAG, "Using CFG config file: " + cfgConfig.getAbsolutePath());
+                } else {
+                    Log.e(TAG, "Config file not found for ID " + Session.sParticipantId +
+                            " (tried .json and .cfg)");
                     showDialog(DIALOG_EMPTY);
                     return;
                 }

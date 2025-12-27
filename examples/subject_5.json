@@ -1,0 +1,74 @@
+{
+  "$schema": "../json-schema/subject-config.schema.json",
+  "method": "ACR",
+  "custom_messages": {
+    "start_message": "Welcome to the video quality assessment test!\n\nPlease watch each video carefully and rate its quality.",
+    "finish_message": "Thank you for participating!\n\nPlease notify the test supervisor.",
+    "training_message": "This is a training session.\n\nPlease get familiar with the rating interface.",
+    "pre_questionnaire_message": "Before we begin, please answer a few questions about yourself.\n\nYour responses are anonymous and will only be used for research purposes.",
+    "post_questionnaire_message": "Thank you for completing the test!\n\nPlease answer a few final questions about your experience."
+  },
+  "playlist": [
+    "TRAINING_START",
+    "test_video_01.mp4",
+    "TRAINING_END",
+    "test_video_02.mp4",
+    "BREAK",
+    "test_video_03.mp4"
+  ],
+  "pre_questionnaire": [
+    {
+      "question": "How old are you?",
+      "type": "number"
+    },
+    {
+      "question": "What is your gender?",
+      "type": "radio",
+      "options": [
+        "Male",
+        "Female",
+        "Non-binary / Genderqueer",
+        "Prefer not to say"
+      ]
+    },
+    {
+      "question": "How often do you watch streaming video content?",
+      "type": "radio",
+      "options": [
+        "Daily",
+        "Several times a week",
+        "Once a week",
+        "Less than once a week",
+        "Never"
+      ]
+    }
+  ],
+  "post_questionnaire": [
+    {
+      "question": "Which streaming services do you use?",
+      "type": "multiple-choice",
+      "options": [
+        "Netflix",
+        "YouTube",
+        "Amazon Prime Video",
+        "Disney+",
+        "Other"
+      ]
+    },
+    {
+      "question": "Did you notice any quality differences between the videos?",
+      "type": "radio",
+      "options": [
+        "Yes, very noticeable",
+        "Yes, somewhat noticeable",
+        "Not really",
+        "No, not at all"
+      ]
+    },
+    {
+      "question": "Any additional comments about the test?",
+      "type": "text",
+      "required": false
+    }
+  ]
+}

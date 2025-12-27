@@ -24,8 +24,8 @@ Options:
                    (default: script's directory)
 
 Files pushed:
-  *.mp4 files  ->  /sdcard/Android/data/org.univie.subjectiveplayer/files/SubjectiveMovies/
-  *.cfg files  ->  /sdcard/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
+  *.mp4 files            ->  /sdcard/Android/data/org.univie.subjectiveplayer/files/SubjectiveMovies/
+  *.json or *.cfg files  ->  /sdcard/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
 
 Note: On Android 11+ (API 30+), you must open the SubjectivePlayer app at least once
 before running this script. The app needs to create the storage directories with
@@ -213,10 +213,10 @@ fi
 
 # Count files to push
 VIDEO_COUNT=$(find "$INPUT_DIR" -maxdepth 1 -name "*.mp4" -o -name "*.webm" -o -name "*.mkv" 2>/dev/null | wc -l | tr -d ' ')
-CONFIG_COUNT=$(find "$INPUT_DIR" -maxdepth 1 -name "*.cfg" 2>/dev/null | wc -l | tr -d ' ')
+CONFIG_COUNT=$(find "$INPUT_DIR" -maxdepth 1 -name "*.cfg" -o -name "*.json" 2>/dev/null | wc -l | tr -d ' ')
 
 if [ "$VIDEO_COUNT" -eq 0 ] && [ "$CONFIG_COUNT" -eq 0 ]; then
-    echo "Warning: No video files (*.mp4, *.webm, *.mkv) or config files (*.cfg) found in $INPUT_DIR"
+    echo "Warning: No video files (*.mp4, *.webm, *.mkv) or config files (*.json or *.cfg) found in $INPUT_DIR"
     exit 1
 fi
 
@@ -238,7 +238,7 @@ fi
 echo ""
 echo "Pushing playlist files to $CONFIG_PATH..."
 CONFIG_PUSHED=0
-for playlist in "$INPUT_DIR"/*.cfg; do
+for playlist in "$INPUT_DIR"/*.cfg "$INPUT_DIR"/*.json; do
     if [ -f "$playlist" ]; then
         filename=$(basename "$playlist")
         echo "  - $filename"

@@ -97,4 +97,14 @@
     <string name="training_intro_message_default">接下来，您将观看一些训练视频。这些视频将展示您在正式测试中可以期待的内容，并帮助您熟悉评分程序。\n\n点击"继续"后将开始播放。\n\n如果您不确定该怎么做或需要说明，请向实验员寻求帮助。</string>
     <string name="training_complete_message_default">训练完成！\n\n您已完成训练部分。正式测试即将开始。\n\n点击"继续"开始。</string>
     <string name="training_continue">继续</string>
+
+    <!-- Questionnaire strings -->
+    <string name="questionnaire_pre_message_default">在开始之前，请回答几个问题。\n\n您的回答仅用于研究目的。</string>
+    <string name="questionnaire_post_message_default">您已完成视频评分。\n\n在结束之前，请回答几个最后的问题。</string>
+    <string name="questionnaire_counter">问题 %1$d / %2$d</string>
+    <string name="questionnaire_optional">（可选）</string>
+    <string name="questionnaire_next">下一步</string>
+    <string name="questionnaire_number_hint">输入数字</string>
+    <string name="questionnaire_text_hint">输入您的答案</string>
+    <string name="questionnaire_continue">继续</string>
 </resources>

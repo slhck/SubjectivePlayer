@@ -16,6 +16,7 @@
 
 package org.univie.subjectiveplayer;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,65 +29,82 @@ import java.io.IOException;
 
 import static org.junit.Assert.*;
 
+/**
+ * Tests for Session class.
+ * Focuses on Session-specific behavior: utility methods, training logic, and
+ * runtime behavior like missing file filtering.
+ *
+ * Config file parsing is tested in ConfigFileTest.java.
+ */
 @RunWith(RobolectricTestRunner.class)
 @Config(sdk = 28)
 public class SessionTest {
 
+    private File tempDir;
+
     @Before
-    public void setUp() {
+    public void setUp() throws IOException {
         Session.reset();
+        tempDir = File.createTempFile("test_videos", "");
+        tempDir.delete();
+        tempDir.mkdirs();
+        Configuration.sFolderVideos = tempDir;
     }
 
-    // ========== parseBreakDuration ==========
-    // Config files can have "BREAK" or "BREAK <seconds>" to insert pauses
+    @After
+    public void tearDown() {
+        if (tempDir != null) {
+            File[] files = tempDir.listFiles();
+            if (files != null) {
+                for (File f : files) f.delete();
+            }
+            tempDir.delete();
+        }
+    }
+
+    // ========== Utility Methods ==========
+    // These are used by config parsers and during session playback
 
     @Test
     public void parseBreakDuration_withValidDuration() {
-        assertEquals(Session.parseBreakDuration("BREAK 60"), 60);
-        assertEquals(Session.parseBreakDuration("BREAK 0"), 0);
+        assertEquals(60, Session.parseBreakDuration("BREAK 60"));
+        assertEquals(0, Session.parseBreakDuration("BREAK 0"));
     }
 
     @Test
     public void parseBreakDuration_withoutDuration() {
-        // Missing or invalid duration returns -1 (indefinite break)
-        assertEquals(Session.parseBreakDuration("BREAK"), -1);
-        assertEquals(Session.parseBreakDuration("BREAK abc"), -1);
+        assertEquals(-1, Session.parseBreakDuration("BREAK"));
+        assertEquals(-1, Session.parseBreakDuration("BREAK abc"));
     }
-
-    // ========== parseMethodType ==========
-    // Config files specify rating method via "METHOD <type>" directive
 
     @Test
     public void parseMethodType_allValidMethods() {
-        assertEquals(Session.parseMethodType("METHOD ACR"), Methods.TYPE_ACR_CATEGORICAL);
-        assertEquals(Session.parseMethodType("METHOD CONTINUOUS"), Methods.TYPE_CONTINUOUS);
-        assertEquals(Session.parseMethodType("METHOD DSIS"), Methods.TYPE_DSIS_CATEGORICAL);
-        assertEquals(Session.parseMethodType("METHOD TIME_CONTINUOUS"), Methods.TYPE_TIME_CONTINUOUS);
+        assertEquals(Methods.TYPE_ACR_CATEGORICAL, Session.parseMethodType("METHOD ACR"));
+        assertEquals(Methods.TYPE_CONTINUOUS, Session.parseMethodType("METHOD CONTINUOUS"));
+        assertEquals(Methods.TYPE_DSIS_CATEGORICAL, Session.parseMethodType("METHOD DSIS"));
+        assertEquals(Methods.TYPE_TIME_CONTINUOUS, Session.parseMethodType("METHOD TIME_CONTINUOUS"));
     }
 
     @Test
     public void parseMethodType_caseInsensitive() {
-        assertEquals(Session.parseMethodType("method acr"), Methods.TYPE_ACR_CATEGORICAL);
+        assertEquals(Methods.TYPE_ACR_CATEGORICAL, Session.parseMethodType("method acr"));
     }
 
     @Test
     public void parseMethodType_invalidReturnsUndefined() {
-        assertEquals(Session.parseMethodType("METHOD UNKNOWN"), Methods.UNDEFINED);
-        assertEquals(Session.parseMethodType("METHOD"), Methods.UNDEFINED);
+        assertEquals(Methods.UNDEFINED, Session.parseMethodType("METHOD UNKNOWN"));
+        assertEquals(Methods.UNDEFINED, Session.parseMethodType("METHOD"));
     }
-
-    // ========== parseMessageDirective ==========
-    // Custom messages can be set via START_MESSAGE, FINISH_MESSAGE, TRAINING_MESSAGE
 
     @Test
     public void parseMessageDirective_extractsMessage() {
-        assertEquals(Session.parseMessageDirective("START_MESSAGE Welcome!", "START_MESSAGE"), "Welcome!");
+        assertEquals("Welcome!", Session.parseMessageDirective("START_MESSAGE Welcome!", "START_MESSAGE"));
     }
 
     @Test
     public void parseMessageDirective_convertsEscapedNewlines() {
-        // Config files use \n for line breaks since they're single-line
-        assertEquals(Session.parseMessageDirective("START_MESSAGE Line1\\nLine2\\nLine3", "START_MESSAGE"), "Line1\nLine2\nLine3");
+        assertEquals("Line1\nLine2\nLine3",
+                Session.parseMessageDirective("START_MESSAGE Line1\\nLine2\\nLine3", "START_MESSAGE"));
     }
 
     @Test
@@ -94,12 +112,11 @@ public class SessionTest {
         assertNull(Session.parseMessageDirective("START_MESSAGE ", "START_MESSAGE"));
     }
 
-    // ========== Training section logic ==========
-    // Training videos are marked with TRAINING_START/TRAINING_END in config
+    // ========== Training Section Logic ==========
+    // Tests Session's training state management
 
     @Test
     public void trainingSection_requiresBothMarkers() {
-        // Incomplete training section (only start) should not be recognized
         Session.sTrainingStartIndex = 0;
         Session.sTrainingEndIndex = -1;
         assertFalse(Session.hasTrainingSection());
@@ -110,7 +127,6 @@ public class SessionTest {
 
     @Test
     public void isTrainingTrack_checksRange() {
-        // Training section spans indices 2-4 inclusive
         Session.sTrainingStartIndex = 2;
         Session.sTrainingEndIndex = 4;
 
@@ -121,120 +137,128 @@ public class SessionTest {
         assertFalse(Session.isTrainingTrack(5));
     }
 
-    // ========== readVideosFromFile ==========
-    // Full config file parsing - the main entry point for loading a test session
-
     @Test
-    public void readVideosFromFile_parsesAllDirectives() throws IOException {
-        // Comprehensive test: METHOD, messages, videos, and BREAK commands
-        File tempDir = createTempDir();
-        Configuration.sFolderVideos = tempDir;
-        createTempFile(tempDir, "video.mp4");
+    public void isFirstTrainingTrack_checksExactIndex() {
+        Session.sTrainingStartIndex = 2;
+        Session.sTrainingEndIndex = 4;
 
-        File config = createTempConfigFile(
-            "METHOD ACR\n" +
-            "START_MESSAGE Welcome\\nTo the test\n" +
-            "FINISH_MESSAGE Goodbye!\n" +
-            "video.mp4\n" +
-            "BREAK 30\n"
-        );
-
-        Session.readVideosFromFile(config);
-
-        assertEquals(Session.sCurrentMethod, Methods.TYPE_ACR_CATEGORICAL);
-        assertEquals(Session.sStartMessage, "Welcome\nTo the test");
-        assertEquals(Session.sFinishMessage, "Goodbye!");
-        assertEquals(Session.sTracks.size(), 2);
-        assertEquals(Session.sTracks.get(0), "video.mp4");
-        assertEquals(Session.sTracks.get(1), "BREAK 30");
-
-        cleanup(config, tempDir);
+        assertFalse(Session.isFirstTrainingTrack(1));
+        assertTrue(Session.isFirstTrainingTrack(2));
+        assertFalse(Session.isFirstTrainingTrack(3));
     }
 
     @Test
-    public void readVideosFromFile_parsesTrainingSection() throws IOException {
-        // Training section: videos between TRAINING_START and TRAINING_END
-        File tempDir = createTempDir();
-        Configuration.sFolderVideos = tempDir;
-        createTempFile(tempDir, "training.mp4");
-        createTempFile(tempDir, "test.mp4");
+    public void isLastTrainingTrack_checksExactIndex() {
+        Session.sTrainingStartIndex = 2;
+        Session.sTrainingEndIndex = 4;
 
-        File config = createTempConfigFile(
-            "TRAINING_START\n" +
-            "training.mp4\n" +
-            "TRAINING_END\n" +
-            "test.mp4\n"
-        );
-
-        Session.readVideosFromFile(config);
-
-        // training.mp4 is at index 0, test.mp4 at index 1
-        assertEquals(Session.sTrainingStartIndex, 0);
-        assertEquals(Session.sTrainingEndIndex, 0);
-        assertTrue(Session.hasTrainingSection());
-        assertEquals(Session.sTracks.size(), 2);
-
-        cleanup(config, tempDir);
+        assertFalse(Session.isLastTrainingTrack(3));
+        assertTrue(Session.isLastTrainingTrack(4));
+        assertFalse(Session.isLastTrainingTrack(5));
     }
+
+    // ========== readVideosFromFile - Session-specific behavior ==========
+    // Tests behavior unique to Session: missing file removal, state population
 
     @Test
     public void readVideosFromFile_removesMissingVideos() throws IOException {
-        // Videos that don't exist on disk are silently removed from playlist
-        File tempDir = createTempDir();
-        Configuration.sFolderVideos = tempDir;
         createTempFile(tempDir, "exists.mp4");
 
         File config = createTempConfigFile("exists.mp4\nmissing.mp4\n");
         Session.readVideosFromFile(config);
 
-        assertEquals(Session.sTracks.size(), 1);
-        assertEquals(Session.sTracks.get(0), "exists.mp4");
+        assertEquals(1, Session.sTracks.size());
+        assertEquals("exists.mp4", Session.sTracks.get(0));
 
-        cleanup(config, tempDir);
+        config.delete();
     }
 
     @Test
     public void readVideosFromFile_keepsBreakCommands() throws IOException {
-        // BREAK commands are kept even though they're not actual files
-        File tempDir = createTempDir();
-        Configuration.sFolderVideos = tempDir;
-
         File config = createTempConfigFile("BREAK 60\nBREAK\n");
         Session.readVideosFromFile(config);
 
-        assertEquals(Session.sTracks.size(), 2);
+        assertEquals(2, Session.sTracks.size());
         assertTrue(Session.isBreakCommand(Session.sTracks.get(0)));
+        assertTrue(Session.isBreakCommand(Session.sTracks.get(1)));
 
-        cleanup(config, tempDir);
+        config.delete();
+    }
+
+    @Test
+    public void readVideosFromFile_populatesSessionState() throws IOException {
+        createTempFile(tempDir, "video.mp4");
+
+        File config = createTempConfigFile(
+            "METHOD CONTINUOUS\n" +
+            "START_MESSAGE Hello\n" +
+            "FINISH_MESSAGE Bye\n" +
+            "video.mp4\n"
+        );
+        Session.readVideosFromFile(config);
+
+        assertEquals(Methods.TYPE_CONTINUOUS, Session.sCurrentMethod);
+        assertEquals("Hello", Session.sStartMessage);
+        assertEquals("Bye", Session.sFinishMessage);
+        assertEquals(1, Session.sTracks.size());
+
+        config.delete();
+    }
+
+    @Test
+    public void readVideosFromFile_supportsJsonFormat() throws IOException {
+        createTempFile(tempDir, "video.mp4");
+
+        File config = new File(tempDir, "test.json");
+        writeFile(config, "{\"method\": \"ACR\", \"playlist\": [\"video.mp4\"]}");
+
+        Session.readVideosFromFile(config);
+
+        assertEquals(Methods.TYPE_ACR_CATEGORICAL, Session.sCurrentMethod);
+        assertEquals(1, Session.sTracks.size());
+        assertEquals("video.mp4", Session.sTracks.get(0));
+
+        config.delete();
+    }
+
+    @Test
+    public void readVideosFromFile_adjustsTrainingIndicesOnMissingFiles() throws IOException {
+        createTempFile(tempDir, "training.mp4");
+        createTempFile(tempDir, "test.mp4");
+        // missing.mp4 intentionally not created
+
+        File config = createTempConfigFile(
+            "missing.mp4\n" +
+            "TRAINING_START\n" +
+            "training.mp4\n" +
+            "TRAINING_END\n" +
+            "test.mp4\n"
+        );
+        Session.readVideosFromFile(config);
+
+        // missing.mp4 removed, so training.mp4 is now at index 0
+        assertEquals(2, Session.sTracks.size());
+        assertEquals(0, Session.sTrainingStartIndex);
+        assertEquals(0, Session.sTrainingEndIndex);
+
+        config.delete();
     }
 
     // ========== Helpers ==========
 
     private File createTempConfigFile(String content) throws IOException {
         File tempFile = File.createTempFile("test_config", ".cfg");
-        try (FileWriter writer = new FileWriter(tempFile)) {
-            writer.write(content);
-        }
+        writeFile(tempFile, content);
         return tempFile;
-    }
-
-    private File createTempDir() throws IOException {
-        File tempDir = File.createTempFile("test_videos", "");
-        tempDir.delete();
-        tempDir.mkdirs();
-        return tempDir;
     }
 
     private void createTempFile(File dir, String filename) throws IOException {
         new File(dir, filename).createNewFile();
     }
 
-    private void cleanup(File config, File tempDir) {
-        config.delete();
-        File[] files = tempDir.listFiles();
-        if (files != null) {
-            for (File f : files) f.delete();
+    private void writeFile(File file, String content) throws IOException {
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(content);
         }
-        tempDir.delete();
     }
 }

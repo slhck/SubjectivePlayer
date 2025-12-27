@@ -193,6 +193,98 @@ public abstract class CsvLogger {
 	}
 
 	/**
+	 * Logs questionnaire answers to a separate CSV file.
+	 * File name format: ID_StartTime_questionnaire_type.csv
+	 *
+	 * Uses tidy data format: one row per answer. Multiple-choice questions
+	 * produce multiple rows (one per selected option).
+	 *
+	 * @param type The type of questionnaire ("pre" or "post")
+	 * @param questionnaire The questionnaire with questions
+	 * @param answers The list of answers (parallel to questions)
+	 */
+	public static void logQuestionnaire(String type, Questionnaire questionnaire, java.util.List<QuestionnaireAnswer> answers) {
+		if (questionnaire == null || questionnaire.isEmpty()) {
+			Log.d(TAG, "No questionnaire to log for type: " + type);
+			return;
+		}
+
+		try {
+			SimpleDateFormat format = new SimpleDateFormat(DATE_FORMAT, Locale.US);
+
+			// ID_StartTime_questionnaire_type.csv
+			String fileName = "" + Session.sParticipantId + SEP_FILE
+					+ format.format(new Date()) + SEP_FILE + "questionnaire" + SEP_FILE + type
+					+ "." + SUFFIX;
+			File questionnaireFile = new File(Configuration.sFolderLogs, fileName);
+
+			Log.d(TAG, "Writing questionnaire log: " + questionnaireFile.getAbsolutePath());
+
+			try (FileWriter fw = new FileWriter(questionnaireFile);
+				 BufferedWriter bw = new BufferedWriter(fw)) {
+
+				// Write header
+				bw.write("question_number" + SEP_CSV + "question_type" + SEP_CSV + "question" + SEP_CSV
+						+ "answer" + SEP_CSV + "answered_at" + SEP_CSV + "answer_duration");
+				bw.newLine();
+
+				// Write each question and answer
+				java.util.List<Question> questions = questionnaire.getQuestions();
+				for (int i = 0; i < questions.size(); i++) {
+					Question q = questions.get(i);
+					QuestionnaireAnswer qa = (i < answers.size()) ? answers.get(i) : null;
+
+					String questionText = escapeCSV(q.getQuestion());
+					String answeredAt = (qa != null) ? formatAsIso8601(qa.getAnsweredAtMillis()) : "";
+					String duration = (qa != null) ? String.format(Locale.US, "%.3f", qa.getAnswerDurationSeconds()) : "";
+					int questionNumber = i + 1;
+
+					if (qa == null || qa.isEmpty()) {
+						// Empty answer: write single row with empty answer
+						bw.write("" + questionNumber + SEP_CSV + q.getType() + SEP_CSV + questionText + SEP_CSV
+								+ SEP_CSV + answeredAt + SEP_CSV + duration);
+						bw.newLine();
+					} else if (Question.TYPE_MULTIPLE_CHOICE.equals(q.getType()) && qa.hasMultipleSelections()) {
+						// Multiple-choice with multiple selections: one row per selected option
+						for (String selectedOption : qa.getAnswers()) {
+							String answerText = escapeCSV(selectedOption);
+							bw.write("" + questionNumber + SEP_CSV + q.getType() + SEP_CSV + questionText + SEP_CSV
+									+ answerText + SEP_CSV + answeredAt + SEP_CSV + duration);
+							bw.newLine();
+						}
+					} else {
+						// Single answer (number, radio, text, or single multiple-choice selection)
+						String answerText = escapeCSV(qa.getAnswer());
+						bw.write("" + questionNumber + SEP_CSV + q.getType() + SEP_CSV + questionText + SEP_CSV
+								+ answerText + SEP_CSV + answeredAt + SEP_CSV + duration);
+						bw.newLine();
+					}
+				}
+
+				bw.flush();
+				Log.i(TAG, "Questionnaire log written: " + fileName + " with " + questions.size() + " questions");
+			}
+		} catch (IOException e) {
+			Log.e(TAG, "Error writing questionnaire log: " + e.getMessage());
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Escapes a string for CSV output by quoting if necessary.
+	 */
+	private static String escapeCSV(String value) {
+		if (value == null) {
+			return "";
+		}
+		// If the value contains comma, quote, or newline, wrap in quotes and escape internal quotes
+		if (value.contains(",") || value.contains("\"") || value.contains("\n") || value.contains("\r")) {
+			return "\"" + value.replace("\"", "\"\"") + "\"";
+		}
+		return value;
+	}
+
+	/**
 	 * Closes the session log file. Should be called when the session ends.
 	 */
 	public static void closeSessionLog() {

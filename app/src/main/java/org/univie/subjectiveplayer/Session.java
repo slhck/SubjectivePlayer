@@ -16,11 +16,7 @@
 
 package org.univie.subjectiveplayer;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -59,6 +55,24 @@ public abstract class Session {
 
     /** Custom training message from config file */
     public static String sTrainingMessage = null;
+
+    /** Custom pre-questionnaire message from config file */
+    public static String sPreQuestionnaireMessage = null;
+
+    /** Custom post-questionnaire message from config file */
+    public static String sPostQuestionnaireMessage = null;
+
+    /** Pre-questionnaire (questions before the test) */
+    public static Questionnaire sPreQuestionnaire = null;
+
+    /** Post-questionnaire (questions after the test) */
+    public static Questionnaire sPostQuestionnaire = null;
+
+    /** Pre-questionnaire answers (parallel to sPreQuestionnaire.getQuestions()) */
+    public static List<QuestionnaireAnswer> sPreQuestionnaireAnswers = new ArrayList<>();
+
+    /** Post-questionnaire answers (parallel to sPostQuestionnaire.getQuestions()) */
+    public static List<QuestionnaireAnswer> sPostQuestionnaireAnswers = new ArrayList<>();
 
     /** Index in sTracks where training starts (-1 if no training section) */
     public static int sTrainingStartIndex = -1;
@@ -277,107 +291,115 @@ public abstract class Session {
 	 * it from the settings in the Configuration. Missing files will not be
 	 * included in the playlist. BREAK commands are preserved as-is.
 	 *
-	 * The first line may optionally be a METHOD directive (e.g., "METHOD ACR")
-	 * which sets the rating method for this session. If present, it sets
-	 * sCurrentMethod; otherwise sCurrentMethod is left unchanged.
+	 * Supports both JSON (.json) and legacy text (.cfg) config file formats.
+	 * The format is determined by file extension.
 	 */
 	public static void readVideosFromFile(File configFile) {
 		Log.d(TAG, "Reading playlist from file: " + configFile.getAbsolutePath());
-		try {
-			if (configFile.exists() && configFile.canRead()) {
 
-				// prepare readers
-				FileInputStream fin = new FileInputStream(configFile);
-				DataInputStream din = new DataInputStream(fin);
-				InputStreamReader ir = new InputStreamReader(din);
-				BufferedReader br = new BufferedReader(ir);
-
-				// read from the file
-				String currentLine;
-				while ((currentLine = br.readLine()) != null) {
-					currentLine = currentLine.trim();
-					if (!currentLine.isEmpty()) {
-						// Check for METHOD directive
-						if (isMethodDirective(currentLine)) {
-							int method = parseMethodType(currentLine);
-							if (method != Methods.UNDEFINED) {
-								sCurrentMethod = method;
-								Log.i(TAG, "Method set from config file: " + Methods.METHOD_NAMES[method]);
-							}
-							continue; // Don't add METHOD line to tracks
-						}
-						// Check for START_MESSAGE directive
-						if (isStartMessageDirective(currentLine)) {
-							String message = parseMessageDirective(currentLine, START_MESSAGE_PREFIX);
-							if (message != null) {
-								sStartMessage = message;
-								Log.i(TAG, "Start message set from config file");
-							}
-							continue; // Don't add START_MESSAGE line to tracks
-						}
-						// Check for FINISH_MESSAGE directive
-						if (isFinishMessageDirective(currentLine)) {
-							String message = parseMessageDirective(currentLine, FINISH_MESSAGE_PREFIX);
-							if (message != null) {
-								sFinishMessage = message;
-								Log.i(TAG, "Finish message set from config file");
-							}
-							continue; // Don't add FINISH_MESSAGE line to tracks
-						}
-						// Check for TRAINING_MESSAGE directive
-						if (isTrainingMessageDirective(currentLine)) {
-							String message = parseMessageDirective(currentLine, TRAINING_MESSAGE_PREFIX);
-							if (message != null) {
-								sTrainingMessage = message;
-								Log.i(TAG, "Training message set from config file");
-							}
-							continue; // Don't add TRAINING_MESSAGE line to tracks
-						}
-						// Check for TRAINING_START marker
-						if (isTrainingStartMarker(currentLine)) {
-							sTrainingStartIndex = sTracks.size(); // Next track will be first training track
-							Log.i(TAG, "Training section starts at index " + sTrainingStartIndex);
-							continue; // Don't add TRAINING_START line to tracks
-						}
-						// Check for TRAINING_END marker
-						if (isTrainingEndMarker(currentLine)) {
-							sTrainingEndIndex = sTracks.size() - 1; // Previous track was last training track
-							Log.i(TAG, "Training section ends at index " + sTrainingEndIndex);
-							continue; // Don't add TRAINING_END line to tracks
-						}
-						sTracks.add(currentLine);
-						Log.d(TAG, "Added track: " + currentLine);
-					}
-				}
-
-				// take care of files that can not be found, so we don't have to
-				// check later. Skip BREAK commands as they are not files.
-				for (int i = sTracks.size() - 1; i >= 0; i--) {
-					String track = sTracks.get(i);
-					if (isBreakCommand(track)) {
-						Log.d(TAG, "Keeping BREAK command at index " + i + ": " + track);
-						continue;
-					}
-					File f = new File(Configuration.sFolderVideos, track);
-					if (!f.exists()) {
-						Log.w(TAG, "Video file not found, removing from playlist: " + f.getAbsolutePath());
-						sTracks.remove(i);
-					}
-				}
-
-				Log.d(TAG, "Playlist loaded with " + sTracks.size() + " entries");
-
-				// cleanup streams
-				br.close();
-				ir.close();
-				din.close();
-				fin.close();
-			} else {
-				Log.e(TAG, "Config file does not exist or cannot be read: " + configFile.getAbsolutePath());
-			}
-		} catch (Exception e) {
-			Log.e(TAG, "Could not read Videos from file: " + e.getMessage());
+		if (!configFile.exists() || !configFile.canRead()) {
+			Log.e(TAG, "Config file does not exist or cannot be read: " + configFile.getAbsolutePath());
+			return;
 		}
+
+		// Parse config file using appropriate parser based on extension
+		BaseConfigFile config = ConfigFileFactory.create(configFile);
+
+		// Log any parse errors (but continue - validation is done separately)
+		for (BaseConfigFile.ParseError error : config.getParseErrors()) {
+			Log.w(TAG, "Config parse error: " + error.message);
+		}
+
+		// Copy parsed data to session state
+		if (config.getMethod() != Methods.UNDEFINED) {
+			sCurrentMethod = config.getMethod();
+			Log.i(TAG, "Method set from config file: " + Methods.METHOD_NAMES[sCurrentMethod]);
+		}
+
+		if (config.getStartMessage() != null) {
+			sStartMessage = config.getStartMessage();
+			Log.i(TAG, "Start message set from config file");
+		}
+
+		if (config.getFinishMessage() != null) {
+			sFinishMessage = config.getFinishMessage();
+			Log.i(TAG, "Finish message set from config file");
+		}
+
+		if (config.getTrainingMessage() != null) {
+			sTrainingMessage = config.getTrainingMessage();
+			Log.i(TAG, "Training message set from config file");
+		}
+
+		if (config.getPreQuestionnaireMessage() != null) {
+			sPreQuestionnaireMessage = config.getPreQuestionnaireMessage();
+			Log.i(TAG, "Pre-questionnaire message set from config file");
+		}
+
+		if (config.getPostQuestionnaireMessage() != null) {
+			sPostQuestionnaireMessage = config.getPostQuestionnaireMessage();
+			Log.i(TAG, "Post-questionnaire message set from config file");
+		}
+
+		// Copy questionnaires
+		if (config.hasPreQuestionnaire()) {
+			sPreQuestionnaire = config.getPreQuestionnaire();
+			Log.i(TAG, "Pre-questionnaire loaded with " + sPreQuestionnaire.size() + " questions");
+		}
+
+		if (config.hasPostQuestionnaire()) {
+			sPostQuestionnaire = config.getPostQuestionnaire();
+			Log.i(TAG, "Post-questionnaire loaded with " + sPostQuestionnaire.size() + " questions");
+		}
+
+		// Copy entries to tracks
+		sTracks.addAll(config.getEntries());
+
+		// Copy training indices
+		sTrainingStartIndex = config.getTrainingStartIndex();
+		sTrainingEndIndex = config.getTrainingEndIndex();
+		if (hasTrainingSection()) {
+			Log.i(TAG, "Training section: indices " + sTrainingStartIndex + " to " + sTrainingEndIndex);
+		}
+
+		// Filter out missing video files (skip BREAK commands)
+		for (int i = sTracks.size() - 1; i >= 0; i--) {
+			String track = sTracks.get(i);
+			if (isBreakCommand(track)) {
+				Log.d(TAG, "Keeping BREAK command at index " + i + ": " + track);
+				continue;
+			}
+			File f = new File(Configuration.sFolderVideos, track);
+			if (!f.exists()) {
+				Log.w(TAG, "Video file not found, removing from playlist: " + f.getAbsolutePath());
+				sTracks.remove(i);
+				// Adjust training indices if needed
+				if (sTrainingStartIndex > i) {
+					sTrainingStartIndex--;
+				}
+				if (sTrainingEndIndex >= i) {
+					sTrainingEndIndex--;
+				}
+			}
+		}
+
+		Log.d(TAG, "Playlist loaded with " + sTracks.size() + " entries");
+	}
+
+	/**
+	 * Checks if a pre-questionnaire is defined
+	 * @return true if a pre-questionnaire with at least one question exists
+	 */
+	public static boolean hasPreQuestionnaire() {
+		return sPreQuestionnaire != null && !sPreQuestionnaire.isEmpty();
+	}
+
+	/**
+	 * Checks if a post-questionnaire is defined
+	 * @return true if a post-questionnaire with at least one question exists
+	 */
+	public static boolean hasPostQuestionnaire() {
+		return sPostQuestionnaire != null && !sPostQuestionnaire.isEmpty();
 	}
 
 	/**
@@ -393,6 +415,12 @@ public abstract class Session {
 		sStartMessage = null;
 		sFinishMessage = null;
 		sTrainingMessage = null;
+		sPreQuestionnaireMessage = null;
+		sPostQuestionnaireMessage = null;
+		sPreQuestionnaire = null;
+		sPostQuestionnaire = null;
+		sPreQuestionnaireAnswers = new ArrayList<QuestionnaireAnswer>();
+		sPostQuestionnaireAnswers = new ArrayList<QuestionnaireAnswer>();
 		sTrainingStartIndex = -1;
 		sTrainingEndIndex = -1;
 	}

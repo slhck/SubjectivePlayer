@@ -1,0 +1,13 @@
+{
+  "$schema": "../json-schema/subject-config.schema.json",
+  "method": "ACR",
+  "custom_messages": {
+    "start_message": "Welcome to this video quality study!\n\nYou will watch 3 short video clips.\nAfter each clip, please rate the overall quality.\n\nClick \"Continue\" when you are ready to begin.",
+    "finish_message": "Thank you for completing this study!\n\nYour responses have been recorded.\n\nPlease inform the experimenter that you have finished."
+  },
+  "playlist": [
+    "test_video_01.mp4",
+    "test_video_02.mp4",
+    "test_video_03.mp4"
+  ]
+}

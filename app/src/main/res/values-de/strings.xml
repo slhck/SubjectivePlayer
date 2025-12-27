@@ -97,4 +97,14 @@
     <string name="training_intro_message_default">Im Folgenden sehen Sie einige Trainingssequenzen. Diese Videos zeigen Ihnen, was Sie im Haupttest erwartet, und ermöglichen Ihnen, sich mit dem Bewertungsverfahren vertraut zu machen.\n\nWenn Sie auf \"Weiter\" klicken, beginnen sie.\n\nBitte fragen Sie den Versuchsleiter um Hilfe, wenn Sie unsicher sind oder Klärung benötigen.</string>
     <string name="training_complete_message_default">Training abgeschlossen!\n\nSie haben den Trainingsabschnitt beendet. Der Haupttest beginnt nun.\n\nKlicken Sie auf \"Weiter\", um zu starten.</string>
     <string name="training_continue">Weiter</string>
+
+    <!-- Questionnaire strings -->
+    <string name="questionnaire_pre_message_default">Bevor wir beginnen, beantworten Sie bitte einige Fragen.\n\nIhre Antworten werden nur zu Forschungszwecken verwendet.</string>
+    <string name="questionnaire_post_message_default">Sie haben die Videobewertungen abgeschlossen.\n\nBitte beantworten Sie noch einige abschließende Fragen.</string>
+    <string name="questionnaire_counter">Frage %1$d von %2$d</string>
+    <string name="questionnaire_optional">(Optional)</string>
+    <string name="questionnaire_next">Weiter</string>
+    <string name="questionnaire_number_hint">Zahl eingeben</string>
+    <string name="questionnaire_text_hint">Antwort eingeben</string>
+    <string name="questionnaire_continue">Weiter</string>
 </resources>

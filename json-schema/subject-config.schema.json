@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://github.com/slhck/SubjectivePlayer/json-schema/subject-config.schema.json",
+  "title": "SubjectivePlayer Config",
+  "description": "Configuration file for SubjectivePlayer video quality assessment tests",
+  "type": "object",
+  "properties": {
+    "method": {
+      "type": "string",
+      "enum": ["ACR", "CONTINUOUS", "DSIS", "TIME_CONTINUOUS"],
+      "description": "Rating method to use. ACR: 5-point scale, CONTINUOUS: 0-100 slider, TIME_CONTINUOUS: real-time volume button rating"
+    },
+    "custom_messages": {
+      "type": "object",
+      "description": "Custom messages to display during the test",
+      "properties": {
+        "start_message": {
+          "type": "string",
+          "description": "Message shown before the first video"
+        },
+        "finish_message": {
+          "type": "string",
+          "description": "Message shown after the last video"
+        },
+        "training_message": {
+          "type": "string",
+          "description": "Message shown before training videos"
+        },
+        "pre_questionnaire_message": {
+          "type": "string",
+          "description": "Introductory message shown before the pre-questionnaire"
+        },
+        "post_questionnaire_message": {
+          "type": "string",
+          "description": "Introductory message shown before the post-questionnaire"
+        }
+      },
+      "additionalProperties": false
+    },
+    "playlist": {
+      "type": "array",
+      "description": "List of video filenames and special commands",
+      "items": {
+        "type": "string",
+        "description": "Video filename (e.g., 'video.mp4'), 'TRAINING_START', 'TRAINING_END', 'BREAK', or 'BREAK <seconds>'"
+      },
+      "minItems": 1
+    },
+    "pre_questionnaire": {
+      "$ref": "#/$defs/questionnaire",
+      "description": "Questionnaire to show before the test (not yet implemented in UI)"
+    },
+    "post_questionnaire": {
+      "$ref": "#/$defs/questionnaire",
+      "description": "Questionnaire to show after the test (not yet implemented in UI)"
+    }
+  },
+  "required": ["playlist"],
+  "additionalProperties": false,
+  "$defs": {
+    "questionnaire": {
+      "type": "array",
+      "description": "List of questions",
+      "items": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string",
+            "description": "The question text to display"
+          },
+          "type": {
+            "type": "string",
+            "enum": ["number", "radio", "multiple-choice", "text"],
+            "description": "Type of input: number (numeric), radio (single choice), multiple-choice (multiple selection), text (free text)"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Options for radio or multiple-choice questions"
+          },
+          "required": {
+            "type": "boolean",
+            "default": true,
+            "description": "Whether an answer is required (default: true)"
+          }
+        },
+        "required": ["question", "type"],
+        "additionalProperties": false,
+        "if": {
+          "properties": {
+            "type": {
+              "enum": ["radio", "multiple-choice"]
+            }
+          }
+        },
+        "then": {
+          "required": ["question", "type", "options"]
+        }
+      }
+    }
+  }
+}

@@ -47,7 +47,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
     private ProgressBar mProgressBar;
     private TextView mStatusText;
     private TextView mResultText;
-    private List<ConfigFile> mConfigFiles = new ArrayList<>();
+    private List<BaseConfigFile> mConfigFiles = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,7 +98,8 @@ public class ConfigValidatorActivity extends AppCompatActivity {
             return errors;
         }
 
-        File[] files = configFolder.listFiles((dir, name) -> name.endsWith(".cfg"));
+        File[] files = configFolder.listFiles((dir, name) ->
+                name.endsWith(".cfg") || name.endsWith(".json"));
         if (files == null || files.length == 0) {
             return errors;
         }
@@ -106,7 +107,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
         // Parse all config files
         for (File file : files) {
             Log.d(TAG, "Parsing config file: " + file.getName());
-            mConfigFiles.add(new ConfigFile(file));
+            mConfigFiles.add(ConfigFileFactory.create(file));
         }
 
         // Sort by ID (numerically if possible)
@@ -121,8 +122,8 @@ public class ConfigValidatorActivity extends AppCompatActivity {
         });
 
         // Collect parse errors from each config file
-        for (ConfigFile config : mConfigFiles) {
-            for (ConfigFile.ParseError parseError : config.getParseErrors()) {
+        for (BaseConfigFile config : mConfigFiles) {
+            for (BaseConfigFile.ParseError parseError : config.getParseErrors()) {
                 String errorMsg = "Config file \"" + config.getFilename() + "\"";
                 if (parseError.lineNumber > 0) {
                     errorMsg += " at line " + parseError.lineNumber;
@@ -143,7 +144,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
 
         // Build map of video -> config files that reference it
         Map<String, List<String>> videoToConfigFiles = new HashMap<>();
-        for (ConfigFile config : mConfigFiles) {
+        for (BaseConfigFile config : mConfigFiles) {
             for (String videoName : config.getVideoFilenames()) {
                 videoToConfigFiles.computeIfAbsent(videoName, k -> new ArrayList<>())
                         .add(config.getFilename());
@@ -232,7 +233,7 @@ public class ConfigValidatorActivity extends AppCompatActivity {
                 headerStart, builder.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         builder.append("\n\n");
 
-        for (ConfigFile config : mConfigFiles) {
+        for (BaseConfigFile config : mConfigFiles) {
             int lineStart = builder.length();
             // Line 1: ID - filename - video count
             builder.append(config.getId())

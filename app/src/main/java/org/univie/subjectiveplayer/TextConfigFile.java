@@ -22,92 +22,35 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
- * Represents a parsed config file with all its metadata.
- * Parses once and provides accessors for all config information.
+ * Parses text-based config files (.cfg format).
+ * This is the legacy format with one directive or video filename per line.
  */
-public class ConfigFile {
+public class TextConfigFile extends BaseConfigFile {
 
-    private static final String TAG = ConfigFile.class.getSimpleName();
-
-    private final File file;
-    private final String filename;
-    private final String id;
-
-    // Parsed content
-    private int method = Methods.UNDEFINED;
-    private String startMessage = null;
-    private String finishMessage = null;
-    private String trainingMessage = null;
-
-    // Video entries (including BREAK commands)
-    private final List<String> entries = new ArrayList<>();
-
-    // Training section indices (-1 if not defined)
-    private int trainingStartIndex = -1;
-    private int trainingEndIndex = -1;
-
-    // Parsing errors found
-    private final List<ParseError> parseErrors = new ArrayList<>();
-
-    // Statistics
-    private int videoCount = 0;
-    private int trainingVideoCount = 0;
-    private int breakCount = 0;
+    private static final String TAG = TextConfigFile.class.getSimpleName();
 
     /**
-     * Represents a parsing error with location information
-     */
-    public static class ParseError {
-        public final int lineNumber;
-        public final String message;
-
-        public ParseError(int lineNumber, String message) {
-            this.lineNumber = lineNumber;
-            this.message = message;
-        }
-    }
-
-    /**
-     * Creates and parses a config file.
+     * Creates and parses a text config file.
      * @param configFile The config file to parse
      */
-    public ConfigFile(File configFile) {
-        this.file = configFile;
-        this.filename = configFile.getName();
-        this.id = extractIdFromFilename(filename);
+    public TextConfigFile(File configFile) {
+        super(configFile);
         parse();
-    }
-
-    /**
-     * Extracts the participant ID from a config filename.
-     * Matches patterns like "subject_1.cfg", "playlist1.cfg", "1.cfg"
-     */
-    private static String extractIdFromFilename(String filename) {
-        Pattern pattern = Pattern.compile("(\\d+)");
-        Matcher matcher = pattern.matcher(filename);
-        if (matcher.find()) {
-            return matcher.group(1);
-        }
-        return "-";
     }
 
     /**
      * Parses the config file and populates all fields.
      */
-    private void parse() {
+    @Override
+    protected void parse() {
         try (FileInputStream fis = new FileInputStream(file);
              InputStreamReader isr = new InputStreamReader(fis);
              BufferedReader br = new BufferedReader(isr)) {
 
             String line;
             int lineNumber = 0;
-            boolean firstNonEmptyLine = true;
             boolean inTrainingSection = false;
             int trainingStartLine = -1;
             int trainingEndLine = -1;
@@ -132,11 +75,8 @@ public class ConfigFile {
                     } else {
                         method = parsedMethod;
                     }
-                    firstNonEmptyLine = false;
                     continue;
                 }
-
-                firstNonEmptyLine = false;
 
                 // Check for START_MESSAGE directive
                 if (Session.isStartMessageDirective(trimmedLine)) {
@@ -226,95 +166,5 @@ public class ConfigFile {
             Log.e(TAG, "Error parsing config file: " + filename, e);
             parseErrors.add(new ParseError(0, "Could not read file: " + e.getMessage()));
         }
-    }
-
-    // Getters
-
-    public File getFile() {
-        return file;
-    }
-
-    public String getFilename() {
-        return filename;
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public int getMethod() {
-        return method;
-    }
-
-    public String getMethodName() {
-        if (method >= 0 && method < Methods.METHOD_NAMES.length) {
-            return Methods.METHOD_NAMES[method];
-        }
-        return null;
-    }
-
-    public String getStartMessage() {
-        return startMessage;
-    }
-
-    public String getFinishMessage() {
-        return finishMessage;
-    }
-
-    public String getTrainingMessage() {
-        return trainingMessage;
-    }
-
-    public List<String> getEntries() {
-        return entries;
-    }
-
-    public int getTrainingStartIndex() {
-        return trainingStartIndex;
-    }
-
-    public int getTrainingEndIndex() {
-        return trainingEndIndex;
-    }
-
-    public boolean hasTrainingSection() {
-        return trainingStartIndex >= 0 && trainingEndIndex >= 0;
-    }
-
-    public int getVideoCount() {
-        return videoCount;
-    }
-
-    public int getTrainingVideoCount() {
-        return trainingVideoCount;
-    }
-
-    public int getTotalVideoCount() {
-        return videoCount + trainingVideoCount;
-    }
-
-    public int getBreakCount() {
-        return breakCount;
-    }
-
-    public List<ParseError> getParseErrors() {
-        return parseErrors;
-    }
-
-    public boolean hasErrors() {
-        return !parseErrors.isEmpty();
-    }
-
-    /**
-     * Gets the list of video filenames (excluding BREAK commands).
-     */
-    public List<String> getVideoFilenames() {
-        List<String> videos = new ArrayList<>();
-        for (String entry : entries) {
-            if (!Session.isBreakCommand(entry)) {
-                videos.add(entry);
-            }
-        }
-        return videos;
     }
 }

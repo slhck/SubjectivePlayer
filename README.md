@@ -11,9 +11,8 @@ Author: Werner Robitza
 - [Features](#features)
 - [Recent Changes](#recent-changes)
 - [Requirements](#requirements)
+- [Installation](#installation)
 - [Usage Guide](#usage-guide)
-  - [Installation of the .apk](#installation-of-the-apk)
-  - [Quick Setup Example](#quick-setup-example)
   - [Prepare Video Files](#prepare-video-files)
   - [Prepare Playlists](#prepare-playlists)
   - [Move the Files to the Device](#move-the-files-to-the-device)
@@ -21,7 +20,9 @@ Author: Werner Robitza
   - [Run the Test](#run-the-test)
   - [Obtain the Results](#obtain-the-results)
 - [Output Format](#output-format)
-- [Configuration Options](#configuration-options)
+  - [Rating Output](#rating-output)
+  - [Questionnaire Output](#questionnaire-output)
+- [In-App Configuration Options](#in-app-configuration-options)
   - [Display](#display)
   - [Configuration Files](#configuration-files)
   - [Time-Continuous Rating](#time-continuous-rating)
@@ -37,16 +38,16 @@ Author: Werner Robitza
   - Multiple video codecs: H.264, H.265/HEVC, VP9, VP8, AV1
   - Multiple container formats: MP4, WebM, MKV, 3GP
   - Edge-to-edge playback, utilizing the full screen, or avoiding display cutouts and rounded corners
-  - Playlists to define which videos to show to which users – different playlists for different users may be used
+  - Playlists to define which videos to show to which subjects – different playlists for different subjects may be used
 - Rating:
-  - After each video, users are asked for their opinion using different methodologies:
+  - After each video, subjects are asked for their opinion using different methodologies:
     - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
     - Continuous slider-based rating (0-100)
     - Continuous real-time rating using volume buttons
     - (DSIS impairment scale – ⚠️ not fully implemented)
 - General:
-  - User ratings are based on IDs, so we can identify different participants later
-  - Logging of the user ratings to CSV files
+  - Subject ratings are based on IDs, so we can identify different participants later
+  - Logging of the subject ratings to CSV files
   - On-device validation of playlists
   - Internationalization (i18n) support:
     - 🇺🇸 English
@@ -58,8 +59,9 @@ Author: Werner Robitza
     - 🇰🇷 Korean
     - 🇨🇳 Chinese (Simplified)
 - Session management:
-  - Training sessions to familiarize users with the rating procedure
+  - Training sessions to familiarize subjects with the rating procedure
   - Breaks between videos to prevent viewer fatigue
+  - Pre- and post-questionnaires to collect participant data
 
 Here the ACR rating screen is shown after a video playback:
 
@@ -67,7 +69,7 @@ Here the ACR rating screen is shown after a video playback:
 
 ## Recent Changes
 
-- v2.0 – Complete rewrite using new Android dependencies and many more features.
+- v2.x – Complete rewrite using new Android dependencies and many more features.
 - v1.1 – Commit [323123](https://github.com/slhck/SubjectivePlayer/commit/323123c43480ca5d846ac2fe56bd405bf03a3425) – updates for ITU-T Rec. P.1203 model development in 2017
 - v1.0 – Commit [742593b69cc4096368d9cbcafce362a3d9d2236c](https://github.com/slhck/SubjectivePlayer/commit/742593b69cc4096368d9cbcafce362a3d9d2236c) – initial commit in 2012
 
@@ -84,9 +86,7 @@ Pre-built APKs are available from the [Releases page](https://github.com/slhck/S
 
 If you want to make changes to the functionality, you need to build the app yourself. Check the [Developer Guide](#developer-guide) for more information.
 
-## Usage Guide
-
-### Installation of the .apk
+## Installation
 
 First, downlaod the latest APK from the [Releases page](https://github.com/slhck/SubjectivePlayer/releases/latest).
 Then, install it on your Android device.
@@ -101,9 +101,9 @@ Then, install it on your Android device.
     adb install <path-to-apk>
     ```
 
-### Quick Setup Example
+Open the app once to create the necessary storage directories.
 
-Then, to run a test, you need to put a playlist file (with the videos to be rated) and the actual videos onto the device.
+To run a test, you need to put a playlist file (with the videos to be rated) and the actual videos onto the device.
 The details of this will be explained below, but for a quick start, you can use the provided sample files.
 
 Push sample test files with:
@@ -115,12 +115,28 @@ cd examples
 ./push_to_device.sh
 ```
 
-Now, in the app, enter a valid user ID (`1`, `2`, `3`, or `4`), and run a test.
-It will show three videos, ask for a rating, and then finish.
+Now, in the app, enter a valid subject ID (`1` through `5`), and run a test.
+It will show the videos, ask for a rating, and then finish.
+
+The example files demonstrate different configuration options:
+
+| Subject ID | Format | Features                                                          |
+| ---------- | ------ | ----------------------------------------------------------------- |
+| 1          | JSON   | Basic ACR rating with a timed break                               |
+| 2          | JSON   | Continuous (slider) rating method                                 |
+| 3          | JSON   | ACR with custom start/finish messages                             |
+| 4          | CFG    | Legacy format with training section, custom messages, break       |
+| 5          | JSON   | Full-featured: training, pre/post questionnaires, custom messages |
 
 To create your own test files, see the detailed usage instructions below.
 
+## Usage Guide
+
+This section explains how to set up and run a subjective video quality test using the app.
+
 ### Prepare Video Files
+
+You obviously need video files to be rated by the participants.
 
 The app uses Android's native `MediaPlayer` for playback, which supports a wide range of video codecs and containers. Here's what's available:
 
@@ -153,47 +169,122 @@ Note that hardware decoding support varies by device; software decoding may be u
 
 ### Prepare Playlists
 
-Each user who will take part in the test must have their own playlist file specifying the videos to be shown and rated.
-Playlists must be named like `subject_<ID>.cfg` suffix. For example, for user ID `1`, the playlist file should be named `subject_1.cfg` and so on.
+Each subject who will take part in the test must have their own playlist file specifying the videos to be shown and rated.
 
-To generate multiple playlists for multiple users, you can look at the `create_playlists_mobile.py` script.
+The app supports two playlist formats:
 
-The file is a simple text file with one entry per line.
+- JSON format (recommended): `subject_<ID>.json` – Structured JSON with questionnaire support. See [JSON Format](#json-format) below.
+- Legacy text format: `subject_<ID>.cfg` – Simple text with one entry per line. See [Legacy CFG Format](#legacy-cfg-format) below.
 
-Each line can be either:
+For example, for subject ID `1`, the playlist file should be named `subject_1.json` (preferred) or `subject_1.cfg`. If both exist, the JSON file takes precedence.
 
-- A video file name – the name of a video file (e.g., `video1.mp4`). The file must exist in the `SubjectiveMovies/` folder!
-- A special command (see below)
+To generate multiple playlists for multiple subjects, you can look at the `create_playlists_mobile.py` script.
 
-The special commands are:
+#### JSON Format
 
-- `METHOD <type>` (optional, first line only)
-  - This sets the rating method for this playlist.
-  - The possible `<type>` values are:
-    - `ACR` – 5-point quality scale (Excellent/Good/Fair/Poor/Bad) – **default if not specified**
-    - `CONTINUOUS` – slider-based rating (0-100) shown after each video
-    - `DSIS` – impairment scale (⚠️ not fully implemented)
-    - `TIME_CONTINUOUS` – real-time rating during playback using volume buttons (⚠️ not tested!)
-- `BREAK`
-  - Inserts a break between videos to prevent viewer fatigue. The user must click a button to continue.
-  - `BREAK` – shows a message telling the user to wait for the test supervisor.
-  - `BREAK <seconds>` – timed break of where `<seconds>` is the duration in seconds, with a countdown timer.
-- `START_MESSAGE <message>`
-  - Shows a custom start message (`<message>`) before the first video. You can use `\n` for line breaks.
-- `FINISH_MESSAGE <message>`
-  - Shows a custom finish message (`<message>`) after the last video. You can use `\n` for line breaks.
-- `TRAINING_START` and `TRAINING_END`
-  - This defines a training section to familiarize users with the rating procedure.
-  - `TRAINING_START` – marks the beginning of the training section
-  - `TRAINING_END` – marks the end of the training section
-  - Videos between `TRAINING_START` and `TRAINING_END` are considered training videos
-  - A training introduction screen is shown before the first training video
+The JSON format is the preferred format for new configurations. It supports all features of the legacy format plus questionnaires for collecting participant data.
+
+A JSON schema is available at [`json-schema/subject-config.schema.json`](json-schema/subject-config.schema.json).
+
+Example `subject_1.json`:
+
+```json
+{
+  "method": "ACR",
+  "custom_messages": {
+    "start_message": "Welcome to the test!\nPlease watch each video and rate its quality.",
+    "finish_message": "Thank you for participating!",
+    "training_message": "This is a training session.",
+    "pre_questionnaire_message": "Please answer a few questions before we begin.",
+    "post_questionnaire_message": "Please provide some feedback on your experience."
+  },
+  "playlist": [
+    "TRAINING_START",
+    "training_video1.mp4",
+    "training_video2.mp4",
+    "TRAINING_END",
+    "video1.mp4",
+    "video2.mp4",
+    "BREAK 30",
+    "video3.mp4"
+  ],
+  "pre_questionnaire": [
+    {"question": "How old are you?", "type": "number"},
+    {"question": "What is your gender?", "type": "radio", "options": ["Male", "Female", "Other", "Prefer not to say"]}
+  ],
+  "post_questionnaire": [
+    {"question": "Any comments?", "type": "text", "required": false}
+  ]
+}
+```
+
+The following main fields are supported:
+
+| Field                | Required | Description                                                          |
+| -------------------- | -------- | -------------------------------------------------------------------- |
+| `method`             | No       | Rating method (see below). Defaults to `ACR`.                        |
+| `custom_messages`    | No       | Custom messages shown during the test (see below).                   |
+| `playlist`           | Yes      | Array of video filenames and special commands (see below).           |
+| `pre_questionnaire`  | No       | Array of questions to show before the test (UI not yet implemented). |
+| `post_questionnaire` | No       | Array of questions to show after the test (UI not yet implemented).  |
+
+The `method` field specifies how subjects will rate videos:
+
+- `ACR` (default) – 5-point quality scale (Excellent/Good/Fair/Poor/Bad) shown after each video, following ITU-T Rec. P.910
+- `CONTINUOUS` – Slider-based rating (0-100) shown after each video
+- `DSIS` – Impairment scale (not fully implemented)
+- `TIME_CONTINUOUS` – Real-time rating during playback using volume buttons (experimental)
+
+With `custom_messages`, you can customize the messages shown at different points in the test. All fields are optional and support `\n` for line breaks:
+
+- `start_message` – Shown before the first video (or before training if training is defined). The subject must click Continue to proceed.
+- `finish_message` – Shown after the last rating is submitted. The subject clicks OK to finish.
+- `training_message` – Shown on the training introduction screen before the first training video (only if training section is defined).
+- `pre_questionnaire_message` – Introductory message shown before the pre-questionnaire, explaining how to answer (only if pre-questionnaire is defined).
+- `post_questionnaire_message` – Introductory message shown before the post-questionnaire, explaining how to answer (only if post-questionnaire is defined).
+
+The `playlist` array contains video filenames and special commands:
+
+- **Video filename** (e.g., `"video1.mp4"`) – A video file in the `SubjectiveMovies/` folder. The file must exist!
+
+- **Training Section** – `TRAINING_START` and `TRAINING_END`:
+  - Defines a training section to familiarize subjects with the rating procedure
+  - `TRAINING_START` marks the beginning; `TRAINING_END` marks the end
+  - Videos between these markers are training videos (rated but not included in final results)
+  - A training introduction screen (with optional custom `training_message`) is shown before the first training video
   - A training complete screen is shown after the last training video, before the main test begins
-  - **Note:** If you use `TRAINING_START`, you must also include `TRAINING_END`, and vice versa
-- `TRAINING_MESSAGE <message>`
-  - Defines a custom message (`<message>`) before training begins. You can use `\n` for line breaks.
+  - If you use `TRAINING_START`, you must also include `TRAINING_END`, and vice versa
 
-For example, a very arbitrary `subject_1.cfg` could look like this:
+- **Breaks** – `BREAK` or `BREAK <seconds>`:
+  - Inserts a break between videos to prevent viewer fatigue
+  - `BREAK` (no number) – Shows a message telling the subject to wait for the test supervisor. The subject must click Continue.
+  - `BREAK 30` (with number) – A timed break of the specified duration in seconds, with a countdown timer. The Continue button is enabled when the timer reaches zero.
+
+Finally, you can define questionnaires (`pre_questionnaire` and `post_questionnaire`). These are arrays of question objects shown before and after the test, respectively.
+
+Each question is an object with the following fields:
+
+| Field      | Required                  | Description                                                     |
+| ---------- | ------------------------- | --------------------------------------------------------------- |
+| `question` | Yes                       | The question text.                                              |
+| `type`     | Yes                       | Question type: `number`, `radio`, `multiple-choice`, or `text`. |
+| `options`  | For radio/multiple-choice | Array of answer options (strings).                              |
+| `required` | No                        | Whether an answer is required. Defaults to `true`.              |
+
+#### Legacy CFG Format
+
+The legacy text format uses video filename or special directive per line. This format is supported for backward compatibility; the JSON format is recommended for new configurations.
+
+**Format:** Each line contains either a video filename (e.g., `video1.mp4`) or a directive:
+
+- `METHOD <type>` – Sets the rating method. See [Rating Methods](#rating-methods-method-field) above for supported types (`ACR`, `CONTINUOUS`, `DSIS`, `TIME_CONTINUOUS`). Must be on the first line if used. Defaults to `ACR`.
+- `START_MESSAGE <message>` – Custom start message. See [Custom Messages](#custom-messages-custom_messages-object) above for behavior. Use `\n` for line breaks.
+- `FINISH_MESSAGE <message>` – Custom finish message. See [Custom Messages](#custom-messages-custom_messages-object) above.
+- `TRAINING_MESSAGE <message>` – Custom training message. See [Custom Messages](#custom-messages-custom_messages-object) above.
+- `TRAINING_START` and `TRAINING_END` – Define a training section. See [Playlist Special Commands](#playlist-special-commands) above for details. Both must be present if either is used.
+- `BREAK` or `BREAK <seconds>` – Insert a break. See [Playlist Special Commands](#playlist-special-commands) above for timed vs. untimed breaks.
+
+**Example `subject_1.cfg`:**
 
 ```
 METHOD ACR
@@ -216,14 +307,7 @@ video8.mp4
 FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 ```
 
-In this example:
-
-- A custom start message is shown first
-- Then a training introduction screen appears, with a custom training message
-- Two training videos are played with ratings
-- A training complete screen is shown
-- The main test begins with `video1.mp4` through `video8.mp4`, with breaks in between
-- A custom finish message is shown at the end
+This example shows all major features: a custom start message, training section with custom message, main test videos with timed breaks, and a custom finish message. For detailed explanations of each feature, see the [JSON Format](#json-format) section above.
 
 ### Move the Files to the Device
 
@@ -275,11 +359,11 @@ To validate the playlists:
 
 ### Run the Test
 
-When you start the app, you can select the playlist by having the user enter their respective ID.
+When you start the app, you can select the playlist by having the subject enter their respective ID.
 
 The test is self-guided and will show videos, ask for ratings, and handle breaks as defined in the playlist (see above).
 
-After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one user's test results.
+After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one subject's test results.
 
 ### Obtain the Results
 
@@ -293,7 +377,11 @@ This will copy all log files to your local `SubjectiveLogs/` directory.
 
 ## Output Format
 
-Results are written as CSV files. Each file is named with the pattern:
+Results are written as CSV files.
+
+### Rating Output
+
+For each subject there will be one rating output file. It is named as follows:
 
 ```
 <participant_id>_<datetime>_<method>.csv
@@ -303,19 +391,44 @@ For example: `1_20250115-143055_ACR.csv`
 
 The CSV file contains one line per video rated, plus additional lines for breaks:
 
-| Column            | Description                                                                                                                |
-| ----------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `video_position`  | Zero-based index of the video in the playlist. `-1` for BREAK entries.                                                     |
-| `video_name`      | Filename of the video (e.g., `video1.mp4`). `BREAK` for break entries.                                                     |
-| `rating`          | Integer rating value. Empty for BREAK entries. For ACR: 0=Excellent, 1=Good, 2=Fair, 3=Poor, 4=Bad. For continuous: 0-100. |
-| `rated_at`        | ISO8601 timestamp when the rating was submitted (e.g., `2025-01-15T14:32:05+01:00`). Empty for BREAK entries.              |
-| `rating_duration` | Time in seconds the user took to submit the rating (e.g., `2.345`). Empty for BREAK entries and time-continuous ratings.  |
+| Column            | Description                                                                                           |
+| ----------------- | ----------------------------------------------------------------------------------------------------- |
+| `video_position`  | Zero-based index of the video in the playlist. `-1` for BREAK entries.                                |
+| `video_name`      | Filename of the video (e.g., `video1.mp4`). `BREAK` for break entries.                                |
+| `rating`          | Integer rating value. For ACR: 0=Excellent, 1=Good, 2=Fair, 3=Poor, 4=Bad. For continuous: 0-100.     |
+| `rated_at`        | ISO8601 timestamp when the rating was submitted (e.g., `2025-01-15T14:32:05+01:00`).                  |
+| `rating_duration` | Time in seconds the subject took to submit the rating (e.g., `2.345`). Empty time-continuous ratings. |
 
-For time-continuous ratings, there will be one line per second of video playback, with the `rating` column containing the current rating value at that second, and the `rated_at` column indicating when that rating was recorded. The `rating_duration` column is empty for time-continuous ratings since ratings are logged automatically during playback rather than after user interaction.
+The `rating`, `rated_at`, and `rating_duration` columns are empty for BREAK entries.
 
-The `rating_duration` column can be used to detect issues with single votes caused by observers struggling to decide on a rating. For more information, see: [Robitza, W., and Hlavacs, H. (2014). Assessing the validity of subjective QoE data through rating times and self-reported confidence. In *2014 Sixth International Workshop on Quality of Multimedia Experience (QoMEX)* (pp. 297–302). Singapore: IEEE.](https://ieeexplore.ieee.org/document/6982335/)
+For time-continuous ratings, there will be one line per second of video playback, with the `rating` column containing the current rating value at that second, and the `rated_at` column indicating when that rating was recorded.
 
-## Configuration Options
+The `rating_duration` column can be used to detect issues with single votes caused by observers struggling to decide on a rating. For more information, see: [Robitza, W., and Hlavacs, H. (2014). Assessing the validity of subjective QoE data through rating times and self-reported confidence. In *2014 Sixth International Workshop on Quality of Multimedia Experience (QoMEX)* (pp. 297–302). Singapore: IEEE.](https://ieeexplore.ieee.org/document/6982335/). Note: the `rating_duration` column is empty for time-continuous ratings since ratings are logged automatically during playback rather than after subject interaction.
+
+### Questionnaire Output
+
+If pre- or post-questionnaires are defined in the JSON config, answers are logged to separate CSV files:
+
+```
+<participant_id>_<datetime>_questionnaire_<type>.csv
+```
+
+For example: `1_20250115-143050_questionnaire_pre.csv`
+
+The CSV uses a [tidy data](https://vita.had.co.nz/papers/tidy-data.pdf) format with one row per answer:
+
+| Column            | Description                                                                          |
+| ----------------- | ------------------------------------------------------------------------------------ |
+| `question_number` | 1-based index of the question.                                                       |
+| `question_type`   | Type of question: `number`, `radio`, `multiple-choice`, or `text`.                   |
+| `question`        | The question text.                                                                   |
+| `answer`          | The answer value. For multiple-choice, each selected option produces a separate row. |
+| `answered_at`     | ISO8601 timestamp when the question was answered.                                    |
+| `answer_duration` | Time in seconds the subject took to answer.                                          |
+
+For multiple-choice questions, each selected option is written as a separate row with the same `question_number`, `answered_at`, and `answer_duration`. This tidy format makes analysis easier.
+
+## In-App Configuration Options
 
 The app allows some level of customization. Access the settings via the main menu (three dots) and clicking *Preferences*. The following options are available:
 
@@ -333,8 +446,8 @@ The app allows some level of customization. Access the settings via the main men
 
 ### Time-Continuous Rating
 
-| Setting      | Description                                                                                                    | Default  |
-| ------------ | -------------------------------------------------------------------------------------------------------------- | -------- |
+| Setting      | Description                                                                                                | Default  |
+| ------------ | ---------------------------------------------------------------------------------------------------------- | -------- |
 | **No ticks** | When enabled, the time-continuous rating slider shows only Min/Max labels without intermediate tick marks. | Disabled |
 
 ## Developer Guide

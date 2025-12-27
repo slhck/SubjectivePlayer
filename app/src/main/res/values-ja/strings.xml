@@ -97,4 +97,14 @@
     <string name="training_intro_message_default">次に、いくつかのトレーニングシーケンスをご覧いただきます。これらのビデオは本テストで何を期待できるかを示し、評価手順に慣れていただくためのものです。\n\n「続行」をクリックすると開始します。\n\n何をすべきかわからない場合や説明が必要な場合は、実験者に助けを求めてください。</string>
     <string name="training_complete_message_default">トレーニング完了！\n\nトレーニングセクションが終了しました。本テストが始まります。\n\n「続行」をクリックして開始してください。</string>
     <string name="training_continue">続行</string>
+
+    <!-- Questionnaire strings -->
+    <string name="questionnaire_pre_message_default">始める前に、いくつかの質問にお答えください。\n\nご回答は研究目的にのみ使用されます。</string>
+    <string name="questionnaire_post_message_default">ビデオ評価が完了しました。\n\n終了前にいくつかの最終質問にお答えください。</string>
+    <string name="questionnaire_counter">質問 %1$d / %2$d</string>
+    <string name="questionnaire_optional">（任意）</string>
+    <string name="questionnaire_next">次へ</string>
+    <string name="questionnaire_number_hint">数字を入力</string>
+    <string name="questionnaire_text_hint">回答を入力</string>
+    <string name="questionnaire_continue">続行</string>
 </resources>

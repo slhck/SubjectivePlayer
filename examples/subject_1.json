@@ -1,0 +1,10 @@
+{
+  "$schema": "../json-schema/subject-config.schema.json",
+  "method": "ACR",
+  "playlist": [
+    "test_video_01.mp4",
+    "test_video_02.mp4",
+    "BREAK 10",
+    "test_video_03.mp4"
+  ]
+}

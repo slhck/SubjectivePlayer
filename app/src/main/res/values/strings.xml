@@ -97,4 +97,14 @@
     <string name="training_intro_message_default">In the following, you will see a few training sequences. These videos will demonstrate what you can expect in the main test, and allow you to familiarize yourself with the rating procedure.\n\nWhen you click \"Continue\", they will start.\n\nPlease ask the experimenter for help if you are unsure what to do, or if you need clarification.</string>
     <string name="training_complete_message_default">Training complete!\n\nYou have finished the training section. The main test will now begin.\n\nClick \"Continue\" to start.</string>
     <string name="training_continue">Continue</string>
+
+    <!-- Questionnaire strings -->
+    <string name="questionnaire_pre_message_default">Before we begin, please answer a few questions.\n\nYour responses will be used for research purposes only.</string>
+    <string name="questionnaire_post_message_default">You have completed the video ratings.\n\nPlease answer a few final questions before we finish.</string>
+    <string name="questionnaire_counter">Question %1$d of %2$d</string>
+    <string name="questionnaire_optional">(Optional)</string>
+    <string name="questionnaire_next">Next</string>
+    <string name="questionnaire_number_hint">Enter a number</string>
+    <string name="questionnaire_text_hint">Enter your answer</string>
+    <string name="questionnaire_continue">Continue</string>
 </resources>

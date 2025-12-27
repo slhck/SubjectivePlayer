@@ -1,0 +1,8 @@
+{
+  "$schema": "../json-schema/subject-config.schema.json",
+  "method": "CONTINUOUS",
+  "playlist": [
+    "test_video_03.mp4",
+    "test_video_01.mp4"
+  ]
+}

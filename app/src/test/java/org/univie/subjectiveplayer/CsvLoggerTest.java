@@ -139,6 +139,88 @@ public class CsvLoggerTest {
         assertTrue(lines.get(3).endsWith(","));
     }
 
+    // ========== Questionnaire logging ==========
+    // Tidy format: one row per answer, multiple rows for multiple-choice
+
+    @Test
+    public void questionnaireLog_writesHeaderAndAnswers() throws IOException {
+        // Set up questionnaire with various question types
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question("What is your age?", Question.TYPE_NUMBER, null, true));
+        questions.add(new Question("What is your gender?", Question.TYPE_RADIO,
+                java.util.Arrays.asList("Male", "Female", "Other"), true));
+        Questionnaire questionnaire = new Questionnaire(questions);
+
+        // Set up answers with timing
+        List<QuestionnaireAnswer> answers = new ArrayList<>();
+        answers.add(new QuestionnaireAnswer("25", 1702650000000L, 3.5));
+        answers.add(new QuestionnaireAnswer("Male", 1702650005000L, 2.1));
+
+        CsvLogger.logQuestionnaire("pre", questionnaire, answers);
+
+        File[] files = tempLogsDir.listFiles();
+        assertEquals(1, files.length);
+        assertTrue(files[0].getName().contains("questionnaire_pre"));
+
+        List<String> lines = readFileLines(files[0]);
+        assertEquals(3, lines.size());
+        assertEquals("question_number,question_type,question,answer,answered_at,answer_duration", lines.get(0));
+        assertTrue(lines.get(1).startsWith("1,number,What is your age?,25,"));
+        assertTrue(lines.get(1).contains(",3.500"));
+        assertTrue(lines.get(2).startsWith("2,radio,What is your gender?,Male,"));
+        assertTrue(lines.get(2).contains(",2.100"));
+    }
+
+    @Test
+    public void questionnaireLog_multipleChoice_writesOneRowPerSelection() throws IOException {
+        // Multiple-choice question
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question("Which services do you use?", Question.TYPE_MULTIPLE_CHOICE,
+                java.util.Arrays.asList("Netflix", "YouTube", "Disney+"), true));
+        Questionnaire questionnaire = new Questionnaire(questions);
+
+        // Answer with multiple selections
+        List<QuestionnaireAnswer> answers = new ArrayList<>();
+        List<String> selections = java.util.Arrays.asList("Netflix", "YouTube");
+        answers.add(new QuestionnaireAnswer(selections, 1702650000000L, 8.234));
+
+        CsvLogger.logQuestionnaire("post", questionnaire, answers);
+
+        File[] files = tempLogsDir.listFiles();
+        assertEquals(1, files.length);
+
+        List<String> lines = readFileLines(files[0]);
+        // Header + 2 rows (one per selection)
+        assertEquals(3, lines.size());
+        assertEquals("question_number,question_type,question,answer,answered_at,answer_duration", lines.get(0));
+        // Both rows have same question number, timestamp, and duration
+        assertTrue(lines.get(1).startsWith("1,multiple-choice,Which services do you use?,Netflix,"));
+        assertTrue(lines.get(1).contains(",8.234"));
+        assertTrue(lines.get(2).startsWith("1,multiple-choice,Which services do you use?,YouTube,"));
+        assertTrue(lines.get(2).contains(",8.234"));
+    }
+
+    @Test
+    public void questionnaireLog_emptyAnswer_writesSingleRow() throws IOException {
+        // Optional question with no answer
+        List<Question> questions = new ArrayList<>();
+        questions.add(new Question("Comments?", Question.TYPE_TEXT, null, false));
+        Questionnaire questionnaire = new Questionnaire(questions);
+
+        // Empty answer
+        List<QuestionnaireAnswer> answers = new ArrayList<>();
+        answers.add(new QuestionnaireAnswer("", 1702650000000L, 1.0));
+
+        CsvLogger.logQuestionnaire("post", questionnaire, answers);
+
+        File[] files = tempLogsDir.listFiles();
+        List<String> lines = readFileLines(files[0]);
+        assertEquals(2, lines.size());
+        // Empty answer field but timestamp and duration still present
+        assertTrue(lines.get(1).startsWith("1,text,Comments?,,"));
+        assertTrue(lines.get(1).contains(",1.000"));
+    }
+
     // ========== Helpers ==========
 
     private void createLogFile(String filename) throws IOException {

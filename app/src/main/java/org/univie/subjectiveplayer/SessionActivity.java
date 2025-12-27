@@ -131,10 +131,24 @@ public class SessionActivity extends AppCompatActivity implements Callback,
     private Dialog mTrainingIntroDialog;
     /** Dialog instance for training complete screen */
     private Dialog mTrainingCompleteDialog;
+    /** Dialog instance for questionnaire intro screens */
+    private Dialog mQuestionnaireIntroDialog;
+    /** Dialog instance for question dialogs */
+    private Dialog mQuestionDialog;
     /** Tracks whether the start screen has been shown */
     private boolean mStartScreenShown = false;
     /** Tracks whether the training intro screen has been shown */
     private boolean mTrainingIntroShown = false;
+    /** Tracks whether the pre-questionnaire has been shown */
+    private boolean mPreQuestionnaireShown = false;
+    /** Tracks whether the post-questionnaire has been shown */
+    private boolean mPostQuestionnaireShown = false;
+    /** Current question index being shown in questionnaire */
+    private int mCurrentQuestionIndex = 0;
+    /** Whether we're showing pre (true) or post (false) questionnaire */
+    private boolean mIsPreQuestionnaire = true;
+    /** Timestamp when current question dialog was shown (for measuring answer duration) */
+    private long mQuestionStartTime = 0;
 	private static final int DIALOG_ACR_CATEGORICAL = 0;
 	private static final int DIALOG_DSIS_CATEGORICAL = 1;
 	private static final int DIALOG_CONTINUOUS = 2;
@@ -292,6 +306,16 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 			mTrainingCompleteDialog = null;
 			Log.d(TAG, "Training complete dialog dismissed in onPause");
 		}
+		if (mQuestionnaireIntroDialog != null) {
+			mQuestionnaireIntroDialog.dismiss();
+			mQuestionnaireIntroDialog = null;
+			Log.d(TAG, "Questionnaire intro dialog dismissed in onPause");
+		}
+		if (mQuestionDialog != null) {
+			mQuestionDialog.dismiss();
+			mQuestionDialog = null;
+			Log.d(TAG, "Question dialog dismissed in onPause");
+		}
 		cleanUp();
 	}
 
@@ -321,8 +345,12 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 			mPendingVideoIndex = -1;
 			preparePlayerForVideo(videoIndex);
 		} else if (Session.sCurrentTrack == 0 && mPlayer == null && !mStartScreenShown) {
-			// First video - show start screen before preparing
-			showStartScreen();
+			// First video - show pre-questionnaire first (if defined), then start screen
+			if (Session.hasPreQuestionnaire() && !mPreQuestionnaireShown) {
+				showPreQuestionnaireIntro();
+			} else {
+				showStartScreen();
+			}
 		}
 	}
 
@@ -586,11 +614,24 @@ public class SessionActivity extends AppCompatActivity implements Callback,
 
 	/**
 	 * Finishes the current rating session by cleaning up the player and closing
-	 * the log file. Shows finish screen before actually finishing.
+	 * the log file. Shows post-questionnaire (if defined) then finish screen.
 	 */
 	private void finishSession() {
 		cleanUp();
 		releasePlayer();
+		// Show post-questionnaire first (if defined), then finish screen
+		if (Session.hasPostQuestionnaire() && !mPostQuestionnaireShown) {
+			showPostQuestionnaireIntro();
+		} else {
+			completeSession();
+		}
+	}
+
+	/**
+	 * Completes the session after questionnaires are done.
+	 * Closes log file and shows finish screen.
+	 */
+	private void completeSession() {
 		if (Session.sCurrentMethod != Methods.TYPE_TIME_CONTINUOUS) {
 			CsvLogger.closeSessionLog();
 		}
@@ -1365,6 +1406,179 @@ public class SessionActivity extends AppCompatActivity implements Callback,
             }
         } catch (Exception e) {
             Log.e(TAG, "Error during vibration: " + e.getMessage());
+        }
+    }
+
+    // ==================== Questionnaire Methods ====================
+
+    /**
+     * Shows the pre-questionnaire intro screen.
+     */
+    private void showPreQuestionnaireIntro() {
+        Log.d(TAG, "showPreQuestionnaireIntro called");
+        mIsPreQuestionnaire = true;
+        mCurrentQuestionIndex = 0;
+
+        // Hide the video surface
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        showQuestionnaireIntroDialog(
+                Session.sPreQuestionnaireMessage,
+                getString(R.string.questionnaire_pre_message_default),
+                this::onPreQuestionnaireIntroFinished
+        );
+    }
+
+    /**
+     * Shows the post-questionnaire intro screen.
+     */
+    private void showPostQuestionnaireIntro() {
+        Log.d(TAG, "showPostQuestionnaireIntro called");
+        mIsPreQuestionnaire = false;
+        mCurrentQuestionIndex = 0;
+
+        // Hide the video surface
+        if (mPlayView != null) {
+            mPlayView.setVisibility(View.INVISIBLE);
+        }
+
+        showQuestionnaireIntroDialog(
+                Session.sPostQuestionnaireMessage,
+                getString(R.string.questionnaire_post_message_default),
+                this::onPostQuestionnaireIntroFinished
+        );
+    }
+
+    /**
+     * Shows a questionnaire intro dialog with the given message.
+     * @param customMessage Custom message from config (may be null)
+     * @param defaultMessage Default message to use if custom is null
+     * @param onContinue Callback when user clicks continue
+     */
+    private void showQuestionnaireIntroDialog(String customMessage, String defaultMessage, Runnable onContinue) {
+        mQuestionnaireIntroDialog = new CustomDialog(this);
+        mQuestionnaireIntroDialog.setContentView(R.layout.dialog_start);
+        mQuestionnaireIntroDialog.setCancelable(false);
+
+        final TextView messageView = (TextView) mQuestionnaireIntroDialog.findViewById(R.id.start_message);
+        final Button continueButton = (Button) mQuestionnaireIntroDialog.findViewById(R.id.start_continue_button);
+
+        // Use custom message if available, otherwise use default
+        if (customMessage != null && !customMessage.isEmpty()) {
+            messageView.setText(customMessage);
+            Log.d(TAG, "Using custom questionnaire message");
+        } else {
+            messageView.setText(defaultMessage);
+            Log.d(TAG, "Using default questionnaire message");
+        }
+
+        continueButton.setOnClickListener(v -> {
+            Log.i(TAG, "Questionnaire intro continue button clicked");
+            if (mQuestionnaireIntroDialog != null) {
+                mQuestionnaireIntroDialog.dismiss();
+                mQuestionnaireIntroDialog = null;
+            }
+            onContinue.run();
+        });
+
+        mQuestionnaireIntroDialog.getWindow().setLayout(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT);
+        mQuestionnaireIntroDialog.show();
+        Log.d(TAG, "Questionnaire intro dialog shown");
+    }
+
+    /**
+     * Called when pre-questionnaire intro is finished.
+     */
+    private void onPreQuestionnaireIntroFinished() {
+        Log.d(TAG, "onPreQuestionnaireIntroFinished called");
+        showNextQuestion();
+    }
+
+    /**
+     * Called when post-questionnaire intro is finished.
+     */
+    private void onPostQuestionnaireIntroFinished() {
+        Log.d(TAG, "onPostQuestionnaireIntroFinished called");
+        showNextQuestion();
+    }
+
+    /**
+     * Shows the next question in the current questionnaire.
+     */
+    private void showNextQuestion() {
+        Questionnaire questionnaire = mIsPreQuestionnaire ? Session.sPreQuestionnaire : Session.sPostQuestionnaire;
+        List<QuestionnaireAnswer> answers = mIsPreQuestionnaire ? Session.sPreQuestionnaireAnswers : Session.sPostQuestionnaireAnswers;
+
+        if (questionnaire == null || mCurrentQuestionIndex >= questionnaire.size()) {
+            // All questions answered
+            onQuestionnaireComplete();
+            return;
+        }
+
+        Question question = questionnaire.getQuestions().get(mCurrentQuestionIndex);
+        int totalQuestions = questionnaire.size();
+
+        Log.d(TAG, "Showing question " + (mCurrentQuestionIndex + 1) + " of " + totalQuestions);
+
+        // Record when the question dialog is shown for timing measurement
+        mQuestionStartTime = System.currentTimeMillis();
+
+        QuestionDialogBuilder builder = new QuestionDialogBuilder(
+                this, question, mCurrentQuestionIndex + 1, totalQuestions);
+
+        builder.setOnAnswerListener(answer -> {
+            Log.d(TAG, "Question " + (mCurrentQuestionIndex + 1) + " answered: " + answer);
+
+            // Calculate timing
+            long answeredAt = System.currentTimeMillis();
+            double durationSeconds = (answeredAt - mQuestionStartTime) / 1000.0;
+
+            // Create QuestionnaireAnswer with appropriate answer format
+            QuestionnaireAnswer qa;
+            if (Question.TYPE_MULTIPLE_CHOICE.equals(question.getType()) && answer != null && !answer.isEmpty()) {
+                // Split semicolon-separated options into a list
+                String[] parts = answer.split("; ");
+                List<String> selectedOptions = new java.util.ArrayList<>();
+                for (String part : parts) {
+                    if (!part.isEmpty()) {
+                        selectedOptions.add(part);
+                    }
+                }
+                qa = new QuestionnaireAnswer(selectedOptions, answeredAt, durationSeconds);
+            } else {
+                // Single value answer
+                qa = new QuestionnaireAnswer(answer, answeredAt, durationSeconds);
+            }
+
+            answers.add(qa);
+            mCurrentQuestionIndex++;
+            showNextQuestion();
+        });
+
+        mQuestionDialog = builder.build();
+        mQuestionDialog.show();
+    }
+
+    /**
+     * Called when all questions in the current questionnaire have been answered.
+     */
+    private void onQuestionnaireComplete() {
+        Log.d(TAG, "onQuestionnaireComplete called, isPreQuestionnaire=" + mIsPreQuestionnaire);
+
+        if (mIsPreQuestionnaire) {
+            mPreQuestionnaireShown = true;
+            // Log pre-questionnaire answers
+            CsvLogger.logQuestionnaire("pre", Session.sPreQuestionnaire, Session.sPreQuestionnaireAnswers);
+            // Now show the start screen
+            showStartScreen();
+        } else {
+            mPostQuestionnaireShown = true;
+            // Log post-questionnaire answers
+            CsvLogger.logQuestionnaire("post", Session.sPostQuestionnaire, Session.sPostQuestionnaireAnswers);
+            // Now complete the session
+            completeSession();
         }
     }
 

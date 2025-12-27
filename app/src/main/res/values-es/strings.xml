@@ -97,4 +97,14 @@
     <string name="training_intro_message_default">A continuación, verás algunas secuencias de entrenamiento. Estos videos te mostrarán qué esperar en la prueba principal y te permitirán familiarizarte con el procedimiento de evaluación.\n\nCuando hagas clic en \"Continuar\", comenzarán.\n\nPor favor, pide ayuda al experimentador si no estás seguro de qué hacer o si necesitas aclaraciones.</string>
     <string name="training_complete_message_default">¡Entrenamiento completado!\n\nHas terminado la sección de entrenamiento. La prueba principal comenzará ahora.\n\nHaz clic en \"Continuar\" para empezar.</string>
     <string name="training_continue">Continuar</string>
+
+    <!-- Questionnaire strings -->
+    <string name="questionnaire_pre_message_default">Antes de comenzar, responde algunas preguntas.\n\nTus respuestas se utilizarán únicamente con fines de investigación.</string>
+    <string name="questionnaire_post_message_default">Has completado las evaluaciones de video.\n\nPor favor, responde algunas preguntas finales antes de terminar.</string>
+    <string name="questionnaire_counter">Pregunta %1$d de %2$d</string>
+    <string name="questionnaire_optional">(Opcional)</string>
+    <string name="questionnaire_next">Siguiente</string>
+    <string name="questionnaire_number_hint">Ingresa un número</string>
+    <string name="questionnaire_text_hint">Ingresa tu respuesta</string>
+    <string name="questionnaire_continue">Continuar</string>
 </resources>
