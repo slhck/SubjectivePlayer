@@ -42,3 +42,6 @@ project.properties
 
 # logs
 SubjectiveLogs
+
+# MkDocs
+site/

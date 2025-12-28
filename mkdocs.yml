@@ -1,0 +1,56 @@
+site_name: SubjectivePlayer
+site_url: https://slhck.info/SubjectivePlayer/
+repo_url: https://github.com/slhck/SubjectivePlayer
+theme:
+  name: material
+  features:
+    - navigation.instant
+    - navigation.sections
+    - navigation.footer
+  palette:
+    - scheme: default
+      primary: blue grey
+      accent: blue grey
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: blue grey
+      accent: blue grey
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    logo: material/play-circle
+plugins:
+  - search
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Requirements: getting-started/requirements.md
+    - Installation: getting-started/installation.md
+  - User Guide:
+    - Preparing Videos: user-guide/preparing-videos.md
+    - Config Files: user-guide/config-files.md
+    - Running Tests: user-guide/running-tests.md
+    - Output Format: user-guide/output-format.md
+  - Configuration:
+    - In-App Settings: configuration/settings.md
+  - Developer Guide:
+    - Building: developer-guide/building.md
+    - Contributing: developer-guide/contributing.md
+  - About:
+    - Changelog: about/changelog.md
+    - License: about/license.md
+markdown_extensions:
+  - markdown.extensions.tables
+  - markdown.extensions.toc
+  - markdown.extensions.footnotes
+  - markdown.extensions.admonition
+  - attr_list
+  - pymdownx.highlight
+  - pymdownx.superfences
+  - pymdownx.emoji
