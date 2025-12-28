@@ -14,9 +14,9 @@ Author: Werner Robitza
 - [Installation](#installation)
 - [Usage Guide](#usage-guide)
   - [Prepare Video Files](#prepare-video-files)
-  - [Prepare Playlists](#prepare-playlists)
+  - [Prepare Config Files](#prepare-config-files)
   - [Move the Files to the Device](#move-the-files-to-the-device)
-  - [Validate the Playlists](#validate-the-playlists)
+  - [Validate the Config Files](#validate-the-config-files)
   - [Run the Test](#run-the-test)
   - [Obtain the Results](#obtain-the-results)
 - [Output Format](#output-format)
@@ -38,7 +38,7 @@ Author: Werner Robitza
   - Multiple video codecs: H.264, H.265/HEVC, VP9, VP8, AV1
   - Multiple container formats: MP4, WebM, MKV, 3GP
   - Edge-to-edge playback, utilizing the full screen, or avoiding display cutouts and rounded corners
-  - Playlists to define which videos to show to which subjects – different playlists for different subjects may be used
+  - Config files to define which videos to show to which subjects – different playlists for different subjects may be used
 - Rating:
   - After each video, subjects are asked for their opinion using different methodologies:
     - 5-point ACR (Absolute Category Rating) categorical scale (Excellent/Good/Fair/Poor/Bad) from ITU-T Rec. P.910
@@ -48,7 +48,7 @@ Author: Werner Robitza
 - General:
   - Subject ratings are based on IDs, so we can identify different participants later
   - Logging of the subject ratings to CSV files
-  - On-device validation of playlists
+  - On-device validation of config files
   - Internationalization (i18n) support:
     - 🇺🇸 English
     - 🇩🇪 German
@@ -167,18 +167,18 @@ ffmpeg -i input.mp4 -c:v libx264 -crf 18 -preset slow -c:a aac -b:a 320k output.
 
 Note that hardware decoding support varies by device; software decoding may be used as fallback. The maximum resolution/bitrate depends on device hardware capabilities.
 
-### Prepare Playlists
+### Prepare Config Files
 
-Each subject who will take part in the test must have their own playlist file specifying the videos to be shown and rated.
+Each subject who will take part in the test must have their own config file specifying the videos to be shown and rated ("playlist") and other settings.
 
-The app supports two playlist formats:
+The app supports two config formats:
 
 - JSON format (recommended): `subject_<ID>.json` – Structured JSON with questionnaire support. See [JSON Format](#json-format) below.
 - Legacy text format: `subject_<ID>.cfg` – Simple text with one entry per line. See [Legacy CFG Format](#legacy-cfg-format) below.
 
-For example, for subject ID `1`, the playlist file should be named `subject_1.json` (preferred) or `subject_1.cfg`. If both exist, the JSON file takes precedence.
+For example, for subject ID `1`, the config file should be named `subject_1.json` (preferred) or `subject_1.cfg`. If both exist, the JSON file takes precedence.
 
-To generate multiple playlists for multiple subjects, you can look at the `create_playlists_mobile.py` script.
+To generate multiple configs for multiple subjects, you can look at the `create_config_files.py` script.
 
 #### JSON Format
 
@@ -311,11 +311,11 @@ This example shows all major features: a custom start message, training section 
 
 ### Move the Files to the Device
 
-The application stores videos, playlists, and logs in app-specific storage. Due to Android's scoped storage restrictions (Android 10+), you'll need to use ADB to transfer files. All files are stored in the app's external storage directory:
+The application stores videos, config files, and logs in app-specific storage. Due to Android's scoped storage restrictions (Android 10+), you'll need to use ADB to transfer files. All files are stored in the app's external storage directory:
 
 ```
 /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/
-├── SubjectiveCfg/     # Playlist configuration files
+├── SubjectiveCfg/     # Config files
 ├── SubjectiveMovies/  # Video files
 └── SubjectiveLogs/    # Test result logs
 ```
@@ -341,27 +341,27 @@ Alternatively, use ADB manually to push files to the device:
 # Push video files
 adb push your_video.mp4 /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveMovies/
 
-# Push playlist files
+# Push config files
 adb push subject_1.cfg /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
 ```
 
-### Validate the Playlists
+### Validate the Config Files
 
-The app can validate the playlists to ensure all referenced video files exist. This is optional, but recommended.
+The app can validate the config files to ensure all referenced video files exist. This is optional, but recommended.
 
-To validate the playlists:
+To validate the config files:
 
 - Start the app.
 - Open the menu (three dots in the top-right corner).
 - Select *Validate Config Files*.
-- The app will check all playlist files in the `SubjectiveCfg` folder and report any missing video files or invalid syntax.
-- You can also see which playlist uses which method, if training is used, and how many videos are in each playlist.
+- The app will check all config files in the `SubjectiveCfg` folder and report any missing video files or invalid syntax.
+- You can also see which config uses which method, if training is used, and how many videos are in each config.
 
 ### Run the Test
 
-When you start the app, you can select the playlist by having the subject enter their respective ID.
+When you start the app, you can select the config by having the subject enter their respective ID.
 
-The test is self-guided and will show videos, ask for ratings, and handle breaks as defined in the playlist (see above).
+The test is self-guided and will show videos, ask for ratings, and handle breaks as defined in the config  (see above).
 
 After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one subject's test results.
 
@@ -494,7 +494,7 @@ To run the unit tests, use:
 ./gradlew test
 ```
 
-Note that full UI tests are not included at this time. The unit tests only cover some utility functions like loading and parsing playlists.
+Note that full UI tests are not included at this time. The unit tests only cover some utility functions like loading and parsing config files.
 
 ## Contributing
 
