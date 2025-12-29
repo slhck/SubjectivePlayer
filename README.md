@@ -34,12 +34,9 @@ Here the ACR rating screen is shown after a video playback:
 
 5. Enter a subject ID (`1` through `5`) and run a test
 
-## What's New
+Make sure to read the full documentation (see below) for detailed instructions on creating your own test configurations.
 
-- **v2.5.0** — Questionnaire support and dynamic layout
-- **v2.4.0** — Rating duration tracking
-- **v2.3.0** — Device permissions and time-continuous rating improvements
-- **v2.0.0** — Complete rewrite with custom messages, training sections, continuous logging
+## What's New
 
 See the [full changelog](CHANGELOG.md) for all updates.
 

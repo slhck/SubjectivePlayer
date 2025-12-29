@@ -23,6 +23,11 @@ Open the app once to create the necessary storage directories.
 
 To run a test, you need to put a playlist file (with the videos to be rated) and the actual videos onto the device. See [Config Files](../user-guide/config-files.md) for details.
 
+!!! warning "Running the App Once is Important"
+
+    The app creates necessary storage directories on first run.
+    If you copy files to the device before running the app once, the app may not work correctly.
+
 ## Quick Test with Sample Files
 
 For a quick start, you can use the provided sample files:

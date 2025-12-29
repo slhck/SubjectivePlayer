@@ -8,6 +8,7 @@
 #
 # Usage:
 #   ./create_config_files.py -i /path/to/videos -o /path/to/output -n 30 -m ACR
+#   ./create_config_files.py -i /path/to/videos -o /path/to/output -n 30 -p  # use prime IDs
 #
 # The output files can be pushed to the device's SubjectiveCfg/ folder.
 
@@ -16,6 +17,19 @@ import glob
 import json
 import os
 import random
+
+
+def generate_primes(start: int, end: int) -> list[int]:
+    """Generate all prime numbers in a range using Sieve of Eratosthenes."""
+    if end < 2:
+        return []
+    sieve = [True] * (end + 1)
+    sieve[0] = sieve[1] = False
+    for i in range(2, int(end**0.5) + 1):
+        if sieve[i]:
+            for j in range(i * i, end + 1, i):
+                sieve[j] = False
+    return [i for i in range(max(2, start), end + 1) if sieve[i]]
 
 # Define training video filenames here. These videos will be shown at the
 # beginning of each test session in a dedicated training section.
@@ -56,8 +70,37 @@ parser.add_argument(
     choices=["ACR", "CONTINUOUS", "DSIS", "TIME_CONTINUOUS"],
     help="Rating method (default: ACR)",
 )
+parser.add_argument(
+    "-p",
+    "--primes",
+    action="store_true",
+    help="Use prime numbers as subject IDs (e.g., 2411, 3863) instead of sequential (1, 2, 3)",
+)
+parser.add_argument(
+    "--prime-min",
+    type=int,
+    default=1000,
+    help="Minimum value for prime subject IDs (default: 1000)",
+)
+parser.add_argument(
+    "--prime-max",
+    type=int,
+    default=9999,
+    help="Maximum value for prime subject IDs (default: 9999)",
+)
+parser.add_argument(
+    "-s",
+    "--seed",
+    type=int,
+    default=None,
+    help="Random seed for reproducible prime selection and playlist shuffling",
+)
 
 args = parser.parse_args()
+
+# Set random seed if provided (for reproducible results)
+if args.seed is not None:
+    random.seed(args.seed)
 
 # ---------------------------------------------------------------------------------------------------------
 
@@ -74,10 +117,24 @@ training_pvs = sorted([p for p in pvs if p in TRAINING_SET])
 # Create output directory if it doesn't exist
 os.makedirs(args.output, exist_ok=True)
 
+# Generate subject IDs: either sequential (1, 2, 3, ...) or prime-based
+if args.primes:
+    primes = generate_primes(args.prime_min, args.prime_max)
+    if len(primes) < args.number:
+        raise ValueError(
+            f"Not enough primes in range [{args.prime_min}, {args.prime_max}] "
+            f"for {args.number} subjects (found {len(primes)} primes). "
+            "Try increasing --prime-max or decreasing --prime-min."
+        )
+    random.shuffle(primes)
+    subject_ids = primes[: args.number]
+else:
+    subject_ids = list(range(1, args.number + 1))
+
 # Generate one config file per subject.
 # Each subject gets the same training videos (in order) but a unique
 # randomized order of test videos to counterbalance presentation order effects.
-for subject_id in range(1, args.number + 1):
+for subject_id in subject_ids:
     playlist = []
 
     # Add training section if any training videos were found.

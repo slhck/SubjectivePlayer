@@ -153,3 +153,100 @@ FINISH_MESSAGE Thank you for participating!\nPlease inform the test supervisor.
 ```
 
 This example shows all major features: a custom start message, training section with custom message, main test videos with timed breaks, and a custom finish message. For detailed explanations of each feature, see the [JSON Format](#json-format) section above.
+
+## Generating Config Files with Python
+
+For studies with multiple participants, manually creating config files is tedious and error-prone. The `create_config_files.py` script automates this process by generating randomized playlists for each subject.
+
+The script is meant to be adapted for your study. Copy it, then edit the relevant sections before running.
+
+### Step 1: Configure Training Videos
+
+Open the script and edit the `TRAINING_SET` list at the top. These videos will appear in a training section at the start of each test session (same order for all subjects):
+
+```python
+TRAINING_SET = [
+    "training_video1.mp4",
+    "training_video2.mp4",
+]
+```
+
+Set `TRAINING_SET = []` if you don't need a training section.
+
+### Step 2: Add Custom Messages and Questionnaires (Optional)
+
+The default script generates minimal configs with only `method` and `playlist`. To include [custom messages](#custom-messages) or [questionnaires](#questionnaires), find the `config` dictionary near the end of the script and extend it:
+
+```python
+config = {
+    "method": args.method,
+    "playlist": playlist,
+    "custom_messages": {
+        "start_message": "Welcome to the study!",
+        "finish_message": "Thank you for participating!"
+    },
+    "pre_questionnaire": [
+        {"question": "What is your age?", "type": "number"},
+        {"question": "How often do you watch streaming video?", "type": "radio",
+         "options": ["Daily", "Weekly", "Monthly", "Rarely"]}
+    ]
+}
+```
+
+### Step 3: Run the Script
+
+```bash
+./create_config_files.py -i /path/to/videos -o /path/to/output -n 30 -m ACR
+```
+
+| Option | Required | Description |
+| ------ | -------- | ----------- |
+| `-i`, `--input` | Yes | Path to directory containing video files (`.mp4`) |
+| `-o`, `--output` | Yes | Path to output directory for config files |
+| `-n`, `--number` | No | Number of subjects (default: 30) |
+| `-m`, `--method` | No | Rating method: `ACR`, `CONTINUOUS`, `DSIS`, or `TIME_CONTINUOUS` (default: `ACR`) |
+| `-p`, `--primes` | No | Use prime numbers as subject IDs instead of sequential |
+| `--prime-min` | No | Minimum value for prime IDs (default: 1000) |
+| `--prime-max` | No | Maximum value for prime IDs (default: 9999) |
+| `-s`, `--seed` | No | Random seed for reproducible output |
+
+This generates config files named `subject_<id>.json` for each subject. The randomization ensures that video order differs between subjects, except for the training section, which is the same for all.
+
+!!! tip "Tip: Use Prime-Based Subject IDs"
+
+    By default, subjects get sequential IDs (1, 2, 3, ...). With `-p/--primes`, the script uses randomly selected prime numbers as IDs (e.g., 2411, 3863, 7919):
+
+    ```bash
+    ./create_config_files.py -i /path/to/videos -o ./configs -n 30 -p
+    ```
+
+    This prevents participants from accidentally entering another participant's ID. Prime numbers guarantee uniqueness, and shuffling makes IDs unpredictable.
+
+    You can adjust the ID range with `--prime-min` and `--prime-max`:
+
+    ```bash
+    # Use 3-digit primes (101-997)
+    ./create_config_files.py -i ./videos -o ./configs -n 20 -p --prime-min 100 --prime-max 999
+    ```
+
+    Use `-s/--seed` for reproducible results (same IDs on repeated runs):
+
+    ```bash
+    ./create_config_files.py -i ./videos -o ./configs -n 30 -p -s 42
+    ```
+
+### Step 4: Deploy to Device
+
+!!! warning "Start the app once!"
+
+    Remember that if the app has not run before, you need to start the app once to create the config folder!
+
+You then need to copy the generated config files to the device's `SubjectiveCfg/` folder:
+
+```bash
+adb push /path/to/output/*.json /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/SubjectiveCfg/
+```
+
+### Step 5: Validate the Config Files
+
+Open the app, and then [validate the config files](running-tests.md#validate-config-files).

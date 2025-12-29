@@ -15,8 +15,10 @@ All files are stored in the app's external storage directory:
 └── SubjectiveLogs/    # Test result logs
 ```
 
-!!! important
-    The app must be run at least once before transferring files to create the necessary directories with the right permissions.
+!!! warning "Running the App Once is Important"
+
+    The app creates necessary storage directories on first run.
+    If you copy files to the device before running the app once, the app may not work correctly.
 
 ### Using the Push Script
 
@@ -64,21 +66,43 @@ The test is self-guided and will show videos, ask for ratings, and handle breaks
 
 ### Session Flow
 
-1. **Pre-Questionnaire** -- If defined in JSON config, shown before start screen
-2. **Start Screen** -- Shown before first video (Continue button)
-3. **Training Intro** -- If training section defined, shown before first training video
-4. **Training Videos** -- Training videos play with ratings (same as main test)
-5. **Training Complete** -- Shown after last training video
-6. **Video Playback** -- Video plays fullscreen
-7. **Rating Dialog** -- User rates quality (ACR buttons or continuous slider)
-8. **Break Dialog** -- If `BREAK` command encountered (optional timed countdown)
-9. **Repeat 6-8** -- Until all videos rated
-10. **Post-Questionnaire** -- If defined in JSON config, shown after last video rating
-11. **Finish Screen** -- Shown after post-questionnaire or last rating (OK button)
+The following diagram illustrates the flow of a test session:
+
+```mermaid
+flowchart TD
+    A[Start App] --> B{Pre-Questionnaire<br>defined?}
+    B -->|Yes| C[Pre-Questionnaire]:::message
+    B -->|No| D[Start Screen]:::message
+    C --> D
+
+    D --> E[Prepare Next Video]
+
+    E --> F{First training<br>video?}
+    F -->|Yes| G[Training Intro]:::message
+    G --> H[Video Playback]
+    F -->|No| I{Break<br>command?}
+    I -->|Yes| J[Break Dialog]:::message
+    J --> E
+    I -->|No| H
+
+    H --> K[Rating Dialog]
+    K --> L{Last training<br>video?}
+    L -->|Yes| M[Training Complete]:::message
+    M --> N{More videos?}
+    L -->|No| N
+
+    N -->|Yes| E
+    N -->|No| O{Post-Questionnaire<br>defined?}
+    O -->|Yes| P[Post-Questionnaire]:::message
+    O -->|No| Q[Finish Screen]:::message
+    P --> Q
+
+    classDef message fill:#4a9eff,stroke:#2171c7,color:#fff
+```
 
 ## Obtain the Results
 
-After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one subject's test results.
+After a test, the results are stored in the `SubjectiveLogs` folder. Each file corresponds to one subject's rating results. If pre- and/or post-questionnaires were used, their results are included in another file with the same subject ID.
 
 To get the results back to your computer, use ADB to pull the log files:
 
@@ -88,4 +112,4 @@ adb pull /storage/emulated/0/Android/data/org.univie.subjectiveplayer/files/Subj
 
 This will copy all log files to your local `SubjectiveLogs/` directory.
 
-See [Output Format](output-format.md) for details on the CSV file structure.
+See [Output Format](output-format.md) for details on the CSV file structures.
