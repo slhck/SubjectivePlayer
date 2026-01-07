@@ -19,6 +19,16 @@ For more information, see the Android documentation on [Supported Media Formats]
 !!! note
     Hardware decoding support varies by device; software decoding may be used as fallback. The maximum resolution/bitrate depends on device hardware capabilities.
 
+!!! warning "Raw/Uncompressed Video Not Supported"
+
+    Android's `MediaPlayer` does not support raw or uncompressed video formats (e.g., YUV, RGB, rawvideo in AVI). If you need mathematically lossless quality, use CRF 0 encoding with H.264:
+
+    ```bash
+    ffmpeg -i input.y4m -c:v libx264 -crf 0 -preset ultrafast -pix_fmt yuv420p output.mp4
+    ```
+
+    This produces a visually and mathematically lossless file that Android can play with hardware acceleration.
+
 ## Video Orientation
 
 The app supports both portrait and landscape videos. When you turn the device, the video will adjust accordingly.
