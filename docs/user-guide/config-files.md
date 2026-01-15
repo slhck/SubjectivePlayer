@@ -51,13 +51,13 @@ A JSON schema is available at [`json-schema/subject-config.schema.json`](https:/
 
 ### Main Fields
 
-| Field                | Required | Description                                                          |
-| -------------------- | -------- | -------------------------------------------------------------------- |
-| `method`             | No       | Rating method (see below). Defaults to `ACR`.                        |
-| `custom_messages`    | No       | Custom messages shown during the test (see below).                   |
-| `playlist`           | Yes      | Array of video filenames and special commands (see below).           |
-| `pre_questionnaire`  | No       | Array of questions to show before the test (UI not yet implemented). |
-| `post_questionnaire` | No       | Array of questions to show after the test (UI not yet implemented).  |
+| Field                | Required | Description                                                |
+| -------------------- | -------- | ---------------------------------------------------------- |
+| `method`             | No       | Rating method (see below). Defaults to `ACR`.              |
+| `custom_messages`    | No       | Custom messages shown during the test (see below).         |
+| `playlist`           | Yes      | Array of video filenames and special commands (see below). |
+| `pre_questionnaire`  | No       | Array of questions to show before the test                 |
+| `post_questionnaire` | No       | Array of questions to show after the test                  |
 
 ### Rating Methods
 
@@ -199,16 +199,16 @@ config = {
 ./create_config_files.py -i /path/to/videos -o /path/to/output -n 30 -m ACR
 ```
 
-| Option | Required | Description |
-| ------ | -------- | ----------- |
-| `-i`, `--input` | Yes | Path to directory containing video files (`.mp4`) |
-| `-o`, `--output` | Yes | Path to output directory for config files |
-| `-n`, `--number` | No | Number of subjects (default: 30) |
-| `-m`, `--method` | No | Rating method: `ACR`, `CONTINUOUS`, `DSIS`, or `TIME_CONTINUOUS` (default: `ACR`) |
-| `-p`, `--primes` | No | Use prime numbers as subject IDs instead of sequential |
-| `--prime-min` | No | Minimum value for prime IDs (default: 1000) |
-| `--prime-max` | No | Maximum value for prime IDs (default: 9999) |
-| `-s`, `--seed` | No | Random seed for reproducible output |
+| Option           | Required | Description                                                                       |
+| ---------------- | -------- | --------------------------------------------------------------------------------- |
+| `-i`, `--input`  | Yes      | Path to directory containing video files (`.mp4`)                                 |
+| `-o`, `--output` | Yes      | Path to output directory for config files                                         |
+| `-n`, `--number` | No       | Number of subjects (default: 30)                                                  |
+| `-m`, `--method` | No       | Rating method: `ACR`, `CONTINUOUS`, `DSIS`, or `TIME_CONTINUOUS` (default: `ACR`) |
+| `-p`, `--primes` | No       | Use prime numbers as subject IDs instead of sequential                            |
+| `--prime-min`    | No       | Minimum value for prime IDs (default: 1000)                                       |
+| `--prime-max`    | No       | Maximum value for prime IDs (default: 9999)                                       |
+| `-s`, `--seed`   | No       | Random seed for reproducible output                                               |
 
 This generates config files named `subject_<id>.json` for each subject. The randomization ensures that video order differs between subjects, except for the training section, which is the same for all.
 
